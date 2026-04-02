@@ -154,6 +154,12 @@ def handle_subcommand(subcmd, rest_args):
         warn("Remote control is not available in Copilot CLI")
         return None
     if subcmd == "auto-mode":
+        if rest_args and rest_args[0] == "defaults":
+            warn("auto-mode defaults: no Copilot CLI equivalent (prints built-in classifier rules)")
+            return [COPILOT_BIN]
+        if rest_args and rest_args[0] == "config":
+            warn("auto-mode config: no Copilot CLI equivalent (shows effective config with settings applied)")
+            return [COPILOT_BIN]
         warn("Use --autopilot flag or Shift+Tab in interactive mode")
         return [COPILOT_BIN]
     return None
