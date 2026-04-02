@@ -60,7 +60,7 @@ Copy-Item cpc, cpc.ps1, cpc.cmd -Destination "$env:USERPROFILE\bin\"
 ### Option C: Install from a GitHub repo
 
 ```bash
-copilot plugin install OWNER/REPO
+copilot plugin install abhi-singhs/copilot-cli-claude-code-compat
 ```
 
 ## Usage Examples
