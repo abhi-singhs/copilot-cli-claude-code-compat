@@ -1,0 +1,560 @@
+#!/usr/bin/env python3
+"""cpc - Claude Code compatibility wrapper for GitHub Copilot CLI.
+
+Translates Claude Code CLI syntax to Copilot CLI commands. Keeps 'claude'
+pointing at real Claude Code while letting you use familiar syntax with Copilot.
+"""
+
+import os
+import re
+import sys
+
+COPILOT_BIN = os.environ.get("CPC_BINARY", "copilot")
+
+# ---------------------------------------------------------------------------
+# Tool permission syntax conversion
+# ---------------------------------------------------------------------------
+
+TOOL_PERMISSION_MAP = {
+    "Bash": "shell",
+    "Read": "read",
+    "Edit": "write",
+    "Write": "write",
+    "WebFetch": "url",
+    "ListFiles": "glob",
+    "Grep": "grep",
+}
+
+TOOL_AVAILABLE_MAP = {
+    "Bash": "bash",
+    "Read": "view",
+    "Edit": "edit",
+    "Write": "create",
+    "WebFetch": "web_fetch",
+    "ListFiles": "glob",
+    "Grep": "grep",
+}
+
+_TOOL_RE = re.compile(r"^([A-Za-z]+)(\(.*\))?$")
+_MCP_RE = re.compile(r"^mcp__([^_]+(?:__[^_]+)?)__(\w+)$")
+
+
+def convert_tool_pattern(pattern):
+    """Convert a Claude Code tool pattern to Copilot CLI format.
+
+    Examples:
+        Bash(git log *)      -> shell(git log)
+        Read                 -> read
+        mcp__github__create  -> github(create)
+    """
+    mcp_m = _MCP_RE.match(pattern)
+    if mcp_m:
+        server = mcp_m.group(1).replace("__", "-")
+        tool = mcp_m.group(2)
+        return f"{server}({tool})"
+
+    m = _TOOL_RE.match(pattern)
+    if m:
+        name = m.group(1)
+        args = m.group(2)  # includes parens or None
+        mapped = TOOL_PERMISSION_MAP.get(name)
+        if mapped:
+            return f"{mapped}{args}" if args else mapped
+    return pattern  # pass through unknown
+
+
+def convert_tool_for_available(name):
+    """Convert a Claude Code tool name for --available-tools."""
+    return TOOL_AVAILABLE_MAP.get(name.strip(), name.strip().lower())
+
+
+# ---------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------
+
+# Passthrough flags that consume the next argument as their value.
+# These must consume their value so it's not mistaken for a bare query.
+PASSTHROUGH_VALUE_FLAGS = {
+    "--model", "--add-dir", "--agent", "--output-format",
+    "--resume", "--session-id", "--log-level", "--log-dir",
+    "--mcp-config", "--additional-mcp-config",
+}
+
+
+def warn(msg):
+    print(f"cpc: warning: {msg}", file=sys.stderr)
+
+
+def is_flag(s):
+    return s.startswith("-")
+
+
+def consume_values(args, start):
+    """Consume non-flag values starting after args[start]. Return (values, next_index)."""
+    values = []
+    i = start + 1
+    while i < len(args) and not is_flag(args[i]):
+        values.append(args[i])
+        i += 1
+    return values, i
+
+
+# ---------------------------------------------------------------------------
+# Subcommand handlers
+# ---------------------------------------------------------------------------
+
+def handle_auth(rest_args):
+    """Translate 'auth login|logout|status' to copilot equivalents."""
+    if not rest_args:
+        warn("'auth' requires a subcommand: login, logout, or status")
+        return [COPILOT_BIN, "login"]
+
+    sub = rest_args[0]
+    if sub == "login":
+        extra_flags = rest_args[1:]
+        if extra_flags:
+            warn(f"Auth flags {extra_flags} are not supported by Copilot CLI (ignored)")
+        return [COPILOT_BIN, "login"]
+    elif sub == "logout":
+        return [COPILOT_BIN, "logout"]
+    elif sub == "status":
+        warn("Copilot CLI doesn't have 'auth status'; showing version info instead")
+        return [COPILOT_BIN, "version"]
+    else:
+        warn(f"Unknown auth subcommand '{sub}'")
+        return [COPILOT_BIN, "login"]
+
+
+SUBCOMMANDS = {
+    "update", "init", "plugin", "auth", "agents", "mcp",
+    "remote-control", "auto-mode",
+}
+
+
+def handle_subcommand(subcmd, rest_args):
+    """Route Claude Code subcommands to Copilot equivalents.
+
+    Returns the full argv list for exec, or None if not a subcommand.
+    """
+    if subcmd == "update":
+        return [COPILOT_BIN, "update"] + rest_args
+    if subcmd == "init":
+        return [COPILOT_BIN, "init"] + rest_args
+    if subcmd == "plugin":
+        return [COPILOT_BIN, "plugin"] + rest_args
+    if subcmd == "auth":
+        return handle_auth(rest_args)
+    if subcmd == "agents":
+        warn("Use /agent inside an interactive Copilot CLI session to browse agents")
+        return [COPILOT_BIN]
+    if subcmd == "mcp":
+        warn("Use /mcp inside Copilot CLI, or edit ~/.copilot/mcp-config.json")
+        return [COPILOT_BIN]
+    if subcmd == "remote-control":
+        warn("Remote control is not available in Copilot CLI")
+        return None
+    if subcmd == "auto-mode":
+        warn("Use --autopilot flag or Shift+Tab in interactive mode")
+        return [COPILOT_BIN]
+    return None
+
+
+# ---------------------------------------------------------------------------
+# Flag translation
+# ---------------------------------------------------------------------------
+
+WARN_FLAGS = {
+    "--system-prompt":              (1, "Use .github/copilot-instructions.md or .instructions.md files instead"),
+    "--system-prompt-file":         (1, "Use .github/copilot-instructions.md or .instructions.md files instead"),
+    "--append-system-prompt":       (1, "Use .github/copilot-instructions.md or .instructions.md files instead"),
+    "--append-system-prompt-file":  (1, "Use .github/copilot-instructions.md or .instructions.md files instead"),
+    "--bare":                       (0, "No direct equivalent. Try --no-custom-instructions"),
+    "--chrome":                     (0, "Copilot CLI has a built-in Playwright MCP server"),
+    "--worktree":                   (1, "No equivalent. Use 'git worktree' manually"),
+    "--name":                       (1, "Sessions are auto-named. Use /rename in interactive mode"),
+    "--max-budget-usd":             (1, "Not supported in Copilot CLI"),
+    "--from-pr":                    (1, "Not supported. Reference the PR URL in your prompt instead"),
+    "--fork-session":               (0, "Not supported in Copilot CLI"),
+    "--fallback-model":             (1, "Not supported in Copilot CLI"),
+    "--json-schema":                (1, "Not supported. Use --output-format=json for JSON output"),
+    "--no-session-persistence":     (0, "Not supported in Copilot CLI"),
+    "--effort":                     (1, "Set effortLevel in ~/.copilot/config.json instead"),
+    "--betas":                      (1, "Not applicable to Copilot CLI"),
+    "--tmux":                       (0, "Not supported in Copilot CLI"),
+}
+
+
+def translate_flags(args):
+    """Walk args and translate Claude Code flags to Copilot CLI flags.
+
+    Returns (copilot_args, has_prompt_flag, bare_positionals).
+    """
+    copilot_args = []
+    bare_positionals = []
+    has_prompt_flag = False
+    i = 0
+
+    while i < len(args):
+        arg = args[i]
+
+        # --- cpc-specific flags (already handled before this, but safety) ---
+        if arg == "--dry-run":
+            i += 1
+            continue
+
+        # --- Simple renames ---
+        if arg == "--dangerously-skip-permissions":
+            copilot_args.append("--allow-all")
+            i += 1
+        elif arg == "--allow-dangerously-skip-permissions":
+            copilot_args.append("--yolo")
+            i += 1
+        elif arg == "--enable-auto-mode":
+            copilot_args.append("--experimental")
+            i += 1
+        elif arg == "--verbose":
+            copilot_args.append("--log-level=info")
+            i += 1
+
+        elif arg == "--remote":
+            if i + 1 < len(args) and not is_flag(args[i + 1]):
+                warn("--remote translated to /delegate. Starting interactive session with delegate prompt.")
+                copilot_args.extend(["-i", f"/delegate {args[i + 1]}"])
+                has_prompt_flag = True
+                i += 2
+            else:
+                warn("--remote requires a task description. Use /delegate in interactive mode.")
+                i += 1
+
+        elif arg == "--teleport":
+            warn("--teleport translated to --resume. Use the session picker to select a cloud session.")
+            copilot_args.append("--resume")
+            i += 1
+
+        # --- Flags with value translation ---
+        elif arg == "--allowedTools":
+            values, i = consume_values(args, i)
+            for v in values:
+                copilot_args.append(f"--allow-tool={convert_tool_pattern(v)}")
+            if not values:
+                warn("--allowedTools requires at least one tool pattern")
+                i += 1
+
+        elif arg == "--disallowedTools":
+            values, i = consume_values(args, i)
+            for v in values:
+                copilot_args.append(f"--deny-tool={convert_tool_pattern(v)}")
+            if not values:
+                warn("--disallowedTools requires at least one tool pattern")
+                i += 1
+
+        elif arg == "--max-turns":
+            if i + 1 < len(args):
+                copilot_args.append(f"--max-autopilot-continues={args[i + 1]}")
+                i += 2
+            else:
+                warn("--max-turns requires a number")
+                i += 1
+
+        elif arg == "--mcp-config":
+            if i + 1 < len(args):
+                path = args[i + 1]
+                if not path.startswith("@"):
+                    path = f"@{path}"
+                copilot_args.append(f"--additional-mcp-config={path}")
+                i += 2
+            else:
+                warn("--mcp-config requires a path")
+                i += 1
+
+        elif arg == "--tools":
+            if i + 1 < len(args):
+                tools = args[i + 1].split(",")
+                converted = ",".join(convert_tool_for_available(t) for t in tools)
+                copilot_args.append(f"--available-tools={converted}")
+                i += 2
+            else:
+                warn("--tools requires a comma-separated list")
+                i += 1
+
+        elif arg == "--permission-mode":
+            if i + 1 < len(args):
+                mode = args[i + 1]
+                if mode in ("bypassPermissions", "dontAsk"):
+                    copilot_args.append("--allow-all")
+                elif mode == "auto":
+                    copilot_args.append("--autopilot")
+                elif mode == "plan":
+                    warn("Plan mode: use Shift+Tab in interactive Copilot CLI")
+                elif mode == "acceptEdits":
+                    warn("acceptEdits mode is not directly supported in Copilot CLI")
+                # 'default' → no flag needed
+                i += 2
+            else:
+                warn("--permission-mode requires a mode value")
+                i += 1
+
+        elif arg == "--debug":
+            copilot_args.append("--log-level=debug")
+            # Consume optional category filter (Copilot doesn't use it)
+            if i + 1 < len(args) and not is_flag(args[i + 1]):
+                warn(f"Debug category filter '{args[i + 1]}' is not supported in Copilot CLI (ignored)")
+                i += 2
+            else:
+                i += 1
+
+        elif arg == "--debug-file":
+            if i + 1 < len(args):
+                path = args[i + 1]
+                copilot_args.append(f"--log-dir={os.path.dirname(path) or '.'}")
+                copilot_args.append("--log-level=debug")
+                i += 2
+            else:
+                warn("--debug-file requires a path")
+                i += 1
+
+        elif arg == "-r" and not any(a in ("--resume",) for a in copilot_args):
+            # -r <session-id> [query]
+            if i + 1 < len(args):
+                copilot_args.append(f"--resume={args[i + 1]}")
+                i += 2
+                # Check if next arg is a bare query
+                if i < len(args) and not is_flag(args[i]):
+                    copilot_args.append("-i")
+                    copilot_args.append(args[i])
+                    has_prompt_flag = True
+                    i += 1
+            else:
+                copilot_args.append("--resume")
+                i += 1
+
+        elif arg == "-n":
+            if i + 1 < len(args) and not is_flag(args[i + 1]):
+                warn(f"Session naming ('{args[i + 1]}') is not supported. Use /rename in interactive mode")
+                i += 2
+            else:
+                warn("Session naming is not supported. Use /rename in interactive mode")
+                i += 1
+
+        elif arg == "-w":
+            if i + 1 < len(args) and not is_flag(args[i + 1]):
+                warn("Worktree mode is not available in Copilot CLI. Use 'git worktree' manually")
+                i += 2
+            else:
+                warn("Worktree mode is not available in Copilot CLI. Use 'git worktree' manually")
+                i += 1
+
+        # --- Warn-only flags ---
+        elif arg in WARN_FLAGS:
+            consumes, msg = WARN_FLAGS[arg]
+            warn(msg)
+            i += 1 + consumes
+
+        # --- Handle = style flags that need translation ---
+        elif arg.startswith("--max-turns="):
+            val = arg.split("=", 1)[1]
+            copilot_args.append(f"--max-autopilot-continues={val}")
+            i += 1
+        elif arg.startswith("--mcp-config="):
+            val = arg.split("=", 1)[1]
+            if not val.startswith("@"):
+                val = f"@{val}"
+            copilot_args.append(f"--additional-mcp-config={val}")
+            i += 1
+        elif arg.startswith("--tools="):
+            val = arg.split("=", 1)[1]
+            tools = val.split(",")
+            converted = ",".join(convert_tool_for_available(t) for t in tools)
+            copilot_args.append(f"--available-tools={converted}")
+            i += 1
+        elif arg.startswith("--permission-mode="):
+            mode = arg.split("=", 1)[1]
+            if mode in ("bypassPermissions", "dontAsk"):
+                copilot_args.append("--allow-all")
+            elif mode == "auto":
+                copilot_args.append("--autopilot")
+            elif mode == "plan":
+                warn("Plan mode: use Shift+Tab in interactive Copilot CLI")
+            elif mode == "acceptEdits":
+                warn("acceptEdits mode is not directly supported in Copilot CLI")
+            i += 1
+        elif arg.startswith("--debug-file="):
+            path = arg.split("=", 1)[1]
+            copilot_args.append(f"--log-dir={os.path.dirname(path) or '.'}")
+            copilot_args.append("--log-level=debug")
+            i += 1
+        elif arg.startswith("--effort="):
+            warn("Set effortLevel in ~/.copilot/config.json instead")
+            i += 1
+
+        # --- Track prompt flags ---
+        elif arg in ("-p", "--print"):
+            copilot_args.append("-p")
+            has_prompt_flag = True
+            i += 1
+
+        # --- Passthrough flags that consume a value ---
+        elif arg in PASSTHROUGH_VALUE_FLAGS:
+            copilot_args.append(arg)
+            if i + 1 < len(args) and not is_flag(args[i + 1]):
+                copilot_args.append(args[i + 1])
+                i += 2
+            else:
+                i += 1
+
+        # --- Passthrough everything else ---
+        elif is_flag(arg):
+            copilot_args.append(arg)
+            i += 1
+
+        # --- Bare positional ---
+        else:
+            bare_positionals.append(arg)
+            i += 1
+
+    return copilot_args, has_prompt_flag, bare_positionals
+
+
+# ---------------------------------------------------------------------------
+# Help
+# ---------------------------------------------------------------------------
+
+HELP_TEXT = """\
+cpc - Claude Code compatibility wrapper for GitHub Copilot CLI
+
+Usage: cpc [claude-code-options] [query]
+
+Translates Claude Code CLI syntax to Copilot CLI. Use 'claude' for real
+Claude Code.
+
+Subcommands:
+  cpc                                  Start interactive session
+  cpc "query"                          Start with an initial prompt
+  cpc -p "query"                       Non-interactive (print) mode
+  cpc auth login                       Log in (→ copilot login)
+  cpc auth logout                      Log out (→ copilot logout)
+  cpc update                           Update CLI (→ copilot update)
+  cpc init                             Init project (→ copilot init)
+  cpc plugin ...                       Plugin management (→ copilot plugin ...)
+
+Translated flags:
+  --dangerously-skip-permissions       → --allow-all
+  --allowedTools "Bash(cmd)" ...       → --allow-tool=shell(cmd) ...
+  --disallowedTools "Tool" ...         → --deny-tool=tool ...
+  --max-turns N                        → --max-autopilot-continues=N
+  --mcp-config <path>                  → --additional-mcp-config=@<path>
+  --tools "Bash,Edit,Read"             → --available-tools=bash,edit,view
+  --permission-mode bypass|auto        → --allow-all / --autopilot
+  --debug                              → --log-level=debug
+  --verbose                            → --log-level=info
+  --remote "task"                       → /delegate task (interactive)
+  --teleport                           → --resume (cloud session picker)
+
+Passthrough flags (same in both CLIs):
+  --model, --add-dir, --agent, --output-format, -p, -c, -v, --resume, etc.
+
+cpc-specific flags:
+  --help                               Show this help
+  --dry-run                            Print translated command without running
+
+Examples:
+  cpc "explain this project"
+    → copilot -i "explain this project"
+
+  cpc -p "fix the bug" --max-turns 3
+    → copilot -p "fix the bug" --max-autopilot-continues=3
+
+  cpc auth login
+    → copilot login
+
+  cpc --dangerously-skip-permissions -p "refactor main.py"
+    → copilot --allow-all -p "refactor main.py"
+
+  cpc --allowedTools "Bash(git log *)" "Bash(npm test)" -p "check history"
+    → copilot --allow-tool=shell(git log *) --allow-tool=shell(npm test) -p "check history"
+
+For Copilot CLI native help:  copilot --help
+For slash command mapping:    type /claude-help in a Copilot CLI session
+"""
+
+
+# ---------------------------------------------------------------------------
+# Main
+# ---------------------------------------------------------------------------
+
+def main():
+    args = sys.argv[1:]
+
+    # --- cpc-specific flags ---
+    if "--help" in args and not any(a in ("-p", "--print") for a in args):
+        print(HELP_TEXT)
+        return
+
+    dry_run = "--dry-run" in args
+    if dry_run:
+        args = [a for a in args if a != "--dry-run"]
+
+    # --- No arguments → interactive ---
+    if not args:
+        cmd = [COPILOT_BIN]
+        if dry_run:
+            print(" ".join(cmd))
+            return
+        run(cmd)
+        return
+
+    # --- Check for subcommand as first positional arg ---
+    first = args[0]
+    if not is_flag(first) and first in SUBCOMMANDS:
+        result = handle_subcommand(first, args[1:])
+        if result is None:
+            return
+        if dry_run:
+            print(" ".join(result))
+            return
+        run(result)
+        return
+
+    # --- Translate flags ---
+    copilot_args, has_prompt_flag, bare_positionals = translate_flags(args)
+
+    # --- Handle bare positionals (query strings) ---
+    if bare_positionals:
+        query = " ".join(bare_positionals)
+        if has_prompt_flag:
+            # -p was already added; append query after it
+            copilot_args.append(query)
+        else:
+            # No -p flag → use -i for interactive with initial prompt
+            copilot_args.append("-i")
+            copilot_args.append(query)
+
+    cmd = [COPILOT_BIN] + copilot_args
+
+    if dry_run:
+        print(" ".join(cmd))
+        return
+
+    run(cmd)
+
+
+def run(cmd):
+    """Execute the copilot command, replacing the process on Unix."""
+    try:
+        if sys.platform == "win32":
+            import subprocess
+            result = subprocess.run(cmd)
+            sys.exit(result.returncode)
+        else:
+            os.execvp(cmd[0], cmd)
+    except FileNotFoundError:
+        print(
+            f"cpc: error: '{cmd[0]}' not found on PATH.\n"
+            "Install GitHub Copilot CLI: https://docs.github.com/en/copilot/how-tos/set-up/install-copilot-cli",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()

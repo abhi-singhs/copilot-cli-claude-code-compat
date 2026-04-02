@@ -1,0 +1,12 @@
+{
+  "name": "claude-compat",
+  "description": "Claude Code compatibility layer for Copilot CLI. Provides /claude-help reference skill and a sessionStart reminder for users transitioning from Claude Code.",
+  "version": "1.0.0",
+  "author": {
+    "name": "abhi-singhs"
+  },
+  "license": "MIT",
+  "keywords": ["claude", "compatibility", "migration", "reference"],
+  "skills": "skills/",
+  "hooks": "hooks.json"
+}

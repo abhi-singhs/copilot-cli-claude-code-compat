@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "hooks": {
+    "sessionStart": [
+      {
+        "type": "prompt",
+        "prompt": "Note: The claude-compat plugin is active. Type /claude-help for Claude Code → Copilot CLI command mapping. If you used Claude Code syntax via the `cpc` wrapper, your flags have been translated automatically."
+      }
+    ]
+  }
+}
