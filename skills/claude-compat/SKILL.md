@@ -26,6 +26,8 @@ Use this reference when you know a Claude Code command and want the Copilot CLI 
 | `claude plugin ...` | `copilot plugin ...` | ✅ Same |
 | `claude agents` | `/agent` (interactive) | ⚠️ Interactive only |
 | `claude mcp` | `/mcp` (interactive) | ⚠️ Interactive only |
+| `claude auto-mode defaults` | — | ❌ Not available |
+| `claude auto-mode config` | — | ❌ Not available |
 | `claude remote-control` | — | ❌ Not available |
 
 ## CLI Flag Mapping
