@@ -22,17 +22,6 @@ safe-outputs:
     labels: [documentation, automation]
     max: 1
     close-older-issues: true
-  assign-to-agent:
-    name: "copilot"
-    max: 1
-    target: "*"
-    custom-instructions: |
-      Read the issue description carefully for the detected changes in Claude Code's CLI documentation.
-      Update the relevant files in this repository to reflect the changes:
-      - `cpc` — main Python script with command/flag/tool mappings
-      - `skills/claude-compat/SKILL.md` — reference tables shown by /claude-help
-      - `README.md` — user-facing documentation
-      Add any new commands, flags, or tools and update any changed ones.
 ---
 
 # Claude Code Documentation Monitor
@@ -110,8 +99,6 @@ Diff the current snapshot against the cached one. Categorize every difference:
        - `skills/claude-compat/SKILL.md` — add/update reference table rows
        - `README.md` — update documentation examples if affected
      - Links to the source documentation pages (`https://docs.anthropic.com/en/docs/claude-code/cli-usage` and `https://code.claude.com/docs/en/commands`)
-
-2. **Assign the Copilot coding agent** to the newly created issue so it can open a PR with the required updates.
 
 ## Critical Rules
 
