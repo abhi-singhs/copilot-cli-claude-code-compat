@@ -146,7 +146,6 @@ Quick reference for the most common ones:
 | `/cost` | `/usage` | ⚠️ Renamed |
 | `/export` | `/share` | ⚠️ Renamed |
 | `/memory` | — | ❌ Not available |
-| `/vim` | — | ❌ Not available |
 
 ## Config Sharing
 

@@ -78,6 +78,7 @@ Use this reference when you know a Claude Code command and want the Copilot CLI 
 | `--json-schema` | Use `--output-format=json` |
 | `--effort` | Set `effortLevel` in `~/.copilot/config.json` |
 | `--tmux` | Not available |
+| `--remote-control-session-name-prefix` | Not available (Remote Control is not supported) |
 
 ## Slash Command Mapping
 
@@ -98,8 +99,8 @@ Use this reference when you know a Claude Code command and want the Copilot CLI 
 
 ### Claude Code Only (no Copilot equivalent)
 `/btw`, `/chrome`, `/color`, `/config`, `/copy`, `/desktop`, `/doctor`,
-`/effort`, `/fast`, `/hooks`, `/memory`, `/pr-comments`, `/release-notes`,
-`/sandbox`, `/security-review`, `/stats`, `/vim`, `/voice`
+`/effort`, `/fast`, `/hooks`, `/memory`, `/release-notes`,
+`/sandbox`, `/security-review`, `/setup-bedrock`, `/stats`, `/voice`
 
 ### Copilot CLI Only (not in Claude Code)
 `/fleet`, `/list-dirs`, `/cwd` (`/cd`), `/lsp`, `/user`,
