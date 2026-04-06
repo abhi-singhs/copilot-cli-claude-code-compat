@@ -190,6 +190,7 @@ WARN_FLAGS = {
     "--effort":                     (1, "Set effortLevel in ~/.copilot/config.json instead"),
     "--betas":                      (1, "Not applicable to Copilot CLI"),
     "--tmux":                       (0, "Not supported in Copilot CLI"),
+    "--remote-control-session-name-prefix": (1, "Remote Control is not available in Copilot CLI"),
 }
 
 
