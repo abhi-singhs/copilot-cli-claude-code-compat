@@ -98,9 +98,9 @@ Use this reference when you know a Claude Code command and want the Copilot CLI 
 | `/rewind` / `/checkpoint` | `/session checkpoints` |
 
 ### Claude Code Only (no Copilot equivalent)
-`/btw`, `/chrome`, `/color`, `/config`, `/copy`, `/desktop`, `/doctor`,
+`/autofix-pr`, `/btw`, `/chrome`, `/color`, `/config`, `/copy`, `/desktop`, `/doctor`,
 `/effort`, `/fast`, `/hooks`, `/memory`, `/release-notes`,
-`/sandbox`, `/security-review`, `/setup-bedrock`, `/stats`, `/voice`
+`/sandbox`, `/security-review`, `/setup-bedrock`, `/stats`, `/voice`, `/web-setup`
 
 ### Copilot CLI Only (not in Claude Code)
 `/fleet`, `/list-dirs`, `/cwd` (`/cd`), `/lsp`, `/user`,

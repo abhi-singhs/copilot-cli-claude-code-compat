@@ -127,7 +127,7 @@ def handle_auth(rest_args):
 
 SUBCOMMANDS = {
     "update", "init", "plugin", "auth", "agents", "mcp",
-    "remote-control", "auto-mode",
+    "remote-control", "auto-mode", "autofix-pr", "web-setup",
 }
 
 
@@ -165,6 +165,12 @@ def handle_subcommand(subcmd, rest_args):
             return None
         warn("Use --autopilot flag or Shift+Tab in interactive mode")
         return [COPILOT_BIN]
+    if subcmd == "autofix-pr":
+        warn("Not available in Copilot CLI. See https://docs.anthropic.com/en/docs/claude-code/claude-code-on-the-web")
+        return None
+    if subcmd == "web-setup":
+        warn("Not available in Copilot CLI. See https://docs.anthropic.com/en/docs/claude-code/web-quickstart#connect-from-your-terminal")
+        return None
     return None
 
 

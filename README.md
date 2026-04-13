@@ -146,6 +146,8 @@ Quick reference for the most common ones:
 | `/cost` | `/usage` | ⚠️ Renamed |
 | `/export` | `/share` | ⚠️ Renamed |
 | `/memory` | — | ❌ Not available |
+| `/autofix-pr` | — | ❌ Not available |
+| `/web-setup` | — | ❌ Not available |
 
 ## Config Sharing
 
