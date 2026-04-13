@@ -88,6 +88,9 @@ cpc auth logout                        # → copilot logout
 # Update
 cpc update                             # → copilot update
 
+# MCP server management
+cpc mcp                                # → copilot mcp
+
 # Skip permissions
 cpc --dangerously-skip-permissions     # → copilot --allow-all
 
@@ -105,7 +108,11 @@ cpc --mcp-config ./my-servers.json     # → copilot --additional-mcp-config=@./
 # Tool availability
 cpc --tools "Bash,Edit,Read" -p "q"    # → copilot --available-tools=bash,edit,view -p "q"
 
-# Delegate to cloud (like Claude Code --remote)
+# Enable remote access (like Claude Code --remote)
+cpc --remote
+# → copilot --remote
+
+# Delegate to cloud (like Claude Code --remote "task")
 cpc --remote "Fix the login bug"
 # → copilot -i "/delegate Fix the login bug"
 
@@ -145,6 +152,7 @@ Quick reference for the most common ones:
 | `/agents` | `/agent` | ⚠️ Renamed |
 | `/cost` | `/usage` | ⚠️ Renamed |
 | `/export` | `/share` | ⚠️ Renamed |
+| `/remote-control` | `/remote` | ⚠️ Renamed |
 | `/memory` | — | ❌ Not available |
 | `/autofix-pr` | — | ❌ Not available |
 | `/web-setup` | — | ❌ Not available |
@@ -171,6 +179,8 @@ The setup script symlinks these directories so both tools share the same files:
 - **Worktree mode** (`-w`) isn't available — use `git worktree` directly
 - **Windows symlinks** may require running PowerShell as Administrator or enabling Developer Mode
 - **Budget limits** (`--max-budget-usd`) aren't available in Copilot CLI
+- **`/keep-alive`** is a Copilot CLI-only slash command (prevent machine sleep) — no Claude Code equivalent
+- **`COPILOT_SUBAGENT_MAX_DEPTH`** and **`COPILOT_SUBAGENT_MAX_CONCURRENT`** are Copilot CLI-only environment variables for tuning subagent behavior
 
 ## Architecture
 
