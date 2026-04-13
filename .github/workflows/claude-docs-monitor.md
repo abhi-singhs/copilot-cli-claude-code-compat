@@ -58,7 +58,9 @@ Check `cache-memory` for an entity or file named `claude-docs-snapshot`. This co
 
 **If no previous snapshot exists** (first run):
 - Store the current snapshot in cache-memory as `claude-docs-snapshot`.
-- Do **NOT** create any issues. Log that this was a baseline run and exit.
+- Do **NOT** create any issues.
+- Call the `noop` tool with the message: "Baseline run — stored initial documentation snapshot. No comparison possible yet."
+- Stop here.
 
 ### Step 3: Compare Snapshots
 
@@ -84,7 +86,7 @@ Diff the current snapshot against the cached one. Categorize every difference:
 
 **If NO changes are detected:**
 - Do **NOT** create any issues or PRs.
-- Emit a `noop` message: "No changes detected in Claude Code documentation."
+- Call the `noop` tool with the message: "No changes detected in Claude Code documentation."
 - Stop here.
 
 **If changes ARE detected:**
@@ -102,7 +104,9 @@ Diff the current snapshot against the cached one. Categorize every difference:
 
 ## Critical Rules
 
+- **ALWAYS** call a safe-output tool before finishing. Every run MUST end with either a `create_issue` call (if changes are found) or a `noop` call (if no changes, first run, or an error occurred). Never exit without calling one of these tools.
 - **NEVER** create an issue when there are no documentation changes.
 - **ALWAYS** store the current snapshot in cache-memory, even on the first run.
+- If fetching documentation fails or returns empty content, call the `noop` tool with a message describing the error. Do NOT create an issue for fetch failures.
 - Be thorough — even small flag renames or new aliases matter for this compatibility layer.
 - Keep the snapshot format consistent between runs so diffs are reliable.
