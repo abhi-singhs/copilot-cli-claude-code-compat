@@ -148,10 +148,9 @@ def handle_subcommand(subcmd, rest_args):
         warn("Use /agent inside an interactive Copilot CLI session to browse agents")
         return [COPILOT_BIN]
     if subcmd == "mcp":
-        warn("Use /mcp inside Copilot CLI, or edit ~/.copilot/mcp-config.json")
-        return [COPILOT_BIN]
+        return [COPILOT_BIN, "mcp"] + rest_args
     if subcmd == "remote-control":
-        warn("Remote control is not available in Copilot CLI")
+        warn("Remote control is not available as a subcommand. Use /remote inside a Copilot CLI session, or --remote flag")
         return None
     if subcmd == "auto-mode":
         sub = rest_args[0] if rest_args else None
@@ -234,13 +233,16 @@ def translate_flags(args):
 
         elif arg == "--remote":
             if i + 1 < len(args) and not is_flag(args[i + 1]):
-                warn("--remote translated to /delegate. Starting interactive session with delegate prompt.")
+                warn("--remote with a task description translated to /delegate. Starting interactive session.")
                 copilot_args.extend(["-i", f"/delegate {args[i + 1]}"])
                 has_prompt_flag = True
                 i += 2
             else:
-                warn("--remote requires a task description. Use /delegate in interactive mode.")
+                copilot_args.append("--remote")
                 i += 1
+        elif arg == "--no-remote":
+            copilot_args.append("--no-remote")
+            i += 1
 
         elif arg == "--teleport":
             warn("--teleport translated to --resume. Use the session picker to select a cloud session.")
@@ -452,6 +454,7 @@ Subcommands:
   cpc update                           Update CLI (→ copilot update)
   cpc init                             Init project (→ copilot init)
   cpc plugin ...                       Plugin management (→ copilot plugin ...)
+  cpc mcp ...                          MCP server management (→ copilot mcp ...)
 
 Translated flags:
   --dangerously-skip-permissions       → --allow-all
@@ -463,7 +466,9 @@ Translated flags:
   --permission-mode bypass|auto        → --allow-all / --autopilot
   --debug                              → --log-level=debug
   --verbose                            → --log-level=info
-  --remote "task"                       → /delegate task (interactive)
+  --remote                             → --remote (enable remote access)
+  --remote "task"                      → /delegate task (interactive)
+  --no-remote                          → --no-remote (disable remote access)
   --teleport                           → --resume (cloud session picker)
 
 Passthrough flags (same in both CLIs):

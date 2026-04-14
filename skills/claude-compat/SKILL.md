@@ -25,10 +25,10 @@ Use this reference when you know a Claude Code command and want the Copilot CLI 
 | `claude auth status` | `copilot version` | ⚠️ Partial |
 | `claude plugin ...` | `copilot plugin ...` | ✅ Same |
 | `claude agents` | `/agent` (interactive) | ⚠️ Interactive only |
-| `claude mcp` | `/mcp` (interactive) | ⚠️ Interactive only |
+| `claude mcp` | `copilot mcp` | ✅ Same |
 | `claude auto-mode defaults` | — | ❌ Not available |
 | `claude auto-mode config` | — | ❌ Not available |
-| `claude remote-control` | — | ❌ Not available |
+| `claude remote-control` | `--remote` or `/remote` (interactive) | ⚠️ Mapped |
 
 ## CLI Flag Mapping
 
@@ -59,7 +59,9 @@ Use this reference when you know a Claude Code command and want the Copilot CLI 
 | `--debug` | `--log-level=debug` | Category filtering not supported |
 | `--verbose` | `--log-level=info` | |
 | `--debug-file <path>` | `--log-dir=<dir> --log-level=debug` | |
-| `--remote "task"` | `/delegate task` (interactive) | Cloud delegation |
+| `--remote` | `--remote` | Enable remote access (no task) |
+| `--remote "task"` | `/delegate task` (interactive) | Delegate specific task to cloud |
+| `--no-remote` | `--no-remote` | Disable remote access |
 | `--teleport` | `--resume` | Resume cloud session locally |
 
 ### Unsupported (no Copilot equivalent)
@@ -96,6 +98,7 @@ Use this reference when you know a Claude Code command and want the Copilot CLI 
 | `/export` | `/share` |
 | `/permissions` | `/allow-all` and `/reset-allowed-tools` |
 | `/rewind` / `/checkpoint` | `/session checkpoints` |
+| `/remote-control` (`/rc`) | `/remote` |
 
 ### Claude Code Only (no Copilot equivalent)
 `/autofix-pr`, `/btw`, `/chrome`, `/color`, `/config`, `/copy`, `/desktop`, `/doctor`,
@@ -104,9 +107,17 @@ Use this reference when you know a Claude Code command and want the Copilot CLI 
 
 ### Copilot CLI Only (not in Claude Code)
 `/fleet`, `/list-dirs`, `/cwd` (`/cd`), `/lsp`, `/user`,
-`/session`, `/experimental`
+`/session`, `/experimental`, `/remote`, `/keep-alive`
 
-Note: `/delegate` is the Copilot equivalent of Claude Code's `--remote` flag.
+Note: `/delegate` is the Copilot equivalent of Claude Code's `--remote "task"` flag.
+
+## Environment Variables
+
+### Copilot CLI Only
+| Variable | Default | Range | Description |
+|---|---|---|---|
+| `COPILOT_SUBAGENT_MAX_DEPTH` | `6` | `1`–`256` | Maximum subagent nesting depth |
+| `COPILOT_SUBAGENT_MAX_CONCURRENT` | `32` | `1`–`256` | Maximum concurrent subagents across the session tree |
 
 ## Config Directory Mapping
 
