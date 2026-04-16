@@ -109,8 +109,8 @@ Use this reference when you know a Claude Code command and want the Copilot CLI 
 
 ### Claude Code Only (no Copilot equivalent)
 `/autofix-pr`, `/btw`, `/chrome`, `/color`, `/config`, `/copy`, `/desktop`, `/doctor`,
-`/effort`, `/fast`, `/hooks`, `/memory`, `/release-notes`,
-`/sandbox`, `/security-review`, `/setup-bedrock`, `/stats`, `/voice`, `/web-setup`
+`/effort`, `/fast`, `/hooks`, `/loop` (`/proactive`), `/memory`, `/release-notes`,
+`/sandbox`, `/security-review`, `/setup-bedrock`, `/stats`, `/team-onboarding`, `/voice`, `/web-setup`
 
 ### Copilot CLI Only (not in Claude Code)
 `/fleet`, `/list-dirs`, `/cwd` (`/cd`), `/lsp`, `/research`, `/user`,

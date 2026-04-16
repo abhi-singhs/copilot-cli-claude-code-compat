@@ -160,6 +160,8 @@ Quick reference for the most common ones:
 | `/memory` | — | ❌ Not available |
 | `/autofix-pr` | — | ❌ Not available |
 | `/web-setup` | — | ❌ Not available |
+| `/team-onboarding` | — | ❌ Not available |
+| `/loop` (`/proactive`) | — | ❌ Not available |
 | — | `/research TOPIC` | 🆕 Copilot CLI only |
 | — | `/update` | 🆕 Copilot CLI only |
 | — | `/version` | 🆕 Copilot CLI only |
@@ -186,6 +188,8 @@ The setup script symlinks these directories so both tools share the same files:
 - **Worktree mode** (`-w`) isn't available — use `git worktree` directly
 - **Windows symlinks** may require running PowerShell as Administrator or enabling Developer Mode
 - **Budget limits** (`--max-budget-usd`) aren't available in Copilot CLI
+- **`/team-onboarding`** is a Claude Code–only command (generates team onboarding guides from session history) — no Copilot CLI equivalent
+- **`/loop`** (`/proactive`) is a Claude Code–only command (runs a prompt repeatedly while the session stays open) — no Copilot CLI equivalent
 - **`/keep-alive`** is a Copilot CLI-only slash command (prevent machine sleep) — no Claude Code equivalent
 - **`/research`**, **`/update`**, **`/version`** are Copilot CLI-only slash commands — no Claude Code equivalents
 - **`--mode=MODE`** and **`--plan`** are Copilot CLI-only flags — `cpc` maps `--permission-mode plan` → `--plan`
