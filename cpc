@@ -128,6 +128,7 @@ def handle_auth(rest_args):
 SUBCOMMANDS = {
     "update", "init", "plugin", "auth", "agents", "mcp",
     "remote-control", "auto-mode", "autofix-pr", "web-setup",
+    "team-onboarding", "loop", "proactive",
 }
 
 
@@ -169,6 +170,12 @@ def handle_subcommand(subcmd, rest_args):
         return None
     if subcmd == "web-setup":
         warn("Not available in Copilot CLI. See https://docs.anthropic.com/en/docs/claude-code/web-quickstart#connect-from-your-terminal")
+        return None
+    if subcmd == "team-onboarding":
+        warn("Not available in Copilot CLI. /team-onboarding relies on Claude Code session history")
+        return None
+    if subcmd in ("loop", "proactive"):
+        warn("Not available in Copilot CLI. /loop (/proactive) runs a prompt repeatedly while the session stays open")
         return None
     return None
 
