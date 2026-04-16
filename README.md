@@ -122,6 +122,9 @@ cpc --teleport
 
 # Select model
 cpc --model sonnet "fix the bug"       # → copilot --model sonnet -i "fix the bug"
+
+# Plan mode
+cpc --permission-mode plan             # → copilot --plan
 ```
 
 ## Debugging
@@ -149,6 +152,7 @@ Quick reference for the most common ones:
 | `/plan` | `/plan` | ✅ |
 | `/resume` | `/resume` | ✅ |
 | `/review` | `/review` | ✅ |
+| `/tasks` | `/tasks` | ✅ |
 | `/agents` | `/agent` | ⚠️ Renamed |
 | `/cost` | `/usage` | ⚠️ Renamed |
 | `/export` | `/share` | ⚠️ Renamed |
@@ -158,6 +162,9 @@ Quick reference for the most common ones:
 | `/web-setup` | — | ❌ Not available |
 | `/team-onboarding` | — | ❌ Not available |
 | `/loop` (`/proactive`) | — | ❌ Not available |
+| — | `/research TOPIC` | 🆕 Copilot CLI only |
+| — | `/update` | 🆕 Copilot CLI only |
+| — | `/version` | 🆕 Copilot CLI only |
 
 ## Config Sharing
 
@@ -184,6 +191,8 @@ The setup script symlinks these directories so both tools share the same files:
 - **`/team-onboarding`** is a Claude Code–only command (generates team onboarding guides from session history) — no Copilot CLI equivalent
 - **`/loop`** (`/proactive`) is a Claude Code–only command (runs a prompt repeatedly while the session stays open) — no Copilot CLI equivalent
 - **`/keep-alive`** is a Copilot CLI-only slash command (prevent machine sleep) — no Claude Code equivalent
+- **`/research`**, **`/update`**, **`/version`** are Copilot CLI-only slash commands — no Claude Code equivalents
+- **`--mode=MODE`** and **`--plan`** are Copilot CLI-only flags — `cpc` maps `--permission-mode plan` → `--plan`
 - **`COPILOT_SUBAGENT_MAX_DEPTH`** and **`COPILOT_SUBAGENT_MAX_CONCURRENT`** are Copilot CLI-only environment variables for tuning subagent behavior
 
 ## Architecture
