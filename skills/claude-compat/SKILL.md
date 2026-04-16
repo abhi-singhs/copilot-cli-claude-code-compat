@@ -55,6 +55,7 @@ Use this reference when you know a Claude Code command and want the Copilot CLI 
 | `--tools "Bash,Edit,Read"` | `--available-tools=bash,edit,view` | Name mapping differs |
 | `--permission-mode bypassPermissions` | `--allow-all` | |
 | `--permission-mode auto` | `--autopilot` | |
+| `--permission-mode plan` | `--plan` (or `--mode plan`) | |
 | `--enable-auto-mode` | `--experimental` | |
 | `--debug` | `--log-level=debug` | Category filtering not supported |
 | `--verbose` | `--log-level=info` | |
@@ -82,12 +83,18 @@ Use this reference when you know a Claude Code command and want the Copilot CLI 
 | `--tmux` | Not available |
 | `--remote-control-session-name-prefix` | Not available (Remote Control is not supported) |
 
+### Copilot CLI Only (no Claude Code equivalent)
+| Copilot CLI | Notes |
+|---|---|
+| `--mode=MODE` | Set initial agent mode: `interactive`, `plan`, `autopilot`. Cannot combine with `--autopilot` or `--plan` |
+| `--plan` | Start in plan mode. Shorthand for `--mode plan`. Cannot combine with `--mode` or `--autopilot` |
+
 ## Slash Command Mapping
 
 ### Direct Matches (same in both CLIs)
 `/add-dir`, `/clear`, `/compact`, `/context`, `/diff`, `/exit`, `/feedback`,
 `/help`, `/ide`, `/init`, `/login`, `/logout`, `/mcp`, `/model`, `/plan`,
-`/plugin`, `/rename`, `/resume`, `/review`, `/skills`, `/terminal-setup`,
+`/plugin`, `/rename`, `/resume`, `/review`, `/skills`, `/tasks`, `/terminal-setup`,
 `/theme`, `/usage`, `/quit`
 
 ### Renamed Commands
@@ -106,8 +113,8 @@ Use this reference when you know a Claude Code command and want the Copilot CLI 
 `/sandbox`, `/security-review`, `/setup-bedrock`, `/stats`, `/voice`, `/web-setup`
 
 ### Copilot CLI Only (not in Claude Code)
-`/fleet`, `/list-dirs`, `/cwd` (`/cd`), `/lsp`, `/user`,
-`/session`, `/experimental`, `/remote`, `/keep-alive`
+`/fleet`, `/list-dirs`, `/cwd` (`/cd`), `/lsp`, `/research`, `/user`,
+`/session`, `/experimental`, `/remote`, `/keep-alive`, `/update`, `/version`
 
 Note: `/delegate` is the Copilot equivalent of Claude Code's `--remote "task"` flag.
 
