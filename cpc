@@ -199,7 +199,7 @@ WARN_FLAGS = {
     "--fallback-model":             (1, "Not supported in Copilot CLI"),
     "--json-schema":                (1, "Not supported. Use --output-format=json for JSON output"),
     "--no-session-persistence":     (0, "Not supported in Copilot CLI"),
-    "--effort":                     (1, "Set effortLevel in ~/.copilot/config.json instead"),
+    "--effort":                     (1, "Set effortLevel in ~/.copilot/config.json instead (note: Claude Code's 'xhigh' level is not supported by Copilot CLI)"),
     "--betas":                      (1, "Not applicable to Copilot CLI"),
     "--tmux":                       (0, "Not supported in Copilot CLI"),
     "--remote-control-session-name-prefix": (1, "Remote Control is not available in Copilot CLI"),
@@ -232,7 +232,11 @@ def translate_flags(args):
             copilot_args.append("--yolo")
             i += 1
         elif arg == "--enable-auto-mode":
-            copilot_args.append("--experimental")
+            # Removed in Claude Code v2.1.111 — auto mode is now in
+            # the Shift+Tab cycle by default; use --permission-mode auto.
+            warn("--enable-auto-mode was removed in Claude Code v2.1.111. "
+                 "Use --permission-mode auto instead")
+            copilot_args.append("--autopilot")
             i += 1
         elif arg == "--verbose":
             copilot_args.append("--log-level=info")
@@ -409,7 +413,8 @@ def translate_flags(args):
             copilot_args.append("--log-level=debug")
             i += 1
         elif arg.startswith("--effort="):
-            warn("Set effortLevel in ~/.copilot/config.json instead")
+            warn("Set effortLevel in ~/.copilot/config.json instead "
+                 "(note: Claude Code's 'xhigh' level is not supported by Copilot CLI)")
             i += 1
 
         # --- Track prompt flags ---
