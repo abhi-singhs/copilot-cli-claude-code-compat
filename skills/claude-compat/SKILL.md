@@ -56,7 +56,7 @@ Use this reference when you know a Claude Code command and want the Copilot CLI 
 | `--permission-mode bypassPermissions` | `--allow-all` | |
 | `--permission-mode auto` | `--autopilot` | |
 | `--permission-mode plan` | `--plan` (or `--mode plan`) | |
-| `--enable-auto-mode` | `--experimental` | |
+| `--enable-auto-mode` | `--autopilot` | Removed in Claude Code v2.1.111 — use `--permission-mode auto` |
 | `--debug` | `--log-level=debug` | Category filtering not supported |
 | `--verbose` | `--log-level=info` | |
 | `--debug-file <path>` | `--log-dir=<dir> --log-level=debug` | |
@@ -79,7 +79,7 @@ Use this reference when you know a Claude Code command and want the Copilot CLI 
 | `--fork-session` | Not available |
 | `--fallback-model` | Not available |
 | `--json-schema` | Use `--output-format=json` |
-| `--effort` | Set `effortLevel` in `~/.copilot/config.json` |
+| `--effort` | Set `effortLevel` in `~/.copilot/config.json` (`xhigh` is Claude Code-only; Copilot supports `low`, `medium`, `high`) |
 | `--tmux` | Not available |
 | `--remote-control-session-name-prefix` | Not available (Remote Control is not supported) |
 
@@ -98,19 +98,21 @@ Use this reference when you know a Claude Code command and want the Copilot CLI 
 `/theme`, `/usage`, `/quit`
 
 ### Renamed Commands
-| Claude Code | Copilot CLI |
-|---|---|
-| `/agents` | `/agent` |
-| `/cost` | `/usage` |
-| `/export` | `/share` |
-| `/permissions` | `/allow-all` and `/reset-allowed-tools` |
-| `/rewind` / `/checkpoint` | `/session checkpoints` |
-| `/remote-control` (`/rc`) | `/remote` |
+| Claude Code | Copilot CLI | Notes |
+|---|---|---|
+| `/agents` | `/agent` | |
+| `/cost` | `/usage` | |
+| `/export` | `/share` | |
+| `/permissions` | `/allow-all` and `/reset-allowed-tools` | |
+| `/rewind` / `/checkpoint` / `/undo` | `/session checkpoints` | |
+| `/remote-control` (`/rc`) | `/remote` | |
+| `/ultrareview [PR]` | `/review [PROMPT]` | Cloud-based deep review; `/review` in Claude Code is the local equivalent |
 
 ### Claude Code Only (no Copilot equivalent)
 `/autofix-pr`, `/btw`, `/chrome`, `/color`, `/config`, `/copy`, `/desktop`, `/doctor`,
-`/effort`, `/fast`, `/hooks`, `/loop` (`/proactive`), `/memory`, `/release-notes`,
-`/sandbox`, `/security-review`, `/setup-bedrock`, `/stats`, `/team-onboarding`, `/voice`, `/web-setup`
+`/effort`, `/fast`, `/focus`, `/heapdump`, `/hooks`, `/loop` (`/proactive`), `/memory`, `/recap`,
+`/release-notes`, `/sandbox`, `/schedule` (`/routines`), `/security-review`, `/setup-bedrock`,
+`/stats`, `/team-onboarding`, `/tui`, `/voice`, `/web-setup`
 
 ### Copilot CLI Only (not in Claude Code)
 `/fleet`, `/list-dirs`, `/cwd` (`/cd`), `/lsp`, `/research`, `/user`,
