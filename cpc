@@ -117,7 +117,7 @@ def handle_auth(rest_args):
         return [COPILOT_BIN, "login"]
     elif sub == "logout":
         warn("'copilot logout' subcommand has been removed. Use /logout in an interactive session instead")
-        return [COPILOT_BIN]
+        return None
     elif sub == "status":
         warn("Copilot CLI doesn't have 'auth status'; showing version info instead")
         return [COPILOT_BIN, "version"]

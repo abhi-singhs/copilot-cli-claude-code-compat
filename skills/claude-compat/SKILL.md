@@ -119,7 +119,7 @@ Use this reference when you know a Claude Code command and want the Copilot CLI 
 `/stats`, `/team-onboarding`, `/tui`, `/voice`, `/web-setup`
 
 ### Copilot CLI Only (not in Claude Code)
-`/ask` (experimental), `/changelog` (`/release-notes`), `/chronicle` (experimental: `standup|tips|improve|reindex`),
+`/ask` (experimental), `/changelog` (`/release-notes`), `/chronicle` (experimental: `standup|tips|improve|reindex` — session history tools and insights),
 `/env`, `/fleet`, `/list-dirs`, `/cwd` (`/cd`), `/lsp`, `/research`, `/user`,
 `/session` (`/sessions`), `/statusline` (`/footer`), `/experimental`, `/remote`, `/keep-alive`,
 `/update` (`/upgrade`), `/version`
