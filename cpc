@@ -116,7 +116,8 @@ def handle_auth(rest_args):
             warn(f"Auth flags {extra_flags} are not supported by Copilot CLI (ignored)")
         return [COPILOT_BIN, "login"]
     elif sub == "logout":
-        return [COPILOT_BIN, "logout"]
+        warn("'copilot logout' subcommand has been removed. Use /logout in an interactive session instead")
+        return None
     elif sub == "status":
         warn("Copilot CLI doesn't have 'auth status'; showing version info instead")
         return [COPILOT_BIN, "version"]
@@ -462,7 +463,7 @@ Subcommands:
   cpc "query"                          Start with an initial prompt
   cpc -p "query"                       Non-interactive (print) mode
   cpc auth login                       Log in (→ copilot login)
-  cpc auth logout                      Log out (→ copilot logout)
+  cpc auth logout                      Log out (→ /logout in interactive session)
   cpc update                           Update CLI (→ copilot update)
   cpc init                             Init project (→ copilot init)
   cpc plugin ...                       Plugin management (→ copilot plugin ...)
@@ -508,6 +509,9 @@ Examples:
 
 For Copilot CLI native help:  copilot --help
 For slash command mapping:    type /claude-help in a Copilot CLI session
+
+Slash command note:
+  Claude Code /btw → Copilot CLI /ask (experimental mode; side question)
 """
 
 
