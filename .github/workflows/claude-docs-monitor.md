@@ -1,7 +1,7 @@
 ---
 description: Monitor Claude Code and Copilot CLI documentation for changes and create update issues
 on:
-  schedule: daily
+  schedule: weekly
 permissions:
   contents: read
   issues: read
