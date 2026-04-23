@@ -83,7 +83,7 @@ cpc -r my-session "keep going"         # → copilot --resume=my-session -i "kee
 
 # Auth
 cpc auth login                         # → copilot login
-cpc auth logout                        # → copilot logout
+cpc auth logout                        # → /logout (in interactive session; subcommand removed)
 
 # Update
 cpc update                             # → copilot update
@@ -150,12 +150,13 @@ Quick reference for the most common ones:
 | `/diff` | `/diff` | ✅ |
 | `/model` | `/model` | ✅ |
 | `/plan` | `/plan` | ✅ |
-| `/resume` | `/resume` | ✅ |
+| `/resume` | `/resume` (`/continue`) | ✅ |
 | `/review` | `/review` | ✅ |
 | `/tasks` | `/tasks` | ✅ |
 | `/agents` | `/agent` | ⚠️ Renamed |
+| `/btw` | `/ask` (experimental) | ⚠️ Renamed — side question without adding to history |
 | `/cost` | `/usage` | ⚠️ Renamed |
-| `/export` | `/share` | ⚠️ Renamed |
+| `/export` | `/share` (`/export`) | ⚠️ Renamed — `/export` now also a Copilot alias |
 | `/remote-control` | `/remote` | ⚠️ Renamed |
 | `/memory` | — | ❌ Not available |
 | `/autofix-pr` | — | ❌ Not available |
@@ -163,8 +164,11 @@ Quick reference for the most common ones:
 | `/team-onboarding` | — | ❌ Not available |
 | `/fewer-permission-prompts` | — | ❌ Not available |
 | `/loop` (`/proactive`) | — | ❌ Not available |
+| — | `/ask QUESTION` | 🆕 Copilot CLI only (experimental) |
+| — | `/env` | 🆕 Copilot CLI only — show loaded environment details |
+| — | `/chronicle` | 🆕 Copilot CLI only (experimental) — session history tools |
 | — | `/research TOPIC` | 🆕 Copilot CLI only |
-| — | `/update` | 🆕 Copilot CLI only |
+| — | `/update` (`/upgrade`) | 🆕 Copilot CLI only |
 | — | `/version` | 🆕 Copilot CLI only |
 
 ## Config Sharing
@@ -194,9 +198,14 @@ The setup script symlinks these directories so both tools share the same files:
 - **`/tui`**, **`/focus`**, **`/heapdump`**, **`/recap`** are Claude Code–only UI/debugging commands — no Copilot CLI equivalents
 - **`/ultrareview [PR]`** is a Claude Code–only command (deep cloud-based code review) — use `/review` in Copilot CLI for local reviews
 - **`/keep-alive`** is a Copilot CLI-only slash command (prevent machine sleep) — no Claude Code equivalent
-- **`/research`**, **`/update`**, **`/version`** are Copilot CLI-only slash commands — no Claude Code equivalents
+- **`/research`**, **`/update`** (`/upgrade`), **`/version`** are Copilot CLI-only slash commands — no Claude Code equivalents
+- **`/env`** is a Copilot CLI-only slash command (show loaded environment details) — no Claude Code equivalent
+- **`/chronicle`** is a Copilot CLI-only experimental command (session history tools) — no Claude Code equivalent
+- **`/on-air`** (`/streamer-mode`) has been removed from Copilot CLI
+- **`--connect[=SESSION-ID]`** is a Copilot CLI-only flag for remote session joining — no direct Claude Code equivalent (see `--remote` and `--teleport`)
 - **`--mode=MODE`** and **`--plan`** are Copilot CLI-only flags — `cpc` maps `--permission-mode plan` → `--plan`
 - **`COPILOT_SUBAGENT_MAX_DEPTH`** and **`COPILOT_SUBAGENT_MAX_CONCURRENT`** are Copilot CLI-only environment variables for tuning subagent behavior
+- **`copilot logout`** subcommand has been removed — use `/logout` in an interactive session instead
 
 ## Architecture
 
