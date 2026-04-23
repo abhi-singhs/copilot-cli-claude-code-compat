@@ -114,7 +114,7 @@ Use this reference when you know a Claude Code command and want the Copilot CLI 
 
 ### Claude Code Only (no Copilot equivalent)
 `/autofix-pr`, `/chrome`, `/color`, `/config`, `/copy`, `/desktop`, `/doctor`,
-`/effort`, `/fast`, `/focus`, `/heapdump`, `/hooks`, `/loop` (`/proactive`), `/memory`, `/recap`,
+`/effort`, `/fast`, `/fewer-permission-prompts`, `/focus`, `/heapdump`, `/hooks`, `/loop` (`/proactive`), `/memory`, `/recap`,
 `/sandbox`, `/schedule` (`/routines`), `/security-review`, `/setup-bedrock`,
 `/stats`, `/team-onboarding`, `/tui`, `/voice`, `/web-setup`
 

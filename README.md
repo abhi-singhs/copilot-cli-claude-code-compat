@@ -162,6 +162,7 @@ Quick reference for the most common ones:
 | `/autofix-pr` | — | ❌ Not available |
 | `/web-setup` | — | ❌ Not available |
 | `/team-onboarding` | — | ❌ Not available |
+| `/fewer-permission-prompts` | — | ❌ Not available |
 | `/loop` (`/proactive`) | — | ❌ Not available |
 | — | `/ask QUESTION` | 🆕 Copilot CLI only (experimental) |
 | — | `/env` | 🆕 Copilot CLI only — show loaded environment details |
