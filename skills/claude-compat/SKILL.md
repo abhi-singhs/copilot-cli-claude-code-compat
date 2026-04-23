@@ -21,7 +21,7 @@ Use this reference when you know a Claude Code command and want the Copilot CLI 
 | `claude update` | `copilot update` | ✅ Same |
 | `claude init` | `copilot init` | ✅ Same |
 | `claude auth login` | `copilot login` | ✅ Mapped |
-| `claude auth logout` | `copilot logout` | ✅ Mapped |
+| `claude auth logout` | `/logout` (interactive) | ⚠️ `copilot logout` subcommand removed; use `/logout` in-session |
 | `claude auth status` | `copilot version` | ⚠️ Partial |
 | `claude plugin ...` | `copilot plugin ...` | ✅ Same |
 | `claude agents` | `/agent` (interactive) | ⚠️ Interactive only |
@@ -88,37 +88,74 @@ Use this reference when you know a Claude Code command and want the Copilot CLI 
 |---|---|
 | `--mode=MODE` | Set initial agent mode: `interactive`, `plan`, `autopilot`. Cannot combine with `--autopilot` or `--plan` |
 | `--plan` | Start in plan mode. Shorthand for `--mode plan`. Cannot combine with `--mode` or `--autopilot` |
+| `--connect[=SESSION-ID]` | Connect directly to a remote session (optionally specify session/task ID). Conflicts with `--resume` and `--continue`. Requires remote sessions feature |
+| `--no-banner` | Suppress the startup banner (pair: `--banner` / `--no-banner`) |
 
 ## Slash Command Mapping
 
 ### Direct Matches (same in both CLIs)
-`/add-dir`, `/clear`, `/compact`, `/context`, `/diff`, `/exit`, `/feedback`,
+`/add-dir`, `/clear` (`/new`, `/reset`), `/compact`, `/context`, `/diff`, `/exit`, `/feedback`,
 `/help`, `/ide`, `/init`, `/login`, `/logout`, `/mcp`, `/model`, `/plan`,
-`/plugin`, `/rename`, `/resume`, `/review`, `/skills`, `/tasks`, `/terminal-setup`,
+`/plugin`, `/rename`, `/resume` (`/continue`), `/review`, `/skills`, `/tasks`, `/terminal-setup`,
 `/theme`, `/usage`, `/quit`
 
 ### Renamed Commands
 | Claude Code | Copilot CLI | Notes |
 |---|---|---|
 | `/agents` | `/agent` | |
+| `/btw` | `/ask` | Side question without adding to conversation history. `/ask` requires experimental mode in Copilot CLI |
 | `/cost` | `/usage` | |
-| `/export` | `/share` | |
+| `/export` | `/share` (`/export`) | `/export` is now also a Copilot CLI alias for `/share` |
 | `/permissions` | `/allow-all` and `/reset-allowed-tools` | |
+| `/release-notes` | `/changelog` (`/release-notes`) | `/release-notes` is now a Copilot CLI alias for `/changelog` |
 | `/rewind` / `/checkpoint` / `/undo` | `/session checkpoints` | |
 | `/remote-control` (`/rc`) | `/remote` | |
 | `/ultrareview [PR]` | `/review [PROMPT]` | Cloud-based deep review; `/review` in Claude Code is the local equivalent |
 
 ### Claude Code Only (no Copilot equivalent)
-`/autofix-pr`, `/btw`, `/chrome`, `/color`, `/config`, `/copy`, `/desktop`, `/doctor`,
+`/autofix-pr`, `/chrome`, `/color`, `/config`, `/copy`, `/desktop`, `/doctor`,
 `/effort`, `/fast`, `/focus`, `/heapdump`, `/hooks`, `/loop` (`/proactive`), `/memory`, `/recap`,
-`/release-notes`, `/sandbox`, `/schedule` (`/routines`), `/security-review`, `/setup-bedrock`,
+`/sandbox`, `/schedule` (`/routines`), `/security-review`, `/setup-bedrock`,
 `/stats`, `/team-onboarding`, `/tui`, `/voice`, `/web-setup`
 
 ### Copilot CLI Only (not in Claude Code)
-`/fleet`, `/list-dirs`, `/cwd` (`/cd`), `/lsp`, `/research`, `/user`,
-`/session`, `/experimental`, `/remote`, `/keep-alive`, `/update`, `/version`
+`/ask` (experimental), `/changelog` (`/release-notes`), `/chronicle` (experimental: `standup|tips|improve|reindex`),
+`/env`, `/fleet`, `/list-dirs`, `/cwd` (`/cd`), `/lsp`, `/research`, `/user`,
+`/session` (`/sessions`), `/statusline` (`/footer`), `/experimental`, `/remote`, `/keep-alive`,
+`/update` (`/upgrade`), `/version`
 
 Note: `/delegate` is the Copilot equivalent of Claude Code's `--remote "task"` flag.
+
+Note: `/on-air` (`/streamer-mode`) has been removed from Copilot CLI.
+
+Note: `/theme` options changed to `[default|dim|high-contrast|colorblind]`.
+
+## Keyboard Shortcuts
+
+### Global
+| Shortcut | Purpose |
+|---|---|
+| `# NUMBER` | Include a GitHub issue or pull request in the context |
+| `?` | Open quick help (on an empty prompt) |
+| `Ctrl+G` | Edit the prompt in an external editor (`$EDITOR`) |
+| `Ctrl+Enter` or `Ctrl+Q` | Queue a message to send while the agent is busy |
+| `Ctrl+R` | Reverse search through command history |
+| `Ctrl+V` | Paste from clipboard as an attachment |
+| `Ctrl+X then e` | Edit the prompt in an external editor (`$EDITOR`) |
+| `Ctrl+X then o` | Open the most recent link from the timeline |
+| `Ctrl+Z` | Suspend the process to the background (Unix) |
+| `Shift+Enter` / `Option+Enter` (Mac) / `Alt+Enter` (Windows/Linux) | Insert a newline in the input |
+
+### Timeline
+| Shortcut | Purpose |
+|---|---|
+| `Page Up / Page Down` | Scroll the timeline up or down by one page |
+
+### Navigation
+| Shortcut | Purpose |
+|---|---|
+| `Home / End` | Move to start/end of text |
+| `Alt+←/→` (Windows/Linux) / `Option+←/→` (Mac) | Move cursor one word left/right |
 
 ## Environment Variables
 
