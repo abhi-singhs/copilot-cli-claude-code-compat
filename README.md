@@ -161,6 +161,7 @@ Quick reference for the most common ones:
 | `/autofix-pr` | — | ❌ Not available |
 | `/web-setup` | — | ❌ Not available |
 | `/team-onboarding` | — | ❌ Not available |
+| `/fewer-permission-prompts` | — | ❌ Not available |
 | `/loop` (`/proactive`) | — | ❌ Not available |
 | — | `/research TOPIC` | 🆕 Copilot CLI only |
 | — | `/update` | 🆕 Copilot CLI only |
