@@ -29,6 +29,7 @@ Use this reference when you know a Claude Code command and want the Copilot CLI 
 | `claude auto-mode defaults` | — | ❌ Not available |
 | `claude auto-mode config` | — | ❌ Not available |
 | `claude remote-control` | `--remote` or `/remote` (interactive) | ⚠️ Mapped |
+| — | `copilot completion SHELL` | ℹ️ Copilot-only (print shell completion script for bash/zsh/fish) |
 
 ## CLI Flag Mapping
 
@@ -43,6 +44,7 @@ Use this reference when you know a Claude Code command and want the Copilot CLI 
 | `--resume` / `-r` | Same |
 | `--continue` / `-c` | Same |
 | `-p` / `--print` | Same (non-interactive mode) |
+| `--name` / `-n` | Same — set a session name |
 
 ### Translated (different name or syntax)
 | Claude Code | Copilot CLI | Notes |
@@ -73,7 +75,6 @@ Use this reference when you know a Claude Code command and want the Copilot CLI 
 | `--bare` | Try `--no-custom-instructions` |
 | `--chrome` | Copilot has built-in Playwright MCP |
 | `--worktree` / `-w` | Use `git worktree` manually |
-| `--name` / `-n` | Use `/rename` in interactive mode |
 | `--max-budget-usd` | Not available |
 | `--from-pr` | Reference PR URL in your prompt |
 | `--fork-session` | Not available |
@@ -120,8 +121,10 @@ Use this reference when you know a Claude Code command and want the Copilot CLI 
 
 ### Copilot CLI Only (not in Claude Code)
 `/ask` (experimental), `/changelog` (`/release-notes`), `/chronicle` (experimental: `standup|tips|improve|reindex` — session history tools and insights),
+`/downgrade <VERSION>` (download and restart into a specific CLI version; team accounts only),
 `/env`, `/fleet`, `/list-dirs`, `/cwd` (`/cd`), `/lsp`, `/research`, `/user`,
-`/session` (`/sessions`), `/statusline` (`/footer`), `/experimental`, `/remote`, `/keep-alive`,
+`/session` (`/sessions`) with subcommands: `info|checkpoints [n]|files|plan|rename [NAME]|cleanup|prune|delete [ID]|delete-all`,
+`/statusline` (`/footer`), `/experimental`, `/remote`, `/keep-alive`,
 `/update` (`/upgrade`), `/version`
 
 Note: `/delegate` is the Copilot equivalent of Claude Code's `--remote "task"` flag.
@@ -164,6 +167,8 @@ Note: `/theme` options changed to `[default|dim|high-contrast|colorblind]`.
 |---|---|---|---|
 | `COPILOT_SUBAGENT_MAX_DEPTH` | `6` | `1`–`256` | Maximum subagent nesting depth |
 | `COPILOT_SUBAGENT_MAX_CONCURRENT` | `32` | `1`–`256` | Maximum concurrent subagents across the session tree |
+| `COPILOT_GH_HOST` | — | — | GitHub hostname for Copilot CLI only, overriding `GH_HOST`. Use when `GH_HOST` targets GHES but Copilot needs to authenticate against GitHub.com or GHEC |
+| `COPILOT_PROMPT_FRAME` | — | `0` / `1` | Set to `1` to enable the decorative UI frame around the input prompt, or `0` to disable it. Overrides the `PROMPT_FRAME` experimental feature flag |
 
 ## Config Directory Mapping
 
