@@ -77,7 +77,7 @@ def convert_tool_for_available(name):
 PASSTHROUGH_VALUE_FLAGS = {
     "--model", "--add-dir", "--agent", "--output-format",
     "--resume", "--session-id", "--log-level", "--log-dir",
-    "--mcp-config", "--additional-mcp-config",
+    "--mcp-config", "--additional-mcp-config", "--name",
 }
 
 
@@ -193,7 +193,6 @@ WARN_FLAGS = {
     "--bare":                       (0, "No direct equivalent. Try --no-custom-instructions"),
     "--chrome":                     (0, "Copilot CLI has a built-in Playwright MCP server"),
     "--worktree":                   (1, "No equivalent. Use 'git worktree' manually"),
-    "--name":                       (1, "Sessions are auto-named. Use /rename in interactive mode"),
     "--max-budget-usd":             (1, "Not supported in Copilot CLI"),
     "--from-pr":                    (1, "Not supported. Reference the PR URL in your prompt instead"),
     "--fork-session":               (0, "Not supported in Copilot CLI"),
@@ -360,10 +359,10 @@ def translate_flags(args):
 
         elif arg == "-n":
             if i + 1 < len(args) and not is_flag(args[i + 1]):
-                warn(f"Session naming ('{args[i + 1]}') is not supported. Use /rename in interactive mode")
+                copilot_args.append(f"--name={args[i + 1]}")
                 i += 2
             else:
-                warn("Session naming is not supported. Use /rename in interactive mode")
+                copilot_args.append("--name")
                 i += 1
 
         elif arg == "-w":
@@ -483,6 +482,7 @@ Translated flags:
   --remote "task"                      → /delegate task (interactive)
   --no-remote                          → --no-remote (disable remote access)
   --teleport                           → --resume (cloud session picker)
+  --name / -n NAME                     → --name=NAME (session name)
 
 Passthrough flags (same in both CLIs):
   --model, --add-dir, --agent, --output-format, -p, -c, -v, --resume, etc.
