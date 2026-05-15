@@ -152,7 +152,7 @@ def handle_subcommand(subcmd, rest_args):
     if subcmd == "mcp":
         return [COPILOT_BIN, "mcp"] + rest_args
     if subcmd == "remote-control":
-        warn("Remote control is not available as a subcommand. Use /remote inside a Copilot CLI session, or --remote flag")
+        warn("Remote control is not available as a subcommand. Use /remote [on|off] inside a Copilot CLI session, or --remote flag")
         return None
     if subcmd == "auto-mode":
         sub = rest_args[0] if rest_args else None
@@ -512,6 +512,11 @@ For slash command mapping:    type /claude-help in a Copilot CLI session
 
 Slash command note:
   Claude Code /btw → Copilot CLI /ask (experimental mode; side question)
+
+Prompt mode env vars (set to 'true' to enable in -p mode):
+  GITHUB_COPILOT_PROMPT_MODE_EXTENSIONS    Load project extensions
+  GITHUB_COPILOT_PROMPT_MODE_REPO_HOOKS    Load repository hooks
+  GITHUB_COPILOT_PROMPT_MODE_WORKSPACE_MCP Load workspace MCP sources
 """
 
 

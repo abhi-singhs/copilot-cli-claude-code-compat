@@ -110,7 +110,7 @@ Use this reference when you know a Claude Code command and want the Copilot CLI 
 | `/permissions` | `/allow-all` and `/reset-allowed-tools` | |
 | `/release-notes` | `/changelog` (`/release-notes`) | `/release-notes` is now a Copilot CLI alias for `/changelog` |
 | `/rewind` / `/checkpoint` / `/undo` | `/session checkpoints` | |
-| `/remote-control` (`/rc`) | `/remote` | |
+| `/remote-control` (`/rc`) | `/remote [on\|off]` | No args shows status; `on` enables; `off` ends connection |
 | `/ultrareview [PR]` | `/review [PROMPT]` | Cloud-based deep review; `/review` in Claude Code is the local equivalent |
 
 ### Claude Code Only (no Copilot equivalent)
@@ -121,10 +121,12 @@ Use this reference when you know a Claude Code command and want the Copilot CLI 
 
 ### Copilot CLI Only (not in Claude Code)
 `/ask` (experimental), `/changelog` (`/release-notes`), `/chronicle` (experimental: `standup|tips|improve|reindex` — session history tools and insights),
+`/clikit [COMPONENT]` (internal/debug: preview CLI business components),
 `/downgrade <VERSION>` (download and restart into a specific CLI version; team accounts only),
 `/env`, `/fleet`, `/list-dirs`, `/cwd` (`/cd`), `/lsp`, `/research`, `/user`,
+`/search [QUERY]` (`/find [QUERY]`) (experimental: search the conversation timeline),
 `/session` (`/sessions`) with subcommands: `info|checkpoints [n]|files|plan|rename [NAME]|cleanup|prune|delete [ID]|delete-all`,
-`/statusline` (`/footer`), `/experimental`, `/remote`, `/keep-alive`,
+`/statusline` (`/footer`), `/experimental`, `/remote [on|off]`, `/keep-alive [on|off|busy|DURATION]` (`/caffeinate`),
 `/update` (`/upgrade`), `/version`
 
 Note: `/delegate` is the Copilot equivalent of Claude Code's `--remote "task"` flag.
@@ -144,6 +146,7 @@ Note: `/theme` options changed to `[default|dim|high-contrast|colorblind]`.
 | `Ctrl+Enter` or `Ctrl+Q` | Queue a message to send while the agent is busy |
 | `Ctrl+R` | Reverse search through command history |
 | `Ctrl+V` | Paste from clipboard as an attachment |
+| `Ctrl+X then b` | Promote the running task or shell command to the background |
 | `Ctrl+X then e` | Edit the prompt in an external editor (`$EDITOR`) |
 | `Ctrl+X then o` | Open the most recent link from the timeline |
 | `Ctrl+Z` | Suspend the process to the background (Unix) |
@@ -152,6 +155,7 @@ Note: `/theme` options changed to `[default|dim|high-contrast|colorblind]`.
 ### Timeline
 | Shortcut | Purpose |
 |---|---|
+| `Ctrl+F` | Open timeline search |
 | `Page Up / Page Down` | Scroll the timeline up or down by one page |
 
 ### Navigation
@@ -159,6 +163,16 @@ Note: `/theme` options changed to `[default|dim|high-contrast|colorblind]`.
 |---|---|
 | `Home / End` | Move to start/end of text |
 | `Alt+←/→` (Windows/Linux) / `Option+←/→` (Mac) | Move cursor one word left/right |
+
+### Session Picker (opened via `/resume` or `--continue`)
+| Shortcut | Purpose |
+|---|---|
+| ↑/↓ | Move selection up or down |
+| Enter | Open the selected session |
+| `s` | Cycle sort order: relevance → created → name → last used |
+| Tab | Switch between local and remote tabs |
+| `d` | Delete the selected session |
+| Esc | Close the picker |
 
 ## Environment Variables
 
@@ -169,6 +183,9 @@ Note: `/theme` options changed to `[default|dim|high-contrast|colorblind]`.
 | `COPILOT_SUBAGENT_MAX_CONCURRENT` | `32` | `1`–`256` | Maximum concurrent subagents across the session tree |
 | `COPILOT_GH_HOST` | — | — | GitHub hostname for Copilot CLI only, overriding `GH_HOST`. Use when `GH_HOST` targets GHES but Copilot needs to authenticate against GitHub.com or GHEC |
 | `COPILOT_PROMPT_FRAME` | — | `0` / `1` | Set to `1` to enable the decorative UI frame around the input prompt, or `0` to disable it. Overrides the `PROMPT_FRAME` experimental feature flag |
+| `GITHUB_COPILOT_PROMPT_MODE_EXTENSIONS` | `false` | `true` / `false` | Set to `true` to load project extensions and allow extension management tools in prompt mode (`-p`). Disabled by default for security |
+| `GITHUB_COPILOT_PROMPT_MODE_REPO_HOOKS` | `false` | `true` / `false` | Set to `true` to load repository hooks in prompt mode (`-p`). Disabled by default for security |
+| `GITHUB_COPILOT_PROMPT_MODE_WORKSPACE_MCP` | `false` | `true` / `false` | Set to `true` to load workspace MCP sources in prompt mode (`-p`). Disabled by default for security |
 
 ## Config Directory Mapping
 
