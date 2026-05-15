@@ -81,6 +81,7 @@ Use this reference when you know a Claude Code command and want the Copilot CLI 
 | `--fallback-model` | Not available |
 | `--json-schema` | Use `--output-format=json` |
 | `--effort` | Set `effortLevel` in `~/.copilot/config.json` (`xhigh` is Claude Code-only; Copilot supports `low`, `medium`, `high`) |
+| `--plugin-url` | Not available (URL-based plugin loading is Claude Code-only; use `copilot plugin install <dir>` for local plugins) |
 | `--tmux` | Not available |
 | `--remote-control-session-name-prefix` | Not available (Remote Control is not supported) |
 

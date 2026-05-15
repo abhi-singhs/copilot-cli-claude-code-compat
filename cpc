@@ -260,6 +260,15 @@ def translate_flags(args):
             copilot_args.append("--resume")
             i += 1
 
+        # --- Unsupported flags that consume values ---
+        elif arg == "--plugin-url":
+            values, i = consume_values(args, i)
+            if not values:
+                i += 1
+            warn("--plugin-url is not supported in Copilot CLI "
+                 "(URL-based plugin loading is a Claude Code-only feature). "
+                 "Use 'copilot plugin install <dir>' for local plugins instead.")
+
         # --- Flags with value translation ---
         elif arg == "--allowedTools":
             values, i = consume_values(args, i)
@@ -415,6 +424,11 @@ def translate_flags(args):
         elif arg.startswith("--effort="):
             warn("Set effortLevel in ~/.copilot/config.json instead "
                  "(note: Claude Code's 'xhigh' level is not supported by Copilot CLI)")
+            i += 1
+        elif arg.startswith("--plugin-url="):
+            warn("--plugin-url is not supported in Copilot CLI "
+                 "(URL-based plugin loading is a Claude Code-only feature). "
+                 "Use 'copilot plugin install <dir>' for local plugins instead.")
             i += 1
 
         # --- Track prompt flags ---
