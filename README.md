@@ -157,7 +157,7 @@ Quick reference for the most common ones:
 | `/btw` | `/ask` (experimental) | ⚠️ Renamed — side question without adding to history |
 | `/cost` | `/usage` | ⚠️ Renamed |
 | `/export` | `/share` (`/export`) | ⚠️ Renamed — `/export` now also a Copilot alias |
-| `/remote-control` | `/remote` | ⚠️ Renamed |
+| `/remote-control` | `/remote [on\|off]` | ⚠️ Renamed — no args shows status; `on`/`off` toggles |
 | `/memory` | — | ❌ Not available |
 | `/autofix-pr` | — | ❌ Not available |
 | `/web-setup` | — | ❌ Not available |
@@ -197,14 +197,17 @@ The setup script symlinks these directories so both tools share the same files:
 - **`/loop`** (`/proactive`) is a Claude Code–only command (runs a prompt repeatedly while the session stays open) — no Copilot CLI equivalent
 - **`/tui`**, **`/focus`**, **`/heapdump`**, **`/recap`** are Claude Code–only UI/debugging commands — no Copilot CLI equivalents
 - **`/ultrareview [PR]`** is a Claude Code–only command (deep cloud-based code review) — use `/review` in Copilot CLI for local reviews
-- **`/keep-alive`** is a Copilot CLI-only slash command (prevent machine sleep) — no Claude Code equivalent
+- **`/keep-alive [on|off|busy|DURATION]`** (`/caffeinate`) is a Copilot CLI-only slash command (prevent machine sleep; duration accepts bare numbers, `30m`, `2h`, `1d`) — no Claude Code equivalent
 - **`/research`**, **`/update`** (`/upgrade`), **`/version`** are Copilot CLI-only slash commands — no Claude Code equivalents
+- **`/search [QUERY]`** (`/find`) is a Copilot CLI-only experimental command (search the conversation timeline) — no Claude Code equivalent
+- **`/clikit [COMPONENT]`** is a Copilot CLI-only internal/debug command — no Claude Code equivalent
 - **`/env`** is a Copilot CLI-only slash command (show loaded environment details) — no Claude Code equivalent
 - **`/chronicle`** is a Copilot CLI-only experimental command (session history tools) — no Claude Code equivalent
 - **`/on-air`** (`/streamer-mode`) has been removed from Copilot CLI
 - **`--connect[=SESSION-ID]`** is a Copilot CLI-only flag for remote session joining — no direct Claude Code equivalent (see `--remote` and `--teleport`)
 - **`--mode=MODE`** and **`--plan`** are Copilot CLI-only flags — `cpc` maps `--permission-mode plan` → `--plan`
 - **`COPILOT_SUBAGENT_MAX_DEPTH`** and **`COPILOT_SUBAGENT_MAX_CONCURRENT`** are Copilot CLI-only environment variables for tuning subagent behavior
+- **`GITHUB_COPILOT_PROMPT_MODE_EXTENSIONS`**, **`GITHUB_COPILOT_PROMPT_MODE_REPO_HOOKS`**, and **`GITHUB_COPILOT_PROMPT_MODE_WORKSPACE_MCP`** control whether prompt mode (`-p`) loads repository-provided extensions, hooks, and MCP sources (all disabled by default for security). Set to `true` explicitly when using `cpc -p` with repo hooks or MCP servers
 - **`copilot logout`** subcommand has been removed — use `/logout` in an interactive session instead
 
 ## Architecture
