@@ -130,6 +130,9 @@ SUBCOMMANDS = {
     "update", "init", "plugin", "auth", "agents", "mcp",
     "remote-control", "auto-mode", "autofix-pr", "web-setup",
     "team-onboarding", "loop", "proactive",
+    # Background agent session management (new in Claude Code)
+    "attach", "logs", "respawn", "rm", "stop",
+    "ultrareview", "project", "setup-token", "install",
 }
 
 
@@ -178,6 +181,41 @@ def handle_subcommand(subcmd, rest_args):
     if subcmd in ("loop", "proactive"):
         warn("Not available in Copilot CLI. /loop (/proactive) runs a prompt repeatedly while the session stays open")
         return None
+    # --- Background agent session management ---
+    if subcmd == "attach":
+        warn("Not available in Copilot CLI. Background agent session management is Claude Code-only. "
+             "Closest: resume a session with 'copilot --resume'")
+        return None
+    if subcmd == "logs":
+        warn("Not available in Copilot CLI. Background agent session management is Claude Code-only")
+        return None
+    if subcmd == "respawn":
+        warn("Not available in Copilot CLI. Background agent session management is Claude Code-only. "
+             "Closest: resume a session with 'copilot --resume'")
+        return None
+    if subcmd == "rm":
+        warn("Not available in Copilot CLI. Background agent session management is Claude Code-only. "
+             "Use /session delete <ID> inside a Copilot CLI session to remove sessions")
+        return None
+    if subcmd == "stop":
+        warn("Not available in Copilot CLI. Background agent session management is Claude Code-only")
+        return None
+    if subcmd == "ultrareview":
+        warn("Not available in Copilot CLI. Use /review inside a Copilot CLI session for local reviews")
+        return None
+    if subcmd == "project":
+        sub = rest_args[0] if rest_args else None
+        if sub == "purge":
+            warn("Not available in Copilot CLI. Use /session cleanup or /session prune inside a session")
+            return None
+        warn(f"Unknown 'project' subcommand '{sub}'")
+        return None
+    if subcmd == "setup-token":
+        warn("Not available in Copilot CLI. Use 'gh auth token' for CI/script authentication with GitHub")
+        return None
+    if subcmd == "install":
+        warn("Not available in Copilot CLI. Use 'copilot update' to update, or reinstall via your package manager")
+        return None
     return None
 
 
@@ -186,6 +224,7 @@ def handle_subcommand(subcmd, rest_args):
 # ---------------------------------------------------------------------------
 
 WARN_FLAGS = {
+    "--bg":                             (0, "Not available in Copilot CLI. Background agent mode is Claude Code-only. Closest: Ctrl+X then b to promote to background"),
     "--system-prompt":              (1, "Use .github/copilot-instructions.md or .instructions.md files instead"),
     "--system-prompt-file":         (1, "Use .github/copilot-instructions.md or .instructions.md files instead"),
     "--append-system-prompt":       (1, "Use .github/copilot-instructions.md or .instructions.md files instead"),
@@ -497,6 +536,21 @@ Translated flags:
   --no-remote                          → --no-remote (disable remote access)
   --teleport                           → --resume (cloud session picker)
   --name / -n NAME                     → --name=NAME (session name)
+
+Unsupported flags:
+  --bg                                 Not available (background agent mode is Claude Code-only;
+                                       closest: Ctrl+X then b to promote to background)
+
+Background agent subcommands (Claude Code-only, no Copilot equivalent):
+  cpc attach <id>                      Not available (use --resume to reconnect)
+  cpc logs <id>                        Not available
+  cpc respawn <id>                     Not available (use --resume)
+  cpc rm <id>                          Not available (use /session delete)
+  cpc stop <id>                        Not available
+  cpc install [version]                Not available (use copilot update)
+  cpc setup-token                      Not available (use gh auth token)
+  cpc project purge [path]             Not available (use /session cleanup)
+  cpc ultrareview [target]             Not available (use /review)
 
 Passthrough flags (same in both CLIs):
   --model, --add-dir, --agent, --output-format, -p, -c, -v, --resume, etc.
