@@ -24,11 +24,20 @@ Use this reference when you know a Claude Code command and want the Copilot CLI 
 | `claude auth logout` | `/logout` (interactive) | ⚠️ `copilot logout` subcommand removed; use `/logout` in-session |
 | `claude auth status` | `copilot version` | ⚠️ Partial |
 | `claude plugin ...` | `copilot plugin ...` | ✅ Same |
-| `claude agents` | `/agent` (interactive) | ⚠️ Interactive only |
+| `claude agents` | `/agent` (interactive) | ⚠️ Interactive only — Claude Code now opens an agent view to monitor/dispatch parallel background sessions |
 | `claude mcp` | `copilot mcp` | ✅ Same |
 | `claude auto-mode defaults` | — | ❌ Not available |
 | `claude auto-mode config` | — | ❌ Not available |
 | `claude remote-control` | `--remote` or `/remote` (interactive) | ⚠️ Mapped |
+| `claude attach <id>` | — | ❌ Not available (background agent session management; closest: `copilot --resume`) |
+| `claude logs <id>` | — | ❌ Not available (background agent session management) |
+| `claude respawn <id>` | — | ❌ Not available (background agent session management; closest: `copilot --resume`) |
+| `claude rm <id>` | — | ❌ Not available (use `/session delete <ID>` in Copilot CLI) |
+| `claude stop <id>` | — | ❌ Not available (background agent session management) |
+| `claude ultrareview [target]` | `/review` (interactive) | ⚠️ Partial (cloud-based deep review; `/review` is local only) |
+| `claude project purge [path]` | — | ❌ Not available (use `/session cleanup` or `/session prune`) |
+| `claude setup-token` | — | ❌ Not available (use `gh auth token` for CI/scripts) |
+| `claude install [version]` | `copilot update` | ⚠️ Partial (no version pinning; update only) |
 | — | `copilot completion SHELL` | ℹ️ Copilot-only (print shell completion script for bash/zsh/fish) |
 
 ## CLI Flag Mapping
@@ -84,6 +93,7 @@ Use this reference when you know a Claude Code command and want the Copilot CLI 
 | `--plugin-url` | Not available (URL-based plugin loading is Claude Code-only; use `copilot plugin install <dir>` for local plugins) |
 | `--tmux` | Not available |
 | `--remote-control-session-name-prefix` | Not available (Remote Control is not supported) |
+| `--bg` | Not available (starts session as background agent; closest: Ctrl+X then b to promote to background) |
 
 ### Copilot CLI Only (no Claude Code equivalent)
 | Copilot CLI | Notes |
@@ -115,10 +125,10 @@ Use this reference when you know a Claude Code command and want the Copilot CLI 
 | `/ultrareview [PR]` | `/review [PROMPT]` | Cloud-based deep review; `/review` in Claude Code is the local equivalent |
 
 ### Claude Code Only (no Copilot equivalent)
-`/autofix-pr`, `/chrome`, `/color`, `/config`, `/copy`, `/desktop`, `/doctor`,
-`/effort`, `/fast`, `/fewer-permission-prompts`, `/focus`, `/heapdump`, `/hooks`, `/loop` (`/proactive`), `/memory`, `/recap`,
-`/sandbox`, `/schedule` (`/routines`), `/security-review`, `/setup-bedrock`,
-`/stats`, `/team-onboarding`, `/tui`, `/voice`, `/web-setup`
+`/autofix-pr`, `/background` (`/bg`), `/chrome`, `/color`, `/config`, `/copy`, `/desktop`, `/doctor`,
+`/effort`, `/fast`, `/fewer-permission-prompts`, `/focus`, `/goal`, `/heapdump`, `/hooks`, `/loop` (`/proactive`), `/memory`, `/recap`,
+`/sandbox`, `/schedule` (`/routines`), `/scroll-speed`, `/security-review`, `/setup-bedrock`,
+`/stats`, `/stop`, `/team-onboarding`, `/tui`, `/voice`, `/web-setup`
 
 ### Copilot CLI Only (not in Claude Code)
 `/ask` (experimental), `/changelog` (`/release-notes`), `/chronicle` (experimental: `standup|tips|improve|reindex` — session history tools and insights),
@@ -133,6 +143,14 @@ Use this reference when you know a Claude Code command and want the Copilot CLI 
 Note: `/delegate` is the Copilot equivalent of Claude Code's `--remote "task"` flag.
 
 Note: `/on-air` (`/streamer-mode`) has been removed from Copilot CLI.
+
+Note: `/background` (`/bg`) detaches the current session to run as a background agent. No direct Copilot equivalent; closest is Ctrl+X then b to promote to background.
+
+Note: `/goal [condition|clear]` sets a goal so Claude keeps working across turns until the condition is met. No Copilot CLI equivalent.
+
+Note: `/stop` stops the current background session (only available while attached). No Copilot CLI equivalent.
+
+Note: `/scroll-speed` adjusts mouse wheel scroll speed interactively. No Copilot CLI equivalent.
 
 Note: `/theme` options changed to `[default|dim|high-contrast|colorblind]`.
 

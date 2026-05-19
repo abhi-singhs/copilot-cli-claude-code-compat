@@ -154,11 +154,15 @@ Quick reference for the most common ones:
 | `/review` | `/review` | ✅ |
 | `/tasks` | `/tasks` | ✅ |
 | `/agents` | `/agent` | ⚠️ Renamed |
+| `/background` (`/bg`) | — | ❌ Claude Code-only (detach to background agent; closest: Ctrl+X then b) |
 | `/btw` | `/ask` (experimental) | ⚠️ Renamed — side question without adding to history |
 | `/cost` | `/usage` | ⚠️ Renamed |
 | `/export` | `/share` (`/export`) | ⚠️ Renamed — `/export` now also a Copilot alias |
+| `/goal` | — | ❌ Claude Code-only (set goal for multi-turn agentic loop) |
 | `/remote-control` | `/remote [on\|off]` | ⚠️ Renamed — no args shows status; `on`/`off` toggles |
 | `/memory` | — | ❌ Not available |
+| `/scroll-speed` | — | ❌ Claude Code-only (interactive scroll speed adjustment) |
+| `/stop` | — | ❌ Claude Code-only (stop current background session) |
 | `/autofix-pr` | — | ❌ Not available |
 | `/web-setup` | — | ❌ Not available |
 | `/team-onboarding` | — | ❌ Not available |
@@ -196,6 +200,15 @@ The setup script symlinks these directories so both tools share the same files:
 - **Plugin URL loading** (`--plugin-url`) is a Claude Code-only feature — Copilot CLI only supports local plugins via `copilot plugin install <dir>`
 - **`/team-onboarding`** is a Claude Code–only command (generates team onboarding guides from session history) — no Copilot CLI equivalent
 - **`/loop`** (`/proactive`) is a Claude Code–only command (runs a prompt repeatedly while the session stays open) — no Copilot CLI equivalent
+- **`--bg`** flag (start session as a background agent) is Claude Code-only — closest: Ctrl+X then b to promote a running task to the background
+- **Background agent session management** (`attach`, `logs`, `respawn`, `rm`, `stop` subcommands) is Claude Code-only — Copilot CLI manages sessions via `/session` and `--resume`
+- **`/background`** (`/bg`) slash command (detach current session to background) is Claude Code-only — closest: Ctrl+X then b
+- **`/goal [condition|clear]`** is a Claude Code-only command (set a goal for multi-turn agentic loop) — no Copilot CLI equivalent
+- **`/stop`** slash command (stop current background session while attached) is Claude Code-only — no Copilot CLI equivalent
+- **`/scroll-speed`** is a Claude Code-only UI command — no Copilot CLI equivalent
+- **`claude install [version]`** is Claude Code-only — use `copilot update` (no version pinning)
+- **`claude setup-token`** is Claude Code-only — use `gh auth token` for CI/script authentication
+- **`claude project purge [path]`** is Claude Code-only — use `/session cleanup` or `/session prune` in Copilot CLI
 - **`/tui`**, **`/focus`**, **`/heapdump`**, **`/recap`** are Claude Code–only UI/debugging commands — no Copilot CLI equivalents
 - **`/ultrareview [PR]`** is a Claude Code–only command (deep cloud-based code review) — use `/review` in Copilot CLI for local reviews
 - **`/keep-alive [on|off|busy|DURATION]`** (`/caffeinate`) is a Copilot CLI-only slash command (prevent machine sleep; duration accepts bare numbers, `30m`, `2h`, `1d`) — no Claude Code equivalent
