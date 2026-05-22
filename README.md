@@ -156,10 +156,14 @@ Quick reference for the most common ones:
 | `/agents` | `/agent` | ⚠️ Renamed |
 | `/background` (`/bg`) | — | ❌ Claude Code-only (detach to background agent; closest: Ctrl+X then b) |
 | `/btw` | `/ask` (experimental) | ⚠️ Renamed — side question without adding to history |
+| `/code-review` (`/simplify`) | `/review` | ⚠️ Renamed — `/simplify` is now an alias; `--comment` and effort levels have no Copilot equivalent |
 | `/cost` | `/usage` | ⚠️ Renamed |
 | `/export` | `/share` (`/export`) | ⚠️ Renamed — `/export` now also a Copilot alias |
+| `/extra-usage` → `/usage-credits` | — | ❌ Claude Code-only (configure usage credits; closest: `/usage` for stats only) |
 | `/goal` | — | ❌ Claude Code-only (set goal for multi-turn agentic loop) |
+| `/radio` | — | ❌ Claude Code-only (Claude FM lo-fi radio) |
 | `/remote-control` | `/remote [on\|off]` | ⚠️ Renamed — no args shows status; `on`/`off` toggles |
+| `/run`, `/run-skill-generator`, `/verify` | — | ❌ Claude Code-only (build/launch/drive the project's app; v2.1.145+) |
 | `/memory` | — | ❌ Not available |
 | `/scroll-speed` | — | ❌ Claude Code-only (interactive scroll speed adjustment) |
 | `/stop` | — | ❌ Claude Code-only (stop current background session) |
@@ -201,7 +205,12 @@ The setup script symlinks these directories so both tools share the same files:
 - **`/team-onboarding`** is a Claude Code–only command (generates team onboarding guides from session history) — no Copilot CLI equivalent
 - **`/loop`** (`/proactive`) is a Claude Code–only command (runs a prompt repeatedly while the session stays open) — no Copilot CLI equivalent
 - **`--bg`** flag (start session as a background agent) is Claude Code-only — closest: Ctrl+X then b to promote a running task to the background
-- **Background agent session management** (`attach`, `logs`, `respawn`, `rm`, `stop` subcommands) is Claude Code-only — Copilot CLI manages sessions via `/session` and `--resume`
+- **Background agent session management** (`attach`, `logs`, `respawn`, `rm`, `stop` subcommands) is Claude Code-only — Copilot CLI manages sessions via `/session` and `--resume`. Note: `claude respawn` restarts a running or stopped background session (`--all` restarts every running session)
+- **`claude daemon status`** is Claude Code-only — reports the state of Claude Code's background-session supervisor (version, socket directory, worker count); no Copilot CLI counterpart
+- **`/code-review`** (which replaces `/simplify` in Claude Code; `/simplify` is now an alias) maps to Copilot CLI `/review`. The `--comment` flag (post inline PR comments) and effort levels (`low|medium|high|xhigh|max`) have no Copilot equivalent
+- **`/usage-credits`** (renamed from `/extra-usage` in Claude Code) is Claude Code-only — configure usage credits to keep working when you hit a limit; closest in Copilot CLI is `/usage` (stats only)
+- **`/run`, `/run-skill-generator`, `/verify`** are Claude Code-only skills (v2.1.145+) that build, launch, and drive the project's app to observe a change running — no Copilot CLI equivalent
+- **`/radio`** is a Claude Code-only command (opens Claude FM lo-fi radio in the browser) — no Copilot CLI equivalent
 - **`/background`** (`/bg`) slash command (detach current session to background) is Claude Code-only — closest: Ctrl+X then b
 - **`/goal [condition|clear]`** is a Claude Code-only command (set a goal for multi-turn agentic loop) — no Copilot CLI equivalent
 - **`/stop`** slash command (stop current background session while attached) is Claude Code-only — no Copilot CLI equivalent

@@ -31,9 +31,10 @@ Use this reference when you know a Claude Code command and want the Copilot CLI 
 | `claude remote-control` | `--remote` or `/remote` (interactive) | ⚠️ Mapped |
 | `claude attach <id>` | — | ❌ Not available (background agent session management; closest: `copilot --resume`) |
 | `claude logs <id>` | — | ❌ Not available (background agent session management) |
-| `claude respawn <id>` | — | ❌ Not available (background agent session management; closest: `copilot --resume`) |
+| `claude respawn <id>` | — | ❌ Not available (background agent session management; restarts a running or stopped session, `--all` restarts every running session; closest: `copilot --resume`) |
 | `claude rm <id>` | — | ❌ Not available (use `/session delete <ID>` in Copilot CLI) |
 | `claude stop <id>` | — | ❌ Not available (background agent session management) |
+| `claude daemon status` | — | ❌ Not available (reports Claude Code's background-session supervisor state; no Copilot CLI counterpart) |
 | `claude ultrareview [target]` | `/review` (interactive) | ⚠️ Partial (cloud-based deep review; `/review` is local only) |
 | `claude project purge [path]` | — | ❌ Not available (use `/session cleanup` or `/session prune`) |
 | `claude setup-token` | — | ❌ Not available (use `gh auth token` for CI/scripts) |
@@ -116,8 +117,12 @@ Use this reference when you know a Claude Code command and want the Copilot CLI 
 |---|---|---|
 | `/agents` | `/agent` | |
 | `/btw` | `/ask` | Side question without adding to conversation history. `/ask` requires experimental mode in Copilot CLI |
+| `/code-review [low\|medium\|high\|xhigh\|max] [--comment] [target]` | `/review [PROMPT]` | `/simplify` is a backward-compatible alias in Claude Code. Effort levels and `--comment` (post inline PR comments) have no Copilot equivalent — strip those arguments |
+| `/simplify [focus]` | `/review [PROMPT]` | Now an alias for `/code-review` in Claude Code |
 | `/cost` | `/usage` | |
 | `/export` | `/share` (`/export`) | `/export` is now also a Copilot CLI alias for `/share` |
+| `/extra-usage` | — | Renamed to `/usage-credits` in Claude Code; no Copilot equivalent (closest: `/usage` for stats only) |
+| `/usage-credits` | — | Configure usage credits to keep working when you hit a limit. No Copilot equivalent (closest: `/usage` for stats only) |
 | `/permissions` | `/allow-all` and `/reset-allowed-tools` | |
 | `/release-notes` | `/changelog` (`/release-notes`) | `/release-notes` is now a Copilot CLI alias for `/changelog` |
 | `/rewind` / `/checkpoint` / `/undo` | `/session checkpoints` | |
@@ -126,7 +131,8 @@ Use this reference when you know a Claude Code command and want the Copilot CLI 
 
 ### Claude Code Only (no Copilot equivalent)
 `/autofix-pr`, `/background` (`/bg`), `/chrome`, `/color`, `/config`, `/copy`, `/desktop`, `/doctor`,
-`/effort`, `/fast`, `/fewer-permission-prompts`, `/focus`, `/goal`, `/heapdump`, `/hooks`, `/loop` (`/proactive`), `/memory`, `/recap`,
+`/effort`, `/fast`, `/fewer-permission-prompts`, `/focus`, `/goal`, `/heapdump`, `/hooks`, `/loop` (`/proactive`), `/memory`, `/radio`, `/recap`,
+`/run`, `/run-skill-generator`, `/verify`,
 `/sandbox`, `/schedule` (`/routines`), `/scroll-speed`, `/security-review`, `/setup-bedrock`,
 `/stats`, `/stop`, `/team-onboarding`, `/tui`, `/voice`, `/web-setup`
 
@@ -153,6 +159,14 @@ Note: `/stop` stops the current background session (only available while attache
 Note: `/scroll-speed` adjusts mouse wheel scroll speed interactively. No Copilot CLI equivalent.
 
 Note: `/theme` options changed to `[default|dim|high-contrast|colorblind]`.
+
+Note: `/code-review` (Claude Code v2.1.x) replaces `/simplify`; `/simplify` remains as a backward-compatible alias. Both map to Copilot CLI's `/review`. The `--comment` flag (post inline PR comments) and effort levels (`low|medium|high|xhigh|max`) have no Copilot equivalent.
+
+Note: `/usage-credits` is the renamed `/extra-usage` (Claude Code v2.1.x): "configure usage credits to keep working when you hit a limit". No Copilot CLI equivalent — the closest is `/usage` which only shows usage stats.
+
+Note: `/run`, `/run-skill-generator`, and `/verify` (Claude Code v2.1.145+) are skills that build, launch, and drive the project's app to observe a change running. No Copilot CLI equivalent.
+
+Note: `/radio` opens Claude FM lo-fi radio in the browser (not available on Bedrock, Vertex, or Foundry). No Copilot CLI equivalent.
 
 ## Keyboard Shortcuts
 
