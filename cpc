@@ -131,7 +131,7 @@ SUBCOMMANDS = {
     "remote-control", "auto-mode", "autofix-pr", "web-setup",
     "team-onboarding", "loop", "proactive",
     # Background agent session management (new in Claude Code)
-    "attach", "logs", "respawn", "rm", "stop",
+    "attach", "logs", "respawn", "rm", "stop", "daemon",
     "ultrareview", "project", "setup-token", "install",
 }
 
@@ -191,7 +191,8 @@ def handle_subcommand(subcmd, rest_args):
         return None
     if subcmd == "respawn":
         warn("Not available in Copilot CLI. Background agent session management is Claude Code-only. "
-             "Closest: resume a session with 'copilot --resume'")
+             "'claude respawn' restarts a running or stopped background session "
+             "(--all restarts every running session). Closest: resume a session with 'copilot --resume'")
         return None
     if subcmd == "rm":
         warn("Not available in Copilot CLI. Background agent session management is Claude Code-only. "
@@ -199,6 +200,15 @@ def handle_subcommand(subcmd, rest_args):
         return None
     if subcmd == "stop":
         warn("Not available in Copilot CLI. Background agent session management is Claude Code-only")
+        return None
+    if subcmd == "daemon":
+        sub = rest_args[0] if rest_args else None
+        if sub == "status":
+            warn("Not available in Copilot CLI. 'claude daemon status' reports state of Claude Code's "
+                 "background-session supervisor, which has no Copilot CLI counterpart")
+            return None
+        warn("Not available in Copilot CLI. 'claude daemon' manages Claude Code's background-session "
+             "supervisor, which has no Copilot CLI counterpart")
         return None
     if subcmd == "ultrareview":
         warn("Not available in Copilot CLI. Use /review inside a Copilot CLI session for local reviews")
@@ -547,6 +557,7 @@ Background agent subcommands (Claude Code-only, no Copilot equivalent):
   cpc respawn <id>                     Not available (use --resume)
   cpc rm <id>                          Not available (use /session delete)
   cpc stop <id>                        Not available
+  cpc daemon status                    Not available (Claude Code background-session supervisor)
   cpc install [version]                Not available (use copilot update)
   cpc setup-token                      Not available (use gh auth token)
   cpc project purge [path]             Not available (use /session cleanup)
