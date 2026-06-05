@@ -145,7 +145,7 @@ Quick reference for the most common ones:
 | Claude Code | Copilot CLI | Same? |
 |---|---|---|
 | `/clear` | `/clear` | ✅ |
-| `/compact` | `/compact` | ✅ |
+| `/compact` | `/compact [FOCUS-INSTRUCTIONS]` | ✅ Both accept optional focus instructions |
 | `/context` | `/context` | ✅ |
 | `/diff` | `/diff` | ✅ |
 | `/model` | `/model` | ✅ |
@@ -158,6 +158,8 @@ Quick reference for the most common ones:
 | `/btw` | `/ask` (experimental) | ⚠️ Renamed — side question without adding to history |
 | `/code-review` (`/simplify`) | `/review` | ⚠️ Renamed — `/simplify` is now an alias; `--comment` and effort levels have no Copilot equivalent |
 | `/cost` | `/usage` | ⚠️ Renamed |
+| `/permissions` | `/permissions [show\|reset]` | ⚠️ Aligned — Copilot's is session-scoped (in-memory); `show`/`reset` only |
+| `/sandbox` | `/sandbox [enable\|disable]` | ⚠️ Aligned — both now have `/sandbox`; Copilot uses explicit `enable`/`disable` |
 | `/export` | `/share` (`/export`) | ⚠️ Renamed — `/export` now also a Copilot alias |
 | `/extra-usage` → `/usage-credits` | — | ❌ Claude Code-only (configure usage credits; closest: `/usage` for stats only) |
 | `/goal` | — | ❌ Claude Code-only (set goal for multi-turn agentic loop) |
@@ -176,6 +178,9 @@ Quick reference for the most common ones:
 | — | `/env` | 🆕 Copilot CLI only — show loaded environment details |
 | — | `/chronicle` | 🆕 Copilot CLI only (experimental) — session history tools |
 | — | `/research TOPIC` | 🆕 Copilot CLI only |
+| — | `/rubber-duck [PROMPT]` | 🆕 Copilot CLI only — rubber duck agent for a second opinion |
+| — | `/diagnose [PROMPT]` | 🆕 Copilot CLI only — analyze the session log for diagnostics |
+| — | `/collect-debug-logs [file\|gist] [PATH]` | 🆕 Copilot CLI only — export debug logs to a file or gist |
 | — | `/update` (`/upgrade`) | 🆕 Copilot CLI only |
 | — | `/version` | 🆕 Copilot CLI only |
 
@@ -225,6 +230,11 @@ The setup script symlinks these directories so both tools share the same files:
 - **`/search [QUERY]`** (`/find`) is a Copilot CLI-only experimental command (search the conversation timeline) — no Claude Code equivalent
 - **`/clikit [COMPONENT]`** is a Copilot CLI-only internal/debug command — no Claude Code equivalent
 - **`/env`** is a Copilot CLI-only slash command (show loaded environment details) — no Claude Code equivalent
+- **`/rubber-duck [PROMPT]`** is a Copilot CLI-only slash command (consult the rubber duck agent for a second opinion on plans, code, and tests) — no Claude Code equivalent
+- **`/diagnose [PROMPT]`** and **`/collect-debug-logs [file\|gist] [PATH]`** are Copilot CLI-only debugging commands (analyze the current session log; export debug logs to an archive file or GitHub gist) — partial Claude Code analogs are `/heapdump` and the `/debug` skill
+- **`/sandbox`** exists in both CLIs but with different syntax — Claude Code's `/sandbox` toggles sandbox mode, while Copilot CLI's `/sandbox [enable|disable]` configures shell command sandboxing explicitly
+- **`/permissions`** differs in scope — Claude Code manages persistent allow/ask/deny rules, whereas Copilot CLI's `/permissions [show|reset]` is session-scoped (in-memory): `show` views and `reset` clears the current session's tool and path approvals
+- **`/compact [FOCUS-INSTRUCTIONS]`** now accepts optional focus instructions in both CLIs (e.g. `/compact focus on the auth module`); `cpc` passes in-session slash commands through unchanged
 - **`/chronicle`** is a Copilot CLI-only experimental command (session history tools) — no Claude Code equivalent
 - **`/on-air`** (`/streamer-mode`) has been removed from Copilot CLI
 - **`--connect[=SESSION-ID]`** is a Copilot CLI-only flag for remote session joining — no direct Claude Code equivalent (see `--remote` and `--teleport`)
