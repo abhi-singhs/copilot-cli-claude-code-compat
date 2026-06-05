@@ -124,24 +124,29 @@ Use this reference when you know a Claude Code command and want the Copilot CLI 
 | `/export` | `/share` (`/export`) | `/export` is now also a Copilot CLI alias for `/share` |
 | `/extra-usage` | — | Renamed to `/usage-credits` in Claude Code; no Copilot equivalent (closest: `/usage` for stats only) |
 | `/usage-credits` | — | Configure usage credits to keep working when you hit a limit. No Copilot equivalent (closest: `/usage` for stats only) |
-| `/permissions` | `/allow-all` and `/reset-allowed-tools` | |
+| `/permissions` | `/permissions [show\|reset]` | Claude Code manages persistent allow/ask/deny rules; Copilot's is session-scoped (in-memory) — `show` views, `reset` clears the current session's tool/path approvals. `/allow-all` and `/reset-allowed-tools` remain related Copilot commands |
 | `/release-notes` | `/changelog` (`/release-notes`) | `/release-notes` is now a Copilot CLI alias for `/changelog` |
 | `/rewind` / `/checkpoint` / `/undo` | `/session checkpoints` | |
 | `/remote-control` (`/rc`) | `/remote [on\|off]` | No args shows status; `on` enables; `off` ends connection |
+| `/sandbox` | `/sandbox [enable\|disable]` | Both CLIs now have `/sandbox`. Claude Code toggles sandbox mode; Copilot CLI configures shell command sandboxing with explicit `enable`/`disable` |
 | `/ultrareview [PR]` | `/review [PROMPT]` | Cloud-based deep review; `/review` in Claude Code is the local equivalent |
 
 ### Claude Code Only (no Copilot equivalent)
 `/autofix-pr`, `/background` (`/bg`), `/chrome`, `/color`, `/config`, `/copy`, `/desktop`, `/doctor`,
 `/effort`, `/fast`, `/fewer-permission-prompts`, `/focus`, `/goal`, `/heapdump`, `/hooks`, `/loop` (`/proactive`), `/memory`, `/radio`, `/recap`,
 `/run`, `/run-skill-generator`, `/verify`,
-`/sandbox`, `/schedule` (`/routines`), `/scroll-speed`, `/security-review`, `/setup-bedrock`,
+`/schedule` (`/routines`), `/scroll-speed`, `/security-review`, `/setup-bedrock`,
 `/stats`, `/stop`, `/team-onboarding`, `/tui`, `/voice`, `/web-setup`
 
 ### Copilot CLI Only (not in Claude Code)
 `/ask` (experimental), `/changelog` (`/release-notes`), `/chronicle` (experimental: `standup|tips|improve|reindex` — session history tools and insights),
 `/clikit [COMPONENT]` (internal/debug: preview CLI business components),
+`/collect-debug-logs [file\|gist] [PATH]` (collect debug logs to an archive file or GitHub gist),
+`/diagnose [PROMPT]` (analyze the current session log and optionally prompt the agent about diagnostics),
 `/downgrade <VERSION>` (download and restart into a specific CLI version; team accounts only),
-`/env`, `/fleet`, `/list-dirs`, `/cwd` (`/cd`), `/lsp`, `/research`, `/user`,
+`/env`, `/fleet`, `/list-dirs`, `/cwd` (`/cd`), `/lsp`, `/research`,
+`/rubber-duck [PROMPT]` (consult the rubber duck agent for a second opinion on plans, code, and tests),
+`/user`,
 `/search [QUERY]` (`/find [QUERY]`) (experimental: search the conversation timeline),
 `/session` (`/sessions`) with subcommands: `info|checkpoints [n]|files|plan|rename [NAME]|cleanup|prune|delete [ID]|delete-all`,
 `/statusline` (`/footer`), `/experimental`, `/remote [on|off]`, `/keep-alive [on|off|busy|DURATION]` (`/caffeinate`),
@@ -168,6 +173,16 @@ Note: `/usage-credits` is the renamed `/extra-usage` (Claude Code v2.1.x): "conf
 Note: `/run`, `/run-skill-generator`, and `/verify` (Claude Code v2.1.145+) are skills that build, launch, and drive the project's app to observe a change running. No Copilot CLI equivalent.
 
 Note: `/radio` opens Claude FM lo-fi radio in the browser (not available on Bedrock, Vertex, or Foundry). No Copilot CLI equivalent.
+
+Note: `/compact [FOCUS-INSTRUCTIONS]` now accepts optional focus instructions in both CLIs (e.g. `/compact focus on the auth module`). The `cpc` wrapper doesn't touch in-session slash commands, so the focus argument passes through to Copilot CLI unchanged.
+
+Note: `/sandbox` exists in both CLIs but with different syntax. Claude Code's `/sandbox` toggles sandbox mode; Copilot CLI's `/sandbox [enable|disable]` configures shell command sandboxing explicitly.
+
+Note: `/permissions` differs in scope. Claude Code manages persistent allow/ask/deny tool rules; Copilot CLI's `/permissions [show|reset]` is session-scoped (in-memory) — `show` views and `reset` clears the current session's tool and path approvals.
+
+Note: `/rubber-duck [PROMPT]` is a Copilot CLI-only agent for a second opinion on plans, code, and tests. No Claude Code equivalent.
+
+Note: `/diagnose [PROMPT]` and `/collect-debug-logs [file|gist] [PATH]` are Copilot CLI-only debugging commands (analyze the session log; export debug logs to a file or gist). Partial analogs in Claude Code are `/heapdump` and the `/debug` skill.
 
 Note: `/feedback [report]` (aliases `/bug`, `/share`) gained the `/share` alias in Claude Code. This collides in name with Copilot CLI's `/share [file|html|gist] [session|research] [PATH]` (session export). Same name, different action — `/share` submits feedback in Claude Code but exports the session in Copilot CLI.
 

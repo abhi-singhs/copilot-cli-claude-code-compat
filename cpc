@@ -591,6 +591,9 @@ For slash command mapping:    type /claude-help in a Copilot CLI session
 
 Slash command note:
   Claude Code /btw → Copilot CLI /ask (experimental mode; side question)
+  /compact [FOCUS-INSTRUCTIONS] → same in both CLIs (focus arg passes through)
+  /sandbox → Copilot CLI /sandbox [enable|disable] (configure shell sandboxing)
+  /permissions → Copilot CLI /permissions [show|reset] (session-scoped approvals)
   Claude Code /deep-research → Copilot CLI /research (best-effort; pipelines
     differ: Claude Code fans out web searches, Copilot uses GitHub + web)
   Claude Code /feedback alias /share differs from Copilot CLI /share (which
