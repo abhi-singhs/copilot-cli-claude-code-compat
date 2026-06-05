@@ -591,6 +591,10 @@ For slash command mapping:    type /claude-help in a Copilot CLI session
 
 Slash command note:
   Claude Code /btw → Copilot CLI /ask (experimental mode; side question)
+  Claude Code /deep-research → Copilot CLI /research (best-effort; pipelines
+    differ: Claude Code fans out web searches, Copilot uses GitHub + web)
+  Claude Code /feedback alias /share differs from Copilot CLI /share (which
+    exports the session: /share [file|html|gist] ...) — same name, different action
 
 Prompt mode env vars (set to 'true' to enable in -p mode):
   GITHUB_COPILOT_PROMPT_MODE_EXTENSIONS    Load project extensions
