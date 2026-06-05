@@ -594,6 +594,10 @@ Slash command note:
   /compact [FOCUS-INSTRUCTIONS] → same in both CLIs (focus arg passes through)
   /sandbox → Copilot CLI /sandbox [enable|disable] (configure shell sandboxing)
   /permissions → Copilot CLI /permissions [show|reset] (session-scoped approvals)
+  Claude Code /deep-research → Copilot CLI /research (best-effort; pipelines
+    differ: Claude Code fans out web searches, Copilot uses GitHub + web)
+  Claude Code /feedback alias /share differs from Copilot CLI /share (which
+    exports the session: /share [file|html|gist] ...) — same name, different action
 
 Prompt mode env vars (set to 'true' to enable in -p mode):
   GITHUB_COPILOT_PROMPT_MODE_EXTENSIONS    Load project extensions

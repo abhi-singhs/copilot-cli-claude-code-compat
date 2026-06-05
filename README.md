@@ -144,8 +144,8 @@ Quick reference for the most common ones:
 
 | Claude Code | Copilot CLI | Same? |
 |---|---|---|
-| `/clear` | `/clear` | ✅ |
 | `/compact` | `/compact [FOCUS-INSTRUCTIONS]` | ✅ Both accept optional focus instructions |
+| `/clear` | `/clear` | ✅ — note: Claude Code's optional `[name]` labels the previous conversation in `/resume`; Copilot's optional `[PROMPT]` starts the new conversation |
 | `/context` | `/context` | ✅ |
 | `/diff` | `/diff` | ✅ |
 | `/model` | `/model` | ✅ |
@@ -160,6 +160,7 @@ Quick reference for the most common ones:
 | `/cost` | `/usage` | ⚠️ Renamed |
 | `/permissions` | `/permissions [show\|reset]` | ⚠️ Aligned — Copilot's is session-scoped (in-memory); `show`/`reset` only |
 | `/sandbox` | `/sandbox [enable\|disable]` | ⚠️ Aligned — both now have `/sandbox`; Copilot uses explicit `enable`/`disable` |
+| `/deep-research <question>` | `/research TOPIC` | ⚠️ Best-effort — Claude Code fans out web searches; Copilot uses GitHub + web sources |
 | `/export` | `/share` (`/export`) | ⚠️ Renamed — `/export` now also a Copilot alias |
 | `/extra-usage` → `/usage-credits` | — | ❌ Claude Code-only (configure usage credits; closest: `/usage` for stats only) |
 | `/goal` | — | ❌ Claude Code-only (set goal for multi-turn agentic loop) |
@@ -226,7 +227,9 @@ The setup script symlinks these directories so both tools share the same files:
 - **`/tui`**, **`/focus`**, **`/heapdump`**, **`/recap`** are Claude Code–only UI/debugging commands — no Copilot CLI equivalents
 - **`/ultrareview [PR]`** is a Claude Code–only command (deep cloud-based code review) — use `/review` in Copilot CLI for local reviews
 - **`/keep-alive [on|off|busy|DURATION]`** (`/caffeinate`) is a Copilot CLI-only slash command (prevent machine sleep; duration accepts bare numbers, `30m`, `2h`, `1d`) — no Claude Code equivalent
-- **`/research`**, **`/update`** (`/upgrade`), **`/version`** are Copilot CLI-only slash commands — no Claude Code equivalents
+- **`/research`**, **`/update`** (`/upgrade`), **`/version`** are Copilot CLI-only slash commands — Claude Code's closest analog to `/research` is `/deep-research <question>` (best-effort mapping; the research pipelines differ)
+- **`/feedback`** alias `/share` (added in Claude Code, alongside `/bug`) collides in name with Copilot CLI's `/share [file|html|gist] [session|research] [PATH]` (session export). Same name, different action — `/share` submits feedback in Claude Code but exports the session in Copilot CLI
+- **`/deep-research <question>`** is a Claude Code workflow (fan out web searches, cross-check sources, synthesize a cited report) — the `cpc` wrapper treats it as a best-effort mapping to Copilot CLI's `/research TOPIC`, which uses GitHub search + web sources
 - **`/search [QUERY]`** (`/find`) is a Copilot CLI-only experimental command (search the conversation timeline) — no Claude Code equivalent
 - **`/clikit [COMPONENT]`** is a Copilot CLI-only internal/debug command — no Claude Code equivalent
 - **`/env`** is a Copilot CLI-only slash command (show loaded environment details) — no Claude Code equivalent

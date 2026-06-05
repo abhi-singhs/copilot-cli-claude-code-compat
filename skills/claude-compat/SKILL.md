@@ -120,6 +120,7 @@ Use this reference when you know a Claude Code command and want the Copilot CLI 
 | `/code-review [low\|medium\|high\|xhigh\|max] [--comment] [target]` | `/review [PROMPT]` | `/simplify` is a backward-compatible alias in Claude Code. Effort levels and `--comment` (post inline PR comments) have no Copilot equivalent — strip those arguments |
 | `/simplify [focus]` | `/review [PROMPT]` | Now an alias for `/code-review` in Claude Code |
 | `/cost` | `/usage` | |
+| `/deep-research <question>` | `/research [TOPIC]` | Best-effort: Claude Code's `/deep-research` fans out web searches and synthesizes a cited report; Copilot's `/research` uses GitHub search + web sources. The research pipelines differ |
 | `/export` | `/share` (`/export`) | `/export` is now also a Copilot CLI alias for `/share` |
 | `/extra-usage` | — | Renamed to `/usage-credits` in Claude Code; no Copilot equivalent (closest: `/usage` for stats only) |
 | `/usage-credits` | — | Configure usage credits to keep working when you hit a limit. No Copilot equivalent (closest: `/usage` for stats only) |
@@ -182,6 +183,12 @@ Note: `/permissions` differs in scope. Claude Code manages persistent allow/ask/
 Note: `/rubber-duck [PROMPT]` is a Copilot CLI-only agent for a second opinion on plans, code, and tests. No Claude Code equivalent.
 
 Note: `/diagnose [PROMPT]` and `/collect-debug-logs [file|gist] [PATH]` are Copilot CLI-only debugging commands (analyze the session log; export debug logs to a file or gist). Partial analogs in Claude Code are `/heapdump` and the `/debug` skill.
+
+Note: `/feedback [report]` (aliases `/bug`, `/share`) gained the `/share` alias in Claude Code. This collides in name with Copilot CLI's `/share [file|html|gist] [session|research] [PATH]` (session export). Same name, different action — `/share` submits feedback in Claude Code but exports the session in Copilot CLI.
+
+Note: `/clear [name]` in Claude Code accepts an optional name to label the previous conversation in the `/resume` picker. Copilot CLI's `/clear [PROMPT]` instead takes an optional prompt to start the new conversation. The optional argument has different semantics on each CLI.
+
+Note: `/deep-research <question>` (Claude Code workflow: "fan out web searches on a question, fetch and cross-check sources, and synthesize a cited report") has no exact Copilot CLI equivalent. Closest is `/research [TOPIC]`, which uses GitHub search + web sources rather than fanned-out web search. The `cpc` wrapper treats this as a best-effort translation.
 
 ## Keyboard Shortcuts
 
