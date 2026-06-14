@@ -184,6 +184,8 @@ Quick reference for the most common ones:
 | — | `/collect-debug-logs [file\|gist] [PATH]` | 🆕 Copilot CLI only — export debug logs to a file or gist |
 | — | `/update` (`/upgrade`) | 🆕 Copilot CLI only |
 | — | `/version` | 🆕 Copilot CLI only |
+| — | `/worktree [branch]` (`/move [branch]`) | 🆕 Copilot CLI only (experimental) — create a git worktree and switch to it; closest Claude Code analog is the `--worktree` (`-w`) launch flag |
+| — | `/tuikit [colors\|icons\|select\|tabbar]` | 🆕 Copilot CLI only — preview TUIkit design-system components and color tokens |
 
 ## Config Sharing
 
@@ -204,7 +206,7 @@ The setup script symlinks these directories so both tools share the same files:
 - **System prompts** (`--system-prompt`, `--append-system-prompt`) don't exist in Copilot CLI — use `.github/copilot-instructions.md` or `.instructions.md` files
 - **MCP configs** have different JSON schemas — migrate manually
 - **Settings** (`~/.claude/settings.json` vs `~/.copilot/config.json`) have different formats
-- **Worktree mode** (`-w`) isn't available — use `git worktree` directly
+- **Worktree mode** (`-w` / `--worktree`) has no launch-time equivalent — inside a Copilot CLI session, use the `/worktree [branch]` (`/move [branch]`) slash command (experimental mode) to create a worktree and move uncommitted changes along, or run `git worktree` directly
 - **Windows symlinks** may require running PowerShell as Administrator or enabling Developer Mode
 - **Budget limits** (`--max-budget-usd`) aren't available in Copilot CLI
 - **Plugin URL loading** (`--plugin-url`) is a Claude Code-only feature — Copilot CLI only supports local plugins via `copilot plugin install <dir>`
@@ -237,7 +239,10 @@ The setup script symlinks these directories so both tools share the same files:
 - **`/reload-skills`** (Claude Code v2.1.152+, re-scan skill/command directories without restarting) maps to Copilot CLI's `/skills reload`
 - **`/fork`** changed semantics in Claude Code v2.1.161 — it was an alias for `/branch`, but now `/fork <directive>` spawns a background forked subagent that inherits the conversation; closest Copilot CLI equivalent is `/fleet <directive>`. Use `/branch` to switch into a copy of the conversation yourself
 - **`/search [QUERY]`** (`/find`) is a Copilot CLI-only experimental command (search the conversation timeline) — no Claude Code equivalent
+- **`/worktree [branch]`** (`/move [branch]`) is a Copilot CLI-only experimental slash command (create a git worktree and switch to it, moving uncommitted changes along; requires a git repository) — the closest Claude Code analog is the `--worktree` (`-w`) launch flag
+- **`--effort` / `--reasoning-effort`** is now supported in both CLIs and passes straight through — Copilot CLI accepts the same five levels as Claude Code (`low`, `medium`, `high`, `xhigh`, `max`; `max` is the highest-depth tier for Anthropic models), so `cpc` forwards it to Copilot's `--effort=LEVEL` unchanged
 - **`/clikit [COMPONENT]`** is a Copilot CLI-only internal/debug command — no Claude Code equivalent
+- **`/tuikit [colors|icons|select|tabbar]`** is a Copilot CLI-only internal/debug command (preview TUIkit design-system components and color tokens) — no Claude Code equivalent
 - **`/env`** is a Copilot CLI-only slash command (show loaded environment details) — no Claude Code equivalent
 - **`/rubber-duck [PROMPT]`** is a Copilot CLI-only slash command (consult the rubber duck agent for a second opinion on plans, code, and tests) — no Claude Code equivalent
 - **`/diagnose [PROMPT]`** and **`/collect-debug-logs [file\|gist] [PATH]`** are Copilot CLI-only debugging commands (analyze the current session log; export debug logs to an archive file or GitHub gist) — partial Claude Code analogs are `/heapdump` and the `/debug` skill

@@ -78,6 +78,7 @@ PASSTHROUGH_VALUE_FLAGS = {
     "--model", "--add-dir", "--agent", "--output-format",
     "--resume", "--session-id", "--log-level", "--log-dir",
     "--mcp-config", "--additional-mcp-config", "--name",
+    "--effort", "--reasoning-effort",
 }
 
 
@@ -243,14 +244,13 @@ WARN_FLAGS = {
     "--safe-mode":                  (0, "No direct equivalent. Try --no-custom-instructions (Claude Code's --safe-mode disables all customizations: CLAUDE.md, skills, plugins, hooks, MCP servers, custom commands/agents, output styles, etc.)"),
     "--advisor":                    (1, "No Copilot CLI equivalent. The server-side advisor tool is Claude Code-only"),
     "--chrome":                     (0, "Copilot CLI has a built-in Playwright MCP server"),
-    "--worktree":                   (1, "No equivalent. Use 'git worktree' manually"),
+    "--worktree":                   (1, "No launch-time equivalent. Inside a Copilot CLI session, use the /worktree [branch] (/move [branch]) slash command (experimental mode) to create a worktree and move uncommitted changes, or run 'git worktree' manually"),
     "--max-budget-usd":             (1, "Not supported in Copilot CLI"),
     "--from-pr":                    (1, "Not supported. Reference the PR URL in your prompt instead"),
     "--fork-session":               (0, "Not supported in Copilot CLI"),
     "--fallback-model":             (1, "Not supported in Copilot CLI"),
     "--json-schema":                (1, "Not supported. Use --output-format=json for JSON output"),
     "--no-session-persistence":     (0, "Not supported in Copilot CLI"),
-    "--effort":                     (1, "Set effortLevel in ~/.copilot/config.json instead (note: Claude Code's 'xhigh' level is not supported by Copilot CLI)"),
     "--betas":                      (1, "Not applicable to Copilot CLI"),
     "--tmux":                       (0, "Not supported in Copilot CLI"),
     "--remote-control-session-name-prefix": (1, "Remote Control is not available in Copilot CLI"),
@@ -427,10 +427,14 @@ def translate_flags(args):
 
         elif arg == "-w":
             if i + 1 < len(args) and not is_flag(args[i + 1]):
-                warn("Worktree mode is not available in Copilot CLI. Use 'git worktree' manually")
+                warn("Worktree mode has no launch-time equivalent in Copilot CLI. "
+                     "Use the /worktree [branch] (/move [branch]) slash command "
+                     "(experimental mode) inside a session, or run 'git worktree' manually")
                 i += 2
             else:
-                warn("Worktree mode is not available in Copilot CLI. Use 'git worktree' manually")
+                warn("Worktree mode has no launch-time equivalent in Copilot CLI. "
+                     "Use the /worktree [branch] (/move [branch]) slash command "
+                     "(experimental mode) inside a session, or run 'git worktree' manually")
                 i += 1
 
         # --- Warn-only flags ---
@@ -471,10 +475,6 @@ def translate_flags(args):
             path = arg.split("=", 1)[1]
             copilot_args.append(f"--log-dir={os.path.dirname(path) or '.'}")
             copilot_args.append("--log-level=debug")
-            i += 1
-        elif arg.startswith("--effort="):
-            warn("Set effortLevel in ~/.copilot/config.json instead "
-                 "(note: Claude Code's 'xhigh' level is not supported by Copilot CLI)")
             i += 1
         elif arg.startswith("--advisor="):
             warn("No Copilot CLI equivalent. The server-side advisor tool is Claude Code-only")
@@ -551,6 +551,7 @@ Translated flags:
   --no-remote                          → --no-remote (disable remote access)
   --teleport                           → --resume (cloud session picker)
   --name / -n NAME                     → --name=NAME (session name)
+  --effort LEVEL                       → --effort=LEVEL (low|medium|high|xhigh|max)
 
 Unsupported flags:
   --bg                                 Not available (background agent mode is Claude Code-only;
@@ -609,6 +610,9 @@ Slash command note:
     differ: Claude Code fans out web searches, Copilot uses GitHub + web)
   Claude Code /feedback alias /share differs from Copilot CLI /share (which
     exports the session: /share [file|html|gist] ...) — same name, different action
+  Claude Code --worktree (-w) launch flag → Copilot CLI /worktree [branch]
+    (/move [branch]) slash command inside a session (experimental mode): creates
+    a worktree and moves uncommitted changes along
 
 Prompt mode env vars (set to 'true' to enable in -p mode):
   GITHUB_COPILOT_PROMPT_MODE_EXTENSIONS    Load project extensions
