@@ -211,6 +211,8 @@ The setup script symlinks these directories so both tools share the same files:
 - **`/team-onboarding`** is a Claude Code–only command (generates team onboarding guides from session history) — no Copilot CLI equivalent
 - **`/loop`** (`/proactive`) is a Claude Code–only command (runs a prompt repeatedly while the session stays open) — no Copilot CLI equivalent
 - **`--bg`** flag (start session as a background agent) is Claude Code-only — closest: Ctrl+X then b to promote a running task to the background
+- **`--advisor <model>`** flag (enable the server-side advisor tool; accepts `opus`, `sonnet`, `fable`, or a full model ID) is Claude Code-only — no direct Copilot CLI equivalent
+- **`--safe-mode`** flag (start with all customizations disabled for troubleshooting: `CLAUDE.md`, skills, plugins, hooks, MCP servers, custom commands/agents, output styles, etc.) is Claude Code-only — no direct Copilot CLI equivalent; closest is `--no-custom-instructions`, though the semantics differ significantly
 - **Background agent session management** (`attach`, `logs`, `respawn`, `rm`, `stop` subcommands) is Claude Code-only — Copilot CLI manages sessions via `/session` and `--resume`. Note: `claude respawn` restarts a running or stopped background session (`--all` restarts every running session)
 - **`claude daemon status`** is Claude Code-only — reports the state of Claude Code's background-session supervisor (version, socket directory, worker count); no Copilot CLI counterpart
 - **`/code-review`** (which replaces `/simplify` in Claude Code; `/simplify` is now an alias) maps to Copilot CLI `/review`. The `--comment` flag (post inline PR comments) and effort levels (`low|medium|high|xhigh|max`) have no Copilot equivalent
@@ -230,6 +232,10 @@ The setup script symlinks these directories so both tools share the same files:
 - **`/research`**, **`/update`** (`/upgrade`), **`/version`** are Copilot CLI-only slash commands — Claude Code's closest analog to `/research` is `/deep-research <question>` (best-effort mapping; the research pipelines differ)
 - **`/feedback`** alias `/share` (added in Claude Code, alongside `/bug`) collides in name with Copilot CLI's `/share [file|html|gist] [session|research] [PATH]` (session export). Same name, different action — `/share` submits feedback in Claude Code but exports the session in Copilot CLI
 - **`/deep-research <question>`** is a Claude Code workflow (fan out web searches, cross-check sources, synthesize a cited report) — the `cpc` wrapper treats it as a best-effort mapping to Copilot CLI's `/research TOPIC`, which uses GitHub search + web sources
+- **`/advisor [model|off]`** is a Claude Code-only command (enable/disable the server-side advisor tool; accepts `opus`, `sonnet`, `fable`, or a full model ID) — no Copilot CLI equivalent
+- **`/cd <path>`** (Claude Code v2.1.169+, move the session to a new working directory) maps to Copilot CLI's `/cd [PATH]` (combined with `/cwd`)
+- **`/reload-skills`** (Claude Code v2.1.152+, re-scan skill/command directories without restarting) maps to Copilot CLI's `/skills reload`
+- **`/fork`** changed semantics in Claude Code v2.1.161 — it was an alias for `/branch`, but now `/fork <directive>` spawns a background forked subagent that inherits the conversation; closest Copilot CLI equivalent is `/fleet <directive>`. Use `/branch` to switch into a copy of the conversation yourself
 - **`/search [QUERY]`** (`/find`) is a Copilot CLI-only experimental command (search the conversation timeline) — no Claude Code equivalent
 - **`/clikit [COMPONENT]`** is a Copilot CLI-only internal/debug command — no Claude Code equivalent
 - **`/env`** is a Copilot CLI-only slash command (show loaded environment details) — no Claude Code equivalent

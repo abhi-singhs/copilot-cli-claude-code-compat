@@ -240,6 +240,8 @@ WARN_FLAGS = {
     "--append-system-prompt":       (1, "Use .github/copilot-instructions.md or .instructions.md files instead"),
     "--append-system-prompt-file":  (1, "Use .github/copilot-instructions.md or .instructions.md files instead"),
     "--bare":                       (0, "No direct equivalent. Try --no-custom-instructions"),
+    "--safe-mode":                  (0, "No direct equivalent. Try --no-custom-instructions (Claude Code's --safe-mode disables all customizations: CLAUDE.md, skills, plugins, hooks, MCP servers, custom commands/agents, output styles, etc.)"),
+    "--advisor":                    (1, "No Copilot CLI equivalent. The server-side advisor tool is Claude Code-only"),
     "--chrome":                     (0, "Copilot CLI has a built-in Playwright MCP server"),
     "--worktree":                   (1, "No equivalent. Use 'git worktree' manually"),
     "--max-budget-usd":             (1, "Not supported in Copilot CLI"),
@@ -474,6 +476,9 @@ def translate_flags(args):
             warn("Set effortLevel in ~/.copilot/config.json instead "
                  "(note: Claude Code's 'xhigh' level is not supported by Copilot CLI)")
             i += 1
+        elif arg.startswith("--advisor="):
+            warn("No Copilot CLI equivalent. The server-side advisor tool is Claude Code-only")
+            i += 1
         elif arg.startswith("--plugin-url="):
             warn("--plugin-url is not supported in Copilot CLI "
                  "(URL-based plugin loading is a Claude Code-only feature). "
@@ -550,6 +555,8 @@ Translated flags:
 Unsupported flags:
   --bg                                 Not available (background agent mode is Claude Code-only;
                                        closest: Ctrl+X then b to promote to background)
+  --advisor <model>                    Not available (server-side advisor tool is Claude Code-only)
+  --safe-mode                          No direct equivalent (try --no-custom-instructions)
 
 Background agent subcommands (Claude Code-only, no Copilot equivalent):
   cpc attach <id>                      Not available (use --resume to reconnect)
@@ -592,6 +599,10 @@ For slash command mapping:    type /claude-help in a Copilot CLI session
 Slash command note:
   Claude Code /btw → Copilot CLI /ask (experimental mode; side question)
   /compact [FOCUS-INSTRUCTIONS] → same in both CLIs (focus arg passes through)
+  /cd <path> → Copilot CLI /cd [PATH] (move session to a new working directory)
+  /reload-skills → Copilot CLI /skills reload (re-scan skill/command directories)
+  Claude Code /fork <directive> → Copilot CLI /fleet <directive> (v2.1.161+ spawns a
+    background subagent; previously /fork was an alias for /branch)
   /sandbox → Copilot CLI /sandbox [enable|disable] (configure shell sandboxing)
   /permissions → Copilot CLI /permissions [show|reset] (session-scoped approvals)
   Claude Code /deep-research → Copilot CLI /research (best-effort; pipelines
