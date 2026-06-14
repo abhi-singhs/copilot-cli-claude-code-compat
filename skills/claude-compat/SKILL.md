@@ -55,6 +55,7 @@ Use this reference when you know a Claude Code command and want the Copilot CLI 
 | `--continue` / `-c` | Same |
 | `-p` / `--print` | Same (non-interactive mode) |
 | `--name` / `-n` | Same — set a session name |
+| `--effort` / `--reasoning-effort` | Same — both CLIs accept `low`, `medium`, `high`, `xhigh`, `max` (`max` is the highest-depth tier for Anthropic models). Passed through to Copilot's `--effort=LEVEL` |
 
 ### Translated (different name or syntax)
 | Claude Code | Copilot CLI | Notes |
@@ -86,13 +87,12 @@ Use this reference when you know a Claude Code command and want the Copilot CLI 
 | `--safe-mode` | Try `--no-custom-instructions` (Claude Code's `--safe-mode` disables all customizations: `CLAUDE.md`, skills, plugins, hooks, MCP servers, custom commands/agents, output styles, etc.; semantics differ) |
 | `--advisor <model>` | Not available (server-side advisor tool is Claude Code-only; accepts `opus`, `sonnet`, `fable`, or a full model ID) |
 | `--chrome` | Copilot has built-in Playwright MCP |
-| `--worktree` / `-w` | Use `git worktree` manually |
+| `--worktree` / `-w` | No launch-time equivalent. Inside a session, use the `/worktree [branch]` (`/move [branch]`) slash command (experimental mode) to create a worktree and move uncommitted changes, or run `git worktree` manually |
 | `--max-budget-usd` | Not available |
 | `--from-pr` | Reference PR URL in your prompt |
 | `--fork-session` | Not available |
 | `--fallback-model` | Not available |
 | `--json-schema` | Use `--output-format=json` |
-| `--effort` | Set `effortLevel` in `~/.copilot/config.json` (`xhigh` is Claude Code-only; Copilot supports `low`, `medium`, `high`) |
 | `--plugin-url` | Not available (URL-based plugin loading is Claude Code-only; use `copilot plugin install <dir>` for local plugins) |
 | `--tmux` | Not available |
 | `--remote-control-session-name-prefix` | Not available (Remote Control is not supported) |
@@ -155,7 +155,11 @@ Use this reference when you know a Claude Code command and want the Copilot CLI 
 `/search [QUERY]` (`/find [QUERY]`) (experimental: search the conversation timeline),
 `/session` (`/sessions`) with subcommands: `info|checkpoints [n]|files|plan|rename [NAME]|cleanup|prune|delete [ID]|delete-all`,
 `/statusline` (`/footer`), `/experimental`, `/remote [on|off]`, `/keep-alive [on|off|busy|DURATION]` (`/caffeinate`),
+`/tuikit [colors|icons|select|tabbar]` (internal/debug: preview TUIkit design-system components and color tokens),
+`/worktree [branch]` (`/move [branch]`) (experimental: create a new git worktree and switch to it, moving uncommitted changes along; requires a git repository),
 `/update` (`/upgrade`), `/version`
+
+Note: `/worktree [branch]` (`/move [branch]`) is a Copilot CLI-only slash command (experimental mode) that creates a new git worktree and switches to it, moving uncommitted changes along. The closest Claude Code analog is the `--worktree` (`-w`) launch flag, which creates a worktree at startup. There is no launch-time equivalent in Copilot CLI, so the `cpc` wrapper warns and points to the `/worktree` slash command.
 
 Note: `/delegate` is the Copilot equivalent of Claude Code's `--remote "task"` flag.
 
