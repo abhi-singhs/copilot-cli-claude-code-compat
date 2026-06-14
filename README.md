@@ -158,16 +158,16 @@ Quick reference for the most common ones:
 | `/btw` | `/ask` (experimental) | ⚠️ Renamed — side question without adding to history |
 | `/code-review` (`/simplify`) | `/review` | ⚠️ Renamed — `/simplify` is now an alias; `--comment` and effort levels have no Copilot equivalent |
 | `/cost` | `/usage` | ⚠️ Renamed |
-| `/permissions` | `/permissions [show\|reset]` | ⚠️ Aligned — Copilot's is session-scoped (in-memory); `show`/`reset` only |
+| `/permissions` | `/allow-all`, `/reset-allowed-tools` | ⚠️ No `/permissions` command in Copilot CLI; `/allow-all` grants all permissions, `/reset-allowed-tools` clears them |
 | `/sandbox` | `/sandbox [enable\|disable]` | ⚠️ Aligned — both now have `/sandbox`; Copilot uses explicit `enable`/`disable` |
 | `/deep-research <question>` | `/research TOPIC` | ⚠️ Best-effort — Claude Code fans out web searches; Copilot uses GitHub + web sources |
 | `/export` | `/share` (`/export`) | ⚠️ Renamed — `/export` now also a Copilot alias |
 | `/extra-usage` → `/usage-credits` | — | ❌ Claude Code-only (configure usage credits; closest: `/usage` for stats only) |
-| `/goal` | — | ❌ Claude Code-only (set goal for multi-turn agentic loop) |
+| `/goal` | `/autopilot <objective>` (`/goal`) | ⚠️ Aligned — Copilot's `/autopilot <objective>` (alias `/goal`, v1.0.55) keeps autopilot focused on an objective |
 | `/radio` | — | ❌ Claude Code-only (Claude FM lo-fi radio) |
 | `/remote-control` | `/remote [on\|off]` | ⚠️ Renamed — no args shows status; `on`/`off` toggles |
 | `/run`, `/run-skill-generator`, `/verify` | — | ❌ Claude Code-only (build/launch/drive the project's app; v2.1.145+) |
-| `/memory` | — | ❌ Not available |
+| `/memory` | `/memory [on\|off\|show]` | ✅ Both have it — Copilot CLI added `/memory on\|off\|show` in v1.0.49 |
 | `/scroll-speed` | — | ❌ Claude Code-only (interactive scroll speed adjustment) |
 | `/stop` | — | ❌ Claude Code-only (stop current background session) |
 | `/autofix-pr` | — | ❌ Not available |
@@ -184,7 +184,7 @@ Quick reference for the most common ones:
 | — | `/collect-debug-logs [file\|gist] [PATH]` | 🆕 Copilot CLI only — export debug logs to a file or gist |
 | — | `/update` (`/upgrade`) | 🆕 Copilot CLI only |
 | — | `/version` | 🆕 Copilot CLI only |
-| — | `/worktree [branch]` (`/move [branch]`) | 🆕 Copilot CLI only (experimental) — create a git worktree and switch to it; closest Claude Code analog is the `--worktree` (`-w`) launch flag |
+| — | `/streamer-mode` (`/on-air`) | 🆕 Copilot CLI only — hide preview model names and quota details for streaming |
 | — | `/tuikit [colors\|icons\|select\|tabbar]` | 🆕 Copilot CLI only — preview TUIkit design-system components and color tokens |
 
 ## Config Sharing
@@ -206,7 +206,7 @@ The setup script symlinks these directories so both tools share the same files:
 - **System prompts** (`--system-prompt`, `--append-system-prompt`) don't exist in Copilot CLI — use `.github/copilot-instructions.md` or `.instructions.md` files
 - **MCP configs** have different JSON schemas — migrate manually
 - **Settings** (`~/.claude/settings.json` vs `~/.copilot/config.json`) have different formats
-- **Worktree mode** (`-w` / `--worktree`) has no launch-time equivalent — inside a Copilot CLI session, use the `/worktree [branch]` (`/move [branch]`) slash command (experimental mode) to create a worktree and move uncommitted changes along, or run `git worktree` directly
+- **Worktree mode** (`-w` / `--worktree`) has no equivalent in Copilot CLI — there is no worktree launch flag or slash command, so run `git worktree` directly
 - **Windows symlinks** may require running PowerShell as Administrator or enabling Developer Mode
 - **Budget limits** (`--max-budget-usd`) aren't available in Copilot CLI
 - **Plugin URL loading** (`--plugin-url`) is a Claude Code-only feature — Copilot CLI only supports local plugins via `copilot plugin install <dir>`
@@ -222,7 +222,7 @@ The setup script symlinks these directories so both tools share the same files:
 - **`/run`, `/run-skill-generator`, `/verify`** are Claude Code-only skills (v2.1.145+) that build, launch, and drive the project's app to observe a change running — no Copilot CLI equivalent
 - **`/radio`** is a Claude Code-only command (opens Claude FM lo-fi radio in the browser) — no Copilot CLI equivalent
 - **`/background`** (`/bg`) slash command (detach current session to background) is Claude Code-only — closest: Ctrl+X then b
-- **`/goal [condition|clear]`** is a Claude Code-only command (set a goal for multi-turn agentic loop) — no Copilot CLI equivalent
+- **`/goal [condition|clear]`** (Claude Code: set a goal for a multi-turn agentic loop) maps to Copilot CLI's `/autopilot <objective>` (alias `/goal`, v1.0.55), which sets an explicit objective to keep autopilot focused across turns
 - **`/stop`** slash command (stop current background session while attached) is Claude Code-only — no Copilot CLI equivalent
 - **`/scroll-speed`** is a Claude Code-only UI command — no Copilot CLI equivalent
 - **`claude install [version]`** is Claude Code-only — use `copilot update` (no version pinning)
@@ -237,9 +237,8 @@ The setup script symlinks these directories so both tools share the same files:
 - **`/advisor [model|off]`** is a Claude Code-only command (enable/disable the server-side advisor tool; accepts `opus`, `sonnet`, `fable`, or a full model ID) — no Copilot CLI equivalent
 - **`/cd <path>`** (Claude Code v2.1.169+, move the session to a new working directory) maps to Copilot CLI's `/cd [PATH]` (combined with `/cwd`)
 - **`/reload-skills`** (Claude Code v2.1.152+, re-scan skill/command directories without restarting) maps to Copilot CLI's `/skills reload`
-- **`/fork`** changed semantics in Claude Code v2.1.161 — it was an alias for `/branch`, but now `/fork <directive>` spawns a background forked subagent that inherits the conversation; closest Copilot CLI equivalent is `/fleet <directive>`. Use `/branch` to switch into a copy of the conversation yourself
+- **`/fork`** changed semantics in Claude Code v2.1.161 — it was an alias for `/branch`, but now `/fork <directive>` spawns a background forked subagent that inherits the conversation; the closest Copilot CLI equivalent for that is `/fleet <directive>`. Note that Copilot CLI also has its own `/fork` (v1.0.45) that forks the session into a new independent session, matching Claude Code's *old* `/fork`=`/branch` behavior. Use `/branch` in Claude Code to switch into a copy of the conversation yourself
 - **`/search [QUERY]`** (`/find`) is a Copilot CLI-only experimental command (search the conversation timeline) — no Claude Code equivalent
-- **`/worktree [branch]`** (`/move [branch]`) is a Copilot CLI-only experimental slash command (create a git worktree and switch to it, moving uncommitted changes along; requires a git repository) — the closest Claude Code analog is the `--worktree` (`-w`) launch flag
 - **`--effort` / `--reasoning-effort`** is now supported in both CLIs and passes straight through — Copilot CLI accepts the same five levels as Claude Code (`low`, `medium`, `high`, `xhigh`, `max`; `max` is the highest-depth tier for Anthropic models), so `cpc` forwards it to Copilot's `--effort=LEVEL` unchanged
 - **`/clikit [COMPONENT]`** is a Copilot CLI-only internal/debug command — no Claude Code equivalent
 - **`/tuikit [colors|icons|select|tabbar]`** is a Copilot CLI-only internal/debug command (preview TUIkit design-system components and color tokens) — no Claude Code equivalent
@@ -247,10 +246,10 @@ The setup script symlinks these directories so both tools share the same files:
 - **`/rubber-duck [PROMPT]`** is a Copilot CLI-only slash command (consult the rubber duck agent for a second opinion on plans, code, and tests) — no Claude Code equivalent
 - **`/diagnose [PROMPT]`** and **`/collect-debug-logs [file\|gist] [PATH]`** are Copilot CLI-only debugging commands (analyze the current session log; export debug logs to an archive file or GitHub gist) — partial Claude Code analogs are `/heapdump` and the `/debug` skill
 - **`/sandbox`** exists in both CLIs but with different syntax — Claude Code's `/sandbox` toggles sandbox mode, while Copilot CLI's `/sandbox [enable|disable]` configures shell command sandboxing explicitly
-- **`/permissions`** differs in scope — Claude Code manages persistent allow/ask/deny rules, whereas Copilot CLI's `/permissions [show|reset]` is session-scoped (in-memory): `show` views and `reset` clears the current session's tool and path approvals
+- **`/permissions`** differs between the CLIs — Claude Code manages persistent allow/ask/deny rules with `/permissions`; Copilot CLI has no `/permissions` command, instead offering `/allow-all` (grant all tool/path/URL permissions for the session) and `/reset-allowed-tools` (clear the session's allowed-tools list)
 - **`/compact [FOCUS-INSTRUCTIONS]`** now accepts optional focus instructions in both CLIs (e.g. `/compact focus on the auth module`); `cpc` passes in-session slash commands through unchanged
 - **`/chronicle`** is a Copilot CLI-only experimental command (session history tools) — no Claude Code equivalent
-- **`/on-air`** (`/streamer-mode`) has been removed from Copilot CLI
+- **`/streamer-mode`** (`/on-air`) is a Copilot CLI-only command that hides preview model names and quota details for streaming — no Claude Code equivalent
 - **`--connect[=SESSION-ID]`** is a Copilot CLI-only flag for remote session joining — no direct Claude Code equivalent (see `--remote` and `--teleport`)
 - **`--mode=MODE`** and **`--plan`** are Copilot CLI-only flags — `cpc` maps `--permission-mode plan` → `--plan`
 - **`COPILOT_SUBAGENT_MAX_DEPTH`** and **`COPILOT_SUBAGENT_MAX_CONCURRENT`** are Copilot CLI-only environment variables for tuning subagent behavior
