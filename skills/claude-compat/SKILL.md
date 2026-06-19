@@ -55,7 +55,7 @@ Use this reference when you know a Claude Code command and want the Copilot CLI 
 | `--continue` / `-c` | Same |
 | `-p` / `--print` | Same (non-interactive mode) |
 | `--name` / `-n` | Same — set a session name |
-| `--effort` / `--reasoning-effort` | Same — both CLIs accept `low`, `medium`, `high`, `xhigh`, `max` (`max` is the highest-depth tier for Anthropic models). Passed through to Copilot's `--effort=LEVEL` |
+| `--effort` / `--reasoning-effort` | Same — both CLIs accept `low`, `medium`, `high`, `xhigh`, `max` (`max` is the highest-depth tier for Anthropic models). Passed through to Copilot's `--effort=LEVEL`. Claude Code's `ultracode` level (`/effort ultracode`, v2.1.181+: xhigh reasoning + automatic workflow orchestration) has no Copilot equivalent — `cpc` maps it to `max` with a warning |
 
 ### Translated (different name or syntax)
 | Claude Code | Copilot CLI | Notes |
@@ -77,6 +77,7 @@ Use this reference when you know a Claude Code command and want the Copilot CLI 
 | `--remote "task"` | `/delegate task` (interactive) | Delegate specific task to cloud |
 | `--no-remote` | `--no-remote` | Disable remote access |
 | `--teleport` | `--resume` | Resume cloud session locally |
+| `--ax-screen-reader` | `--screen-reader` | Accessibility: screen-reader-friendly output (Claude Code v2.1.181+; forces classic renderer) |
 
 ### Unsupported (no Copilot equivalent)
 | Claude Code | Suggested Alternative |
@@ -207,6 +208,10 @@ Note: `/advisor [model|off]` enables or disables the Claude Code server-side adv
 Note: `/cd <path>` moves the current session to a new working directory (Claude Code v2.1.169+; preserves the prompt cache and appends the new directory's `CLAUDE.md` as a message). Copilot CLI's `/cd [PATH]` (combined with `/cwd`) covers the same action.
 
 Note: `/reload-skills` (Claude Code v2.1.152+) re-scans skill and command directories so skills added or changed on disk become available without restarting. Maps to Copilot CLI's `/skills reload`.
+
+Note: `/config` (Claude Code v2.1.181+) now accepts inline `key=value` pairs (e.g. `/config thinking=false`) to set a setting directly without opening the Settings interface; the `key=value` form also works in non-interactive mode (`-p`) and from Remote Control. The closest Copilot CLI equivalent is `/settings [KEY VALUE]`, which similarly sets a setting inline without opening a dialog.
+
+Note: `/effort [low|medium|high|xhigh|max|ultracode|auto]` gained the `ultracode` level in Claude Code v2.1.181 (combines `xhigh` reasoning with automatic workflow orchestration; like `max`, it's a session-only option). Copilot CLI has no `ultracode` level — `cpc` maps the `--effort`/`--reasoning-effort ultracode` flag to `max` with a warning.
 
 ## Keyboard Shortcuts
 

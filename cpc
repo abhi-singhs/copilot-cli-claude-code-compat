@@ -78,12 +78,30 @@ PASSTHROUGH_VALUE_FLAGS = {
     "--model", "--add-dir", "--agent", "--output-format",
     "--resume", "--session-id", "--log-level", "--log-dir",
     "--mcp-config", "--additional-mcp-config", "--name",
-    "--effort", "--reasoning-effort",
 }
+
+# Effort flags get value translation (Claude Code's 'ultracode' level has no
+# Copilot CLI equivalent).
+EFFORT_FLAGS = {"--effort", "--reasoning-effort"}
 
 
 def warn(msg):
     print(f"cpc: warning: {msg}", file=sys.stderr)
+
+
+def translate_effort_value(value):
+    """Translate a Claude Code effort level to a Copilot CLI effort level.
+
+    Copilot CLI accepts low|medium|high|xhigh|max. Claude Code's 'ultracode'
+    (xhigh reasoning plus automatic workflow orchestration) has no equivalent,
+    so it's mapped to the closest level, 'max', with a warning.
+    """
+    if value == "ultracode":
+        warn("Copilot CLI has no 'ultracode' effort level (Claude Code-only: "
+             "combines xhigh reasoning with automatic workflow orchestration). "
+             "Mapping to 'max'")
+        return "max"
+    return value
 
 
 def is_flag(s):
@@ -293,6 +311,11 @@ def translate_flags(args):
             copilot_args.append("--log-level=info")
             i += 1
 
+        elif arg == "--ax-screen-reader":
+            # Claude Code v2.1.181+ accessibility flag → Copilot CLI --screen-reader
+            copilot_args.append("--screen-reader")
+            i += 1
+
         elif arg == "--remote":
             if i + 1 < len(args) and not is_flag(args[i + 1]):
                 warn("--remote with a task description translated to /delegate. Starting interactive session.")
@@ -491,6 +514,20 @@ def translate_flags(args):
             has_prompt_flag = True
             i += 1
 
+        # --- Effort flags with value translation ---
+        elif arg in EFFORT_FLAGS:
+            copilot_args.append(arg)
+            if i + 1 < len(args) and not is_flag(args[i + 1]):
+                copilot_args.append(translate_effort_value(args[i + 1]))
+                i += 2
+            else:
+                warn(f"{arg} requires a level (low|medium|high|xhigh|max)")
+                i += 1
+        elif arg.startswith("--effort=") or arg.startswith("--reasoning-effort="):
+            name, val = arg.split("=", 1)
+            copilot_args.append(f"{name}={translate_effort_value(val)}")
+            i += 1
+
         # --- Passthrough flags that consume a value ---
         elif arg in PASSTHROUGH_VALUE_FLAGS:
             copilot_args.append(arg)
@@ -551,7 +588,9 @@ Translated flags:
   --no-remote                          → --no-remote (disable remote access)
   --teleport                           → --resume (cloud session picker)
   --name / -n NAME                     → --name=NAME (session name)
-  --effort LEVEL                       → --effort=LEVEL (low|medium|high|xhigh|max)
+  --effort LEVEL                       → --effort=LEVEL (low|medium|high|xhigh|max;
+                                         Claude Code's 'ultracode' maps to 'max')
+  --ax-screen-reader                   → --screen-reader (accessibility output)
 
 Unsupported flags:
   --bg                                 Not available (background agent mode is Claude Code-only;
