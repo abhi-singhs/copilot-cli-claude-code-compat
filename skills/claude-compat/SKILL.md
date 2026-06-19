@@ -118,7 +118,7 @@ Use this reference when you know a Claude Code command and want the Copilot CLI 
 ### Renamed Commands
 | Claude Code | Copilot CLI | Notes |
 |---|---|---|
-| `/agents` | `/agent` | |
+| `/agents` | `/agent` (`/subagents` for per-agent models) | Copilot CLI's `/agent` browses agents; `/subagents` (alias `/agents`) configures the default and per-agent subagent models |
 | `/btw` | `/ask` | Side question without adding to conversation history. `/ask` requires experimental mode in Copilot CLI |
 | `/code-review [low\|medium\|high\|xhigh\|max] [--comment] [target]` | `/review [PROMPT]` | `/simplify` is a backward-compatible alias in Claude Code. Effort levels and `--comment` (post inline PR comments) have no Copilot equivalent — strip those arguments |
 | `/simplify [focus]` | `/review [PROMPT]` | Now an alias for `/code-review` in Claude Code |
@@ -146,15 +146,17 @@ Use this reference when you know a Claude Code command and want the Copilot CLI 
 `/stats`, `/stop`, `/team-onboarding`, `/tui`, `/web-setup`
 
 ### Copilot CLI Only (not in Claude Code)
-`/after` / `/every` (schedule a one-shot or recurring prompt/skill for this session),
+`/after [DELAY PROMPT]` / `/every [INTERVAL PROMPT]` (experimental: schedule a one-shot or recurring prompt, skill, or schedulable slash command for this session, e.g. `/after 30m remind me` or `/every 1h run tests`; no args opens the schedule manager),
+`/app` (launch the GitHub Copilot app, or show the download URL if it isn't installed),
 `/ask` (experimental), `/autopilot <objective>` (`/goal`), `/changelog` (`/release-notes`), `/chronicle` (experimental: `standup|tips|improve|reindex` — session history tools and insights),
 `/clikit [COMPONENT]` (internal/debug: preview CLI business components),
 `/collect-debug-logs [file\|gist] [PATH]` (collect debug logs to an archive file or GitHub gist),
 `/diagnose [PROMPT]` (analyze the current session log and optionally prompt the agent about diagnostics),
 `/downgrade <VERSION>` (download and restart into a specific CLI version; team accounts only),
-`/env`, `/fleet`, `/list-dirs`, `/cwd` (`/cd`), `/lsp`, `/research`, `/restart`,
+`/env`, `/extensions` (`/extension`) `[manage|mode]` (manage CLI extensions), `/fleet`, `/list-dirs`, `/cwd` (`/cd`), `/lsp`, `/research`, `/restart`,
 `/rubber-duck [PROMPT]` (consult the rubber duck agent for a second opinion on plans, code, and tests),
-`/sidekicks` (view running sidekick agents), `/streamer-mode` (`/on-air`), `/user`,
+`/settings [show\|[KEY VALUE]\|reset KEY]` (open the settings dialog, set a setting inline, or reset one to its default),
+`/sidekicks` (view running sidekick agents), `/streamer-mode` (`/on-air`), `/subagents` (`/agents`) (configure default and per-agent subagent models), `/user`,
 `/search [QUERY]` (`/find [QUERY]`) (experimental: search the conversation timeline),
 `/session` (`/sessions`) with subcommands: `info|checkpoints [n]|files|plan|rename [NAME]|cleanup|prune|delete [ID]|delete-all`,
 `/statusline` (`/footer`), `/experimental`, `/remote [on|off]`, `/keep-alive [on|off|busy|DURATION]` (`/caffeinate`),
@@ -213,6 +215,20 @@ Note: `/config` (Claude Code v2.1.181+) now accepts inline `key=value` pairs (e.
 
 Note: `/effort [low|medium|high|xhigh|max|ultracode|auto]` gained the `ultracode` level in Claude Code v2.1.181 (combines `xhigh` reasoning with automatic workflow orchestration; like `max`, it's a session-only option). Copilot CLI has no `ultracode` level — `cpc` maps the `--effort`/`--reasoning-effort ultracode` flag to `max` with a warning.
 
+Note: `/settings [show|[KEY VALUE]|reset KEY]` opens the Copilot CLI settings dialog, sets a setting inline with a `KEY VALUE` pair, or resets a setting to its default. This is the closest equivalent to Claude Code's `/config [key=value]`.
+
+Note: `/security-review [PROMPT]` is now a **direct match**: both Claude Code and Copilot CLI run a security review agent that analyzes pending changes for vulnerabilities. The `cpc` wrapper passes in-session slash commands through unchanged.
+
+Note: `/subagents` (alias `/agents`) configures the default and per-agent subagent models in Copilot CLI. It's a richer counterpart to Claude Code's `/agents` than `/agent` (which only browses agents).
+
+Note: `/after [DELAY PROMPT]` and `/every [INTERVAL PROMPT]` are Copilot CLI-only experimental commands that schedule a one-shot or recurring prompt, skill, or schedulable slash command for the current session (e.g. `/after 1h /chronicle standup`, `/every 1d run tests`); no arguments opens the schedule manager. Claude Code's `/schedule` (`/routines`) only partially overlaps — there is no exact equivalent.
+
+Note: `/extensions` (alias `/extension`) `[manage|mode]` manages Copilot CLI extensions. Claude Code's `/plugin` is conceptually similar but refers to a distinct plugin system, so there is no exact mapping.
+
+Note: `/app` launches the GitHub Copilot desktop app (or shows the download URL if it isn't installed). No Claude Code equivalent.
+
+Note: `/mcp` gained a `search` subcommand in Copilot CLI (`/mcp [show|add|edit|delete|disable|enable|auth|reload|search] [SERVER-NAME]`) for searching available MCP servers.
+
 ## Keyboard Shortcuts
 
 ### Global
@@ -264,6 +280,22 @@ Note: `/effort [low|medium|high|xhigh|max|ultracode|auto]` gained the `ultracode
 | `GITHUB_COPILOT_PROMPT_MODE_EXTENSIONS` | `false` | `true` / `false` | Set to `true` to load project extensions and allow extension management tools in prompt mode (`-p`). Disabled by default for security |
 | `GITHUB_COPILOT_PROMPT_MODE_REPO_HOOKS` | `false` | `true` / `false` | Set to `true` to load repository hooks in prompt mode (`-p`). Disabled by default for security |
 | `GITHUB_COPILOT_PROMPT_MODE_WORKSPACE_MCP` | `false` | `true` / `false` | Set to `true` to load workspace MCP sources in prompt mode (`-p`). Disabled by default for security |
+| `COPILOT_COMPUTER_USE_LINUX` | — | set / unset | Set to opt in to the `computer-use` MCP server on supported Linux distributions (not available on Alpine Linux / musl libc) |
+| `COPILOT_ENABLE_HTTP2` | — | `1` / `true` | Set to `1` or `true` to opt into HTTP/2 transport. HTTP/1.1 is the default |
+
+## Supported Models
+
+The `--model` / `/model` value is passed straight through in both CLIs. Copilot CLI currently supports:
+
+| Model | Notes |
+|---|---|
+| `claude-sonnet-4.6` | |
+| `claude-haiku-4.5` | |
+| `gpt-5.4` | |
+| `gpt-5.3-codex` | |
+| `gemini-3.1-pro-preview` | |
+| `gemini-3.5-flash` | |
+| `mai-code-1-flash` | Fast, adaptive coding tasks |
 
 ## Config Directory Mapping
 

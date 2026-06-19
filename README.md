@@ -153,7 +153,8 @@ Quick reference for the most common ones:
 | `/resume` | `/resume` (`/continue`) | ✅ |
 | `/review` | `/review` | ✅ |
 | `/tasks` | `/tasks` | ✅ |
-| `/agents` | `/agent` | ⚠️ Renamed |
+| `/agents` | `/agent` (`/subagents`) | ⚠️ Renamed — `/agent` browses agents; `/subagents` (`/agents`) configures per-agent subagent models |
+| `/security-review` | `/security-review [PROMPT]` | ✅ Direct match — both run a security review agent over pending changes |
 | `/background` (`/bg`) | — | ❌ Claude Code-only (detach to background agent; closest: Ctrl+X then b) |
 | `/btw` | `/ask` (experimental) | ⚠️ Renamed — side question without adding to history |
 | `/code-review` (`/simplify`) | `/review` | ⚠️ Renamed — `/simplify` is now an alias; `--comment` and effort levels have no Copilot equivalent |
@@ -185,6 +186,10 @@ Quick reference for the most common ones:
 | — | `/update` (`/upgrade`) | 🆕 Copilot CLI only |
 | — | `/version` | 🆕 Copilot CLI only |
 | — | `/streamer-mode` (`/on-air`) | 🆕 Copilot CLI only — hide preview model names and quota details for streaming |
+| — | `/after [DELAY PROMPT]` / `/every [INTERVAL PROMPT]` | 🆕 Copilot CLI only (experimental) — schedule a one-shot or recurring prompt/skill for this session |
+| — | `/app` | 🆕 Copilot CLI only — launch the GitHub Copilot app (or show its download URL) |
+| — | `/extensions` (`/extension`) `[manage\|mode]` | 🆕 Copilot CLI only — manage CLI extensions |
+| — | `/settings [show\|[KEY VALUE]\|reset KEY]` | 🆕 Copilot CLI only — open the settings dialog or set/reset a setting inline (≈ Claude Code `/config`) |
 | — | `/tuikit [colors\|icons\|select\|tabbar]` | 🆕 Copilot CLI only — preview TUIkit design-system components and color tokens |
 
 ## Config Sharing
@@ -257,6 +262,15 @@ The setup script symlinks these directories so both tools share the same files:
 - **`COPILOT_SUBAGENT_MAX_DEPTH`** and **`COPILOT_SUBAGENT_MAX_CONCURRENT`** are Copilot CLI-only environment variables for tuning subagent behavior
 - **`GITHUB_COPILOT_PROMPT_MODE_EXTENSIONS`**, **`GITHUB_COPILOT_PROMPT_MODE_REPO_HOOKS`**, and **`GITHUB_COPILOT_PROMPT_MODE_WORKSPACE_MCP`** control whether prompt mode (`-p`) loads repository-provided extensions, hooks, and MCP sources (all disabled by default for security). Set to `true` explicitly when using `cpc -p` with repo hooks or MCP servers
 - **`copilot logout`** subcommand has been removed — use `/logout` in an interactive session instead
+- **`/security-review`** is now a **direct match** — both Claude Code and Copilot CLI (`/security-review [PROMPT]`) run a security review agent that analyzes pending changes for vulnerabilities
+- **`/after [DELAY PROMPT]`** and **`/every [INTERVAL PROMPT]`** are Copilot CLI-only experimental commands (schedule a one-shot or recurring prompt, skill, or schedulable slash command for the session; no args opens the schedule manager) — Claude Code's `/schedule` (`/routines`) only partially overlaps
+- **`/extensions`** (`/extension`) `[manage|mode]` is a Copilot CLI-only command for managing CLI extensions — Claude Code's `/plugin` is a conceptually similar but distinct system
+- **`/app`** is a Copilot CLI-only command (launch the GitHub Copilot desktop app, or show its download URL) — no Claude Code equivalent
+- **`/settings [show|[KEY VALUE]|reset KEY]`** is the closest Copilot CLI equivalent to Claude Code's `/config [key=value]` — open the settings dialog, set a setting inline, or reset one to its default
+- **`/subagents`** (alias `/agents`) configures default and per-agent subagent models in Copilot CLI — a richer counterpart to Claude Code's `/agents` than `/agent`
+- **`/mcp`** gained a `search` subcommand in Copilot CLI (`/mcp [show|add|edit|delete|disable|enable|auth|reload|search] [SERVER-NAME]`) for searching available MCP servers
+- **`mai-code-1-flash`** is a Copilot CLI model (fast, adaptive coding tasks); pass it through with `cpc --model mai-code-1-flash`
+- **`COPILOT_COMPUTER_USE_LINUX`** (opt in to the `computer-use` MCP server on supported Linux distributions; not available on Alpine Linux / musl libc) and **`COPILOT_ENABLE_HTTP2`** (set to `1`/`true` to opt into HTTP/2 transport; HTTP/1.1 is the default) are Copilot CLI-only environment variables
 
 ## Architecture
 
