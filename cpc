@@ -78,6 +78,7 @@ PASSTHROUGH_VALUE_FLAGS = {
     "--model", "--add-dir", "--agent", "--output-format",
     "--resume", "--session-id", "--log-level", "--log-dir",
     "--mcp-config", "--additional-mcp-config", "--name",
+    "--attachment", "--context", "--extension-sdk-path",
 }
 
 # Effort flags get value translation (Claude Code's 'ultracode' level has no
@@ -448,6 +449,17 @@ def translate_flags(args):
                 copilot_args.append("--name")
                 i += 1
 
+        elif arg == "-C":
+            # -C DIRECTORY: change working directory before launch.
+            # Pass through unchanged (Copilot consumes the next value).
+            copilot_args.append("-C")
+            if i + 1 < len(args) and not is_flag(args[i + 1]):
+                copilot_args.append(args[i + 1])
+                i += 2
+            else:
+                warn("-C requires a directory")
+                i += 1
+
         elif arg == "-w":
             if i + 1 < len(args) and not is_flag(args[i + 1]):
                 warn("Worktree mode has no equivalent in Copilot CLI. "
@@ -612,6 +624,15 @@ Background agent subcommands (Claude Code-only, no Copilot equivalent):
 
 Passthrough flags (same in both CLIs):
   --model, --add-dir, --agent, --output-format, -p, -c, -v, --resume, etc.
+
+Copilot-only flags (passed through when routed via cpc; no Claude Code equivalent):
+  --attachment PATH                    Attach a file to the initial prompt (repeatable)
+  --context default|long_context       Set the context window tier
+  -C DIRECTORY                         Change working directory before launch
+  --acp                                Start as Agent Client Protocol server
+  --allow-all-mcp-server-instructions  Include init instructions from all MCP servers
+  --enable-memory                      Enable memory in prompt mode
+  --extension-sdk-path DIRECTORY       Override the bundled @github/copilot-sdk
 
 cpc-specific flags:
   --help                               Show this help

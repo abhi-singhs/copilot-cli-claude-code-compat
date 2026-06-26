@@ -106,6 +106,13 @@ Use this reference when you know a Claude Code command and want the Copilot CLI 
 | `--plan` | Start in plan mode. Shorthand for `--mode plan`. Cannot combine with `--mode` or `--autopilot` |
 | `--connect[=SESSION-ID]` | Connect directly to a remote session (optionally specify session/task ID). Conflicts with `--resume` and `--continue`. Requires remote sessions feature |
 | `--banner` | Show the startup banner (Copilot CLI also has `--no-color`, `--screen-reader`, and `--no-ask-user`) |
+| `--attachment PATH` | Attach a file to the initial prompt (image files accepted if model/org policy allows vision input; repeatable). `cpc` passes it through and consumes its value. Claude Code has no launch-flag equivalent |
+| `--context TIER` | Set the context window tier: `default` or `long_context` (overrides the persisted setting). `cpc` passes it through unchanged; Claude Code manages context via `/compact` and `/context` instead |
+| `-C DIRECTORY` | Change the working directory before doing anything else. `cpc` passes it through unchanged; Claude Code uses `--add-dir` / `--worktree` instead |
+| `--acp` | Start as Agent Client Protocol server. Passed through unchanged |
+| `--allow-all-mcp-server-instructions` | Include initialization instructions from all MCP servers in the system prompt (by default only allowlisted server instructions are included up front). Passed through unchanged |
+| `--enable-memory` | Enable memory in prompt mode (disabled by default). Conceptually related to Claude Code's `/memory` and `auto-memory`, but there is no Claude Code launch-flag equivalent. Passed through unchanged |
+| `--extension-sdk-path DIRECTORY` | Override the bundled `@github/copilot-sdk` injected into extension subprocesses with a local `copilot-sdk/` folder; invalid paths fall back to the bundled SDK. Passed through unchanged |
 
 ## Slash Command Mapping
 
@@ -150,8 +157,6 @@ Use this reference when you know a Claude Code command and want the Copilot CLI 
 `/app` (launch the GitHub Copilot app, or show the download URL if it isn't installed),
 `/ask` (experimental), `/autopilot <objective>` (`/goal`), `/changelog` (`/release-notes`), `/chronicle` (experimental: `standup|tips|improve|reindex` — session history tools and insights),
 `/clikit [COMPONENT]` (internal/debug: preview CLI business components),
-`/collect-debug-logs [file\|gist] [PATH]` (collect debug logs to an archive file or GitHub gist),
-`/diagnose [PROMPT]` (analyze the current session log and optionally prompt the agent about diagnostics),
 `/downgrade <VERSION>` (download and restart into a specific CLI version; team accounts only),
 `/env`, `/extensions` (`/extension`) `[manage|mode]` (manage CLI extensions), `/fleet`, `/list-dirs`, `/cwd` (`/cd`), `/lsp`, `/research`, `/restart`,
 `/rubber-duck [PROMPT]` (consult the rubber duck agent for a second opinion on plans, code, and tests),
@@ -194,8 +199,6 @@ Note: `/sandbox` exists in both CLIs but with different syntax. Claude Code's `/
 Note: `/permissions` differs between the CLIs. Claude Code manages persistent allow/ask/deny tool rules with `/permissions`. Copilot CLI has no `/permissions` command — use `/allow-all` to grant all tool/path/URL permissions for the session, or `/reset-allowed-tools` to clear the session's allowed-tools list.
 
 Note: `/rubber-duck [PROMPT]` is a Copilot CLI-only agent for a second opinion on plans, code, and tests. No Claude Code equivalent.
-
-Note: `/diagnose [PROMPT]` and `/collect-debug-logs [file|gist] [PATH]` are Copilot CLI-only debugging commands (analyze the session log; export debug logs to a file or gist). Partial analogs in Claude Code are `/heapdump` and the `/debug` skill.
 
 Note: `/feedback [report]` (aliases `/bug`, `/share`) gained the `/share` alias in Claude Code. This collides in name with Copilot CLI's `/share [file|html|gist] [session|research] [PATH]` (session export). Same name, different action — `/share` submits feedback in Claude Code but exports the session in Copilot CLI.
 
