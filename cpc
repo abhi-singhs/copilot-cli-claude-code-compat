@@ -344,6 +344,21 @@ def translate_flags(args):
                  "(URL-based plugin loading is a Claude Code-only feature). "
                  "Use 'copilot plugin install <dir>' for local plugins instead.")
 
+        elif arg == "--teammate-mode":
+            # Claude Code-only agent team display mode (in-process (default),
+            # auto, tmux, iterm2). No Copilot CLI equivalent — drop the flag
+            # and its value, warning the user.
+            values, i = consume_values(args, i)
+            mode = values[0] if values else ""
+            if mode == "iterm2":
+                warn("--teammate-mode iterm2 is a Claude Code-only agent team "
+                     "display mode (iTerm2 native panes on macOS). Copilot CLI "
+                     "has no equivalent, so no iTerm2 panes will appear.")
+            else:
+                warn("--teammate-mode is a Claude Code-only agent team display "
+                     "mode (in-process, auto, tmux, iterm2). Copilot CLI has no "
+                     "equivalent (ignored).")
+
         # --- Flags with value translation ---
         elif arg == "--allowedTools":
             values, i = consume_values(args, i)
@@ -518,6 +533,18 @@ def translate_flags(args):
             warn("--plugin-url is not supported in Copilot CLI "
                  "(URL-based plugin loading is a Claude Code-only feature). "
                  "Use 'copilot plugin install <dir>' for local plugins instead.")
+            i += 1
+
+        elif arg.startswith("--teammate-mode="):
+            mode = arg.split("=", 1)[1]
+            if mode == "iterm2":
+                warn("--teammate-mode iterm2 is a Claude Code-only agent team "
+                     "display mode (iTerm2 native panes on macOS). Copilot CLI "
+                     "has no equivalent, so no iTerm2 panes will appear.")
+            else:
+                warn("--teammate-mode is a Claude Code-only agent team display "
+                     "mode (in-process, auto, tmux, iterm2). Copilot CLI has no "
+                     "equivalent (ignored).")
             i += 1
 
         # --- Track prompt flags ---

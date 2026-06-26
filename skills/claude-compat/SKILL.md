@@ -96,6 +96,7 @@ Use this reference when you know a Claude Code command and want the Copilot CLI 
 | `--json-schema` | Use `--output-format=json` |
 | `--plugin-url` | Not available (URL-based plugin loading is Claude Code-only; use `copilot plugin install <dir>` for local plugins) |
 | `--tmux` | Not available |
+| `--teammate-mode` | Not available (Claude Code-only agent team display mode: `in-process` (default), `auto`, `tmux`, `iterm2` (added v2.1.186); default changed from `auto` to `in-process` in v2.1.179. Copilot CLI has no agent team display modes) |
 | `--remote-control-session-name-prefix` | Not available (Remote Control is not supported) |
 | `--bg` | Not available (starts session as background agent; closest: Ctrl+X then b to promote to background) |
 
