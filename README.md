@@ -181,8 +181,6 @@ Quick reference for the most common ones:
 | — | `/chronicle` | 🆕 Copilot CLI only (experimental) — session history tools |
 | — | `/research TOPIC` | 🆕 Copilot CLI only |
 | — | `/rubber-duck [PROMPT]` | 🆕 Copilot CLI only — rubber duck agent for a second opinion |
-| — | `/diagnose [PROMPT]` | 🆕 Copilot CLI only — analyze the session log for diagnostics |
-| — | `/collect-debug-logs [file\|gist] [PATH]` | 🆕 Copilot CLI only — export debug logs to a file or gist |
 | — | `/update` (`/upgrade`) | 🆕 Copilot CLI only |
 | — | `/version` | 🆕 Copilot CLI only |
 | — | `/streamer-mode` (`/on-air`) | 🆕 Copilot CLI only — hide preview model names and quota details for streaming |
@@ -251,13 +249,16 @@ The setup script symlinks these directories so both tools share the same files:
 - **`/tuikit [colors|icons|select|tabbar]`** is a Copilot CLI-only internal/debug command (preview TUIkit design-system components and color tokens) — no Claude Code equivalent
 - **`/env`** is a Copilot CLI-only slash command (show loaded environment details) — no Claude Code equivalent
 - **`/rubber-duck [PROMPT]`** is a Copilot CLI-only slash command (consult the rubber duck agent for a second opinion on plans, code, and tests) — no Claude Code equivalent
-- **`/diagnose [PROMPT]`** and **`/collect-debug-logs [file\|gist] [PATH]`** are Copilot CLI-only debugging commands (analyze the current session log; export debug logs to an archive file or GitHub gist) — partial Claude Code analogs are `/heapdump` and the `/debug` skill
 - **`/sandbox`** exists in both CLIs but with different syntax — Claude Code's `/sandbox` toggles sandbox mode, while Copilot CLI's `/sandbox [enable|disable]` configures shell command sandboxing explicitly
 - **`/permissions`** differs between the CLIs — Claude Code manages persistent allow/ask/deny rules with `/permissions`; Copilot CLI has no `/permissions` command, instead offering `/allow-all` (grant all tool/path/URL permissions for the session) and `/reset-allowed-tools` (clear the session's allowed-tools list)
 - **`/compact [FOCUS-INSTRUCTIONS]`** now accepts optional focus instructions in both CLIs (e.g. `/compact focus on the auth module`); `cpc` passes in-session slash commands through unchanged
 - **`/chronicle`** is a Copilot CLI-only experimental command (session history tools) — no Claude Code equivalent
 - **`/streamer-mode`** (`/on-air`) is a Copilot CLI-only command that hides preview model names and quota details for streaming — no Claude Code equivalent
 - **`--connect[=SESSION-ID]`** is a Copilot CLI-only flag for remote session joining — no direct Claude Code equivalent (see `--remote` and `--teleport`)
+- **`--attachment PATH`** is a Copilot CLI-only flag that attaches a file to the initial prompt (image files accepted if model/org policy allows vision input; repeatable). `cpc` passes it through and consumes its value, e.g. `cpc --attachment image.png "describe this"`. Claude Code has no launch-flag equivalent
+- **`--context default|long_context`** is a Copilot CLI-only flag that sets the context window tier (overrides the persisted setting). `cpc` passes it through unchanged; Claude Code manages context via `/compact` and `/context` instead
+- **`-C DIRECTORY`** is a Copilot CLI-only flag that changes the working directory before launch. `cpc` passes it through unchanged; Claude Code uses `--add-dir` / `--worktree` instead
+- **`--acp`**, **`--allow-all-mcp-server-instructions`**, **`--enable-memory`**, and **`--extension-sdk-path DIRECTORY`** are Copilot CLI-only flags with no Claude Code equivalent — `cpc` passes them through as-is
 - **`--mode=MODE`** and **`--plan`** are Copilot CLI-only flags — `cpc` maps `--permission-mode plan` → `--plan`
 - **`COPILOT_SUBAGENT_MAX_DEPTH`** and **`COPILOT_SUBAGENT_MAX_CONCURRENT`** are Copilot CLI-only environment variables for tuning subagent behavior
 - **`GITHUB_COPILOT_PROMPT_MODE_EXTENSIONS`**, **`GITHUB_COPILOT_PROMPT_MODE_REPO_HOOKS`**, and **`GITHUB_COPILOT_PROMPT_MODE_WORKSPACE_MCP`** control whether prompt mode (`-p`) loads repository-provided extensions, hooks, and MCP sources (all disabled by default for security). Set to `true` explicitly when using `cpc -p` with repo hooks or MCP servers
