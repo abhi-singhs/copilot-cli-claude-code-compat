@@ -263,7 +263,6 @@ WARN_FLAGS = {
     "--safe-mode":                  (0, "No direct equivalent. Try --no-custom-instructions (Claude Code's --safe-mode disables all customizations: CLAUDE.md, skills, plugins, hooks, MCP servers, custom commands/agents, output styles, etc.)"),
     "--advisor":                    (1, "No Copilot CLI equivalent. The server-side advisor tool is Claude Code-only"),
     "--chrome":                     (0, "Copilot CLI has a built-in Playwright MCP server"),
-    "--worktree":                   (1, "No equivalent in Copilot CLI. There is no worktree launch flag or slash command — run 'git worktree' manually before starting a session"),
     "--max-budget-usd":             (1, "Not supported in Copilot CLI"),
     "--from-pr":                    (1, "Not supported. Reference the PR URL in your prompt instead"),
     "--fork-session":               (0, "Not supported in Copilot CLI"),
@@ -475,16 +474,18 @@ def translate_flags(args):
                 warn("-C requires a directory")
                 i += 1
 
-        elif arg == "-w":
+        elif arg == "-w" or arg == "--worktree":
+            # Map Claude Code's worktree launch flag to Copilot CLI's
+            # -w / --worktree flag (create or reuse an isolated Git worktree).
+            # Copilot's worktree flag is experimental.
+            warn("Copilot CLI's --worktree flag is experimental; enable "
+                 "experimental mode (e.g. run 'copilot' with experimental "
+                 "features enabled) for it to take effect")
             if i + 1 < len(args) and not is_flag(args[i + 1]):
-                warn("Worktree mode has no equivalent in Copilot CLI. "
-                     "There is no worktree launch flag or slash command — "
-                     "run 'git worktree' manually before starting a session")
+                copilot_args.append(f"--worktree={args[i + 1]}")
                 i += 2
             else:
-                warn("Worktree mode has no equivalent in Copilot CLI. "
-                     "There is no worktree launch flag or slash command — "
-                     "run 'git worktree' manually before starting a session")
+                copilot_args.append("--worktree")
                 i += 1
 
         # --- Warn-only flags ---
@@ -497,6 +498,13 @@ def translate_flags(args):
         elif arg.startswith("--max-turns="):
             val = arg.split("=", 1)[1]
             copilot_args.append(f"--max-autopilot-continues={val}")
+            i += 1
+        elif arg.startswith("--worktree="):
+            # Copilot CLI's worktree flag is experimental.
+            warn("Copilot CLI's --worktree flag is experimental; enable "
+                 "experimental mode (e.g. run 'copilot' with experimental "
+                 "features enabled) for it to take effect")
+            copilot_args.append(arg)
             i += 1
         elif arg.startswith("--mcp-config="):
             val = arg.split("=", 1)[1]
@@ -630,6 +638,8 @@ Translated flags:
   --effort LEVEL                       → --effort=LEVEL (low|medium|high|xhigh|max;
                                          Claude Code's 'ultracode' maps to 'max')
   --ax-screen-reader                   → --screen-reader (accessibility output)
+  --worktree / -w [NAME]               → --worktree[=NAME] (isolated Git worktree;
+                                         experimental in Copilot CLI)
 
 Unsupported flags:
   --bg                                 Not available (background agent mode is Claude Code-only;
@@ -690,7 +700,9 @@ Slash command note:
   /cd <path> → Copilot CLI /cd [PATH] (move session to a new working directory)
   /reload-skills → Copilot CLI /skills reload (re-scan skill/command directories)
   Claude Code /fork <directive> → Copilot CLI /fleet <directive> (v2.1.161+ spawns a
-    background subagent; previously /fork was an alias for /branch)
+    background subagent; previously /fork was an alias for /branch). Copilot CLI also
+    has its own /fork [NAME] and /branch [NAME] (experimental) that fork the current
+    session into a new one — closer to Claude Code's old /fork=/branch behavior
   /sandbox → Copilot CLI /sandbox [enable|disable] (configure shell sandboxing)
   /permissions → no Copilot /permissions command; use /allow-all or
     /reset-allowed-tools (session-scoped tool permissions)
@@ -698,8 +710,8 @@ Slash command note:
     differ: Claude Code fans out web searches, Copilot uses GitHub + web)
   Claude Code /feedback alias /share differs from Copilot CLI /share (which
     exports the session: /share [file|html|gist] ...) — same name, different action
-  Claude Code --worktree (-w) launch flag → no Copilot CLI equivalent
-    (no worktree launch flag or slash command); run 'git worktree' manually
+  Claude Code --worktree (-w) launch flag → Copilot CLI --worktree (-w) launch flag
+    (experimental; create or reuse an isolated Git worktree)
 
 Prompt mode env vars (set to 'true' to enable in -p mode):
   GITHUB_COPILOT_PROMPT_MODE_EXTENSIONS    Load project extensions
