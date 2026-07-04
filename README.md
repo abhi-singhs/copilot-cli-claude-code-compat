@@ -125,6 +125,10 @@ cpc --model sonnet "fix the bug"       # → copilot --model sonnet -i "fix the 
 
 # Plan mode
 cpc --permission-mode plan             # → copilot --plan
+
+# Isolated Git worktree (experimental in Copilot CLI)
+cpc --worktree feature-auth            # → copilot --worktree=feature-auth
+cpc -w                                 # → copilot --worktree (auto-generated name)
 ```
 
 ## Debugging
@@ -156,6 +160,8 @@ Quick reference for the most common ones:
 | `/agents` | `/agent` (`/subagents`) | ⚠️ Renamed — `/agent` browses agents; `/subagents` (`/agents`) configures per-agent subagent models |
 | `/security-review` | `/security-review [PROMPT]` | ✅ Direct match — both run a security review agent over pending changes |
 | `/background` (`/bg`) | — | ❌ Claude Code-only (detach to background agent; closest: Ctrl+X then b) |
+| `/fork <directive>` | `/fleet <directive>`; also Copilot `/fork [NAME]` | ⚠️ Copilot's `/fork [NAME]` / `/branch [NAME]` (experimental) fork the session — matching Claude Code's *old* `/fork`=`/branch`; new `/fork <directive>` → `/fleet <directive>` |
+| `/branch [name]` | `/branch [NAME]` | ✅ Aligned — fork the session into a new one (experimental in Copilot CLI) |
 | `/btw` | `/ask` (experimental) | ⚠️ Renamed — side question without adding to history |
 | `/code-review` (`/simplify`) | `/review` | ⚠️ Renamed — `/simplify` is now an alias; `--comment` and effort levels have no Copilot equivalent |
 | `/cost` | `/usage` | ⚠️ Renamed |
@@ -209,7 +215,6 @@ The setup script symlinks these directories so both tools share the same files:
 - **System prompts** (`--system-prompt`, `--append-system-prompt`) don't exist in Copilot CLI — use `.github/copilot-instructions.md` or `.instructions.md` files
 - **MCP configs** have different JSON schemas — migrate manually
 - **Settings** (`~/.claude/settings.json` vs `~/.copilot/config.json`) have different formats
-- **Worktree mode** (`-w` / `--worktree`) has no equivalent in Copilot CLI — there is no worktree launch flag or slash command, so run `git worktree` directly
 - **Windows symlinks** may require running PowerShell as Administrator or enabling Developer Mode
 - **Budget limits** (`--max-budget-usd`) aren't available in Copilot CLI
 - **Plugin URL loading** (`--plugin-url`) is a Claude Code-only feature — Copilot CLI only supports local plugins via `copilot plugin install <dir>`
@@ -241,10 +246,11 @@ The setup script symlinks these directories so both tools share the same files:
 - **`/advisor [model|off]`** is a Claude Code-only command (enable/disable the server-side advisor tool; accepts `opus`, `sonnet`, `fable`, or a full model ID) — no Copilot CLI equivalent
 - **`/cd <path>`** (Claude Code v2.1.169+, move the session to a new working directory) maps to Copilot CLI's `/cd [PATH]` (combined with `/cwd`)
 - **`/reload-skills`** (Claude Code v2.1.152+, re-scan skill/command directories without restarting) maps to Copilot CLI's `/skills reload`
-- **`/fork`** changed semantics in Claude Code v2.1.161 — it was an alias for `/branch`, but now `/fork <directive>` spawns a background forked subagent that inherits the conversation; the closest Copilot CLI equivalent for that is `/fleet <directive>`. Note that Copilot CLI also has its own `/fork` (v1.0.45) that forks the session into a new independent session, matching Claude Code's *old* `/fork`=`/branch` behavior. Use `/branch` in Claude Code to switch into a copy of the conversation yourself
+- **`/fork`** changed semantics in Claude Code v2.1.161 — it was an alias for `/branch`, but now `/fork <directive>` spawns a background forked subagent that inherits the conversation; the closest Copilot CLI equivalent for that is `/fleet <directive>`. Note that Copilot CLI also has its own `/fork [NAME]` and `/branch [NAME]` commands (experimental) that fork the session into a new independent session, matching Claude Code's *old* `/fork`=`/branch` behavior. Use `/branch` in Claude Code to switch into a copy of the conversation yourself
 - **`/search [QUERY]`** (`/find`) is a Copilot CLI-only experimental command (search the conversation timeline) — no Claude Code equivalent
 - **`--effort` / `--reasoning-effort`** is now supported in both CLIs and passes straight through — Copilot CLI accepts the same five levels as Claude Code (`low`, `medium`, `high`, `xhigh`, `max`; `max` is the highest-depth tier for Anthropic models), so `cpc` forwards it to Copilot's `--effort=LEVEL` unchanged. Claude Code's `ultracode` level (`/effort ultracode`, v2.1.181+: `xhigh` reasoning + automatic workflow orchestration) has no Copilot equivalent — `cpc` maps it to `max` with a warning
 - **`--ax-screen-reader`** (Claude Code v2.1.181+, renders screen-reader-friendly output and forces the classic renderer) maps to Copilot CLI's `--screen-reader`
+- **`--worktree` / `-w [NAME]`** (create or reuse an isolated Git worktree) now maps to Copilot CLI's `--worktree[=NAME]` (`-w`) flag — `cpc` forwards `claude --worktree NAME` → `copilot --worktree=NAME`. Copilot's worktree flag is **experimental**, so enable Copilot CLI's experimental mode for it to take effect; `cpc` prints a warning as a reminder
 - **`/config`** gained inline `key=value` support in Claude Code v2.1.181 (e.g. `/config thinking=false`, also works in `-p` mode) — the closest Copilot CLI equivalent is `/settings [KEY VALUE]`
 - **`/clikit [COMPONENT]`** is a Copilot CLI-only internal/debug command — no Claude Code equivalent
 - **`/tuikit [colors|icons|select|tabbar]`** is a Copilot CLI-only internal/debug command (preview TUIkit design-system components and color tokens) — no Claude Code equivalent

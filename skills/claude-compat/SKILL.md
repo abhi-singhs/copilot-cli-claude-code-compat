@@ -39,6 +39,7 @@ Use this reference when you know a Claude Code command and want the Copilot CLI 
 | `claude project purge [path]` | — | ❌ Not available (use `/session cleanup` or `/session prune`) |
 | `claude setup-token` | — | ❌ Not available (use `gh auth token` for CI/scripts) |
 | `claude install [version]` | `copilot update` | ⚠️ Partial (no version pinning; update only) |
+| — | `copilot skill` | ℹ️ Copilot-only CLI subcommand: manage agent skills (list, add, remove). Claude Code manages skills via slash commands (`/skills`, `/reload-skills`) or the `--tools` flag, not a CLI subcommand |
 | — | `copilot completion SHELL` | ℹ️ Copilot-only (print shell completion script for bash/zsh/fish) |
 
 ## CLI Flag Mapping
@@ -78,6 +79,7 @@ Use this reference when you know a Claude Code command and want the Copilot CLI 
 | `--no-remote` | `--no-remote` | Disable remote access |
 | `--teleport` | `--resume` | Resume cloud session locally |
 | `--ax-screen-reader` | `--screen-reader` | Accessibility: screen-reader-friendly output (Claude Code v2.1.181+; forces classic renderer) |
+| `--worktree` / `-w [NAME]` | `--worktree[=NAME]` / `-w` | Create or reuse an isolated Git worktree. **Experimental in Copilot CLI** (requires experimental mode). Omit `NAME` to auto-generate a branch name |
 
 ### Unsupported (no Copilot equivalent)
 | Claude Code | Suggested Alternative |
@@ -88,7 +90,6 @@ Use this reference when you know a Claude Code command and want the Copilot CLI 
 | `--safe-mode` | Try `--no-custom-instructions` (Claude Code's `--safe-mode` disables all customizations: `CLAUDE.md`, skills, plugins, hooks, MCP servers, custom commands/agents, output styles, etc.; semantics differ) |
 | `--advisor <model>` | Not available (server-side advisor tool is Claude Code-only; accepts `opus`, `sonnet`, `fable`, or a full model ID) |
 | `--chrome` | Copilot has built-in Playwright MCP |
-| `--worktree` / `-w` | No equivalent. Copilot CLI has no worktree launch flag or slash command — run `git worktree` manually before starting a session |
 | `--max-budget-usd` | Not available |
 | `--from-pr` | Reference PR URL in your prompt |
 | `--fork-session` | Not available |
@@ -133,7 +134,8 @@ Use this reference when you know a Claude Code command and want the Copilot CLI 
 | `/cost` | `/usage` | |
 | `/cd <path>` | `/cd [PATH]` (`/cwd`) | Both move the session to a new working directory. Copilot CLI combines it with `/cwd` (display current dir); Claude Code's `/cd` is standalone (v2.1.169+) |
 | `/reload-skills` | `/skills reload` | Re-scan skill/command directories so changes on disk become available without restarting (Claude Code v2.1.152+) |
-| `/fork <directive>` | `/fleet <directive>` | **Breaking change (Claude Code v2.1.161+):** `/fork <directive>` now spawns a background subagent that inherits the conversation and works on the directive. Previously `/fork` was an alias for `/branch`. Copilot CLI also has its own `/fork` (forks the current session into a new independent session, optionally named — closer to Claude Code's old `/fork`=`/branch`). To switch into a copy of the conversation yourself, use `/branch` |
+| `/fork <directive>` | `/fleet <directive>` | **Breaking change (Claude Code v2.1.161+):** `/fork <directive>` now spawns a background subagent that inherits the conversation and works on the directive. Previously `/fork` was an alias for `/branch`. Copilot CLI also has its own `/fork [NAME]` (experimental) that forks the current session into a new independent session, optionally named — closer to Claude Code's old `/fork`=`/branch`. To switch into a copy of the conversation yourself, use `/branch` |
+| `/branch [name]` | `/branch [NAME]` | Fork the current session into a new session, optionally named (**experimental in Copilot CLI**). Copilot's `/fork [NAME]` is an alias with the same semantics |
 | `/goal [condition\|clear]` | `/autopilot <objective>` (`/goal`) | Copilot CLI's `/autopilot <objective>` (alias `/goal`, v1.0.55) sets an explicit objective to keep autopilot focused across turns — the closest analog to Claude Code's `/goal` |
 | `/deep-research <question>` | `/research [TOPIC]` | Best-effort: Claude Code's `/deep-research` fans out web searches and synthesizes a cited report; Copilot's `/research` uses GitHub search + web sources. The research pipelines differ |
 | `/export` | `/share` (`/export`) | `/export` is now also a Copilot CLI alias for `/share` |
@@ -169,13 +171,15 @@ Use this reference when you know a Claude Code command and want the Copilot CLI 
 `/tuikit [colors|icons|select|tabbar]` (internal/debug: preview TUIkit design-system components and color tokens),
 `/update` (`/upgrade`), `/version`
 
-Note: Copilot CLI has no `/worktree` slash command and no worktree launch flag. The closest Claude Code analog is the `--worktree` (`-w`) launch flag, which creates a worktree at startup. To use a worktree with Copilot CLI, run `git worktree` manually before starting a session.
+Note: Copilot CLI has no `/worktree` slash command, but it does have a `--worktree` (`-w`) launch flag (experimental) that creates or reuses an isolated Git worktree under `<repo>.worktrees/` at startup — matching Claude Code's `--worktree` (`-w`) flag. `cpc` maps `claude --worktree NAME` → `copilot --worktree=NAME`. Because Copilot's flag is experimental, enable experimental mode for it to take effect.
 
 Note: `/delegate` is the Copilot equivalent of Claude Code's `--remote "task"` flag.
 
 Note: `/on-air` (`/streamer-mode`) toggles streamer mode in Copilot CLI (hides preview model names and quota details for streaming). No Claude Code equivalent.
 
 Note: `/background` (`/bg`) detaches the current session to run as a background agent. No direct Copilot equivalent; closest is Ctrl+X then b to promote to background.
+
+Note: Copilot CLI's **Agent and task delegation** tools are `task` (delegate work to a background agent), `list_agents` (list running background agents), `read_agent` (read a background agent's output), and `write_agent` (send a message to a running background agent). Claude Code manages background agents through the `claude` CLI (`attach`, `logs`, `respawn`, `stop`) rather than these tools, so there is no direct `cpc` mapping — the workflows differ.
 
 Note: `/goal [condition|clear]` sets a goal so Claude keeps working across turns until the condition is met. The closest Copilot CLI equivalent is `/autopilot <objective>` (alias `/goal`, v1.0.55), which sets an explicit objective to keep autopilot focused.
 
@@ -207,7 +211,7 @@ Note: `/clear [name]` in Claude Code accepts an optional name to label the previ
 
 Note: `/deep-research <question>` (Claude Code workflow: "fan out web searches on a question, fetch and cross-check sources, and synthesize a cited report") has no exact Copilot CLI equivalent. Closest is `/research [TOPIC]`, which uses GitHub search + web sources rather than fanned-out web search. The `cpc` wrapper treats this as a best-effort translation.
 
-Note: `/fork` changed semantics in Claude Code v2.1.161. It was previously an alias for `/branch` (branch the conversation for the user to switch into). Now `/fork <directive>` spawns a background **forked subagent** that inherits the full conversation and works on the directive while you continue; its result returns when finished. The closest Copilot CLI equivalent for that background-subagent behavior is `/fleet <directive>` (parallel subagent execution). Note that Copilot CLI also has its own `/fork` command (added v1.0.45), which forks the current session into a new independent session (optionally named) — this matches Claude Code's *old* `/fork`=`/branch` behavior, not the new directive-based fork. Use `/branch` in Claude Code to switch into a copy of the conversation yourself.
+Note: `/fork` changed semantics in Claude Code v2.1.161. It was previously an alias for `/branch` (branch the conversation for the user to switch into). Now `/fork <directive>` spawns a background **forked subagent** that inherits the full conversation and works on the directive while you continue; its result returns when finished. The closest Copilot CLI equivalent for that background-subagent behavior is `/fleet <directive>` (parallel subagent execution). Note that Copilot CLI also has its own `/fork [NAME]` and `/branch [NAME]` commands (experimental; added v1.0.45), which fork the current session into a new independent session (optionally named) — this matches Claude Code's *old* `/fork`=`/branch` behavior, not the new directive-based fork. Use `/branch` in Claude Code to switch into a copy of the conversation yourself.
 
 Note: `/advisor [model|off]` enables or disables the Claude Code server-side advisor tool interactively (accepts `opus`, `sonnet`, `fable`, or a full model ID; no argument opens a picker; requires v2.1.98+). No Copilot CLI equivalent.
 
