@@ -62,8 +62,8 @@ Use this reference when you know a Claude Code command and want the Copilot CLI 
 | Claude Code | Copilot CLI | Notes |
 |---|---|---|
 | `--dangerously-skip-permissions` | `--allow-all` | Also `--yolo` |
-| `--allowedTools "Bash(cmd)"` | `--allow-tool=shell(cmd)` | Tool syntax differs |
-| `--disallowedTools "Tool"` | `--deny-tool=tool` | Tool syntax differs |
+| `--allowedTools "Bash(cmd)"` | `--allow-tool=shell(cmd)` | Tool syntax differs. `--allowed-tools` (kebab-case alias) maps the same way |
+| `--disallowedTools "Tool"` | `--deny-tool=tool` | Tool syntax differs. `--disallowed-tools` (kebab-case alias) maps the same way |
 | `--max-turns N` | `--max-autopilot-continues=N` | |
 | `--mcp-config <path>` | `--additional-mcp-config=@<path>` | Path gets `@` prefix |
 | `--tools "Bash,Edit,Read"` | `--available-tools=bash,edit,view` | Name mapping differs |
@@ -99,7 +99,7 @@ Use this reference when you know a Claude Code command and want the Copilot CLI 
 | `--tmux` | Not available |
 | `--teammate-mode` | Not available (Claude Code-only agent team display mode: `in-process` (default), `auto`, `tmux`, `iterm2` (added v2.1.186); default changed from `auto` to `in-process` in v2.1.179. Copilot CLI has no agent team display modes) |
 | `--remote-control-session-name-prefix` | Not available (Remote Control is not supported) |
-| `--bg` | Not available (starts session as background agent; closest: Ctrl+X then b to promote to background) |
+| `--bg` / `--background` | Not available (starts session as background agent; closest: Ctrl+X then b to promote to background). `--background` is a long-form alias for `--bg` |
 
 ### Copilot CLI Only (no Claude Code equivalent)
 | Copilot CLI | Notes |
@@ -149,7 +149,7 @@ Use this reference when you know a Claude Code command and want the Copilot CLI 
 | `/ultrareview [PR]` | `/review [PROMPT]` | Cloud-based deep review; `/review` in Claude Code is the local equivalent |
 
 ### Claude Code Only (no Copilot equivalent)
-`/advisor [model|off]`, `/autofix-pr`, `/background` (`/bg`), `/chrome`, `/color`, `/config`, `/desktop`, `/doctor`,
+`/advisor [model|off]`, `/autofix-pr`, `/background` (`/bg`), `/chrome`, `/color`, `/config`, `/dataviz`, `/design-login`, `/design-sync`, `/desktop`, `/doctor`,
 `/effort`, `/fast`, `/fewer-permission-prompts`, `/focus`, `/heapdump`, `/hooks`, `/loop` (`/proactive`), `/radio`, `/recap`,
 `/run`, `/run-skill-generator`, `/verify`,
 `/schedule` (`/routines`), `/scroll-speed`, `/setup-bedrock`,
@@ -196,6 +196,12 @@ Note: `/usage-credits` is the renamed `/extra-usage` (Claude Code v2.1.x): "conf
 Note: `/run`, `/run-skill-generator`, and `/verify` (Claude Code v2.1.145+) are skills that build, launch, and drive the project's app to observe a change running. No Copilot CLI equivalent.
 
 Note: `/radio` opens Claude FM lo-fi radio in the browser (not available on Bedrock, Vertex, or Foundry). No Copilot CLI equivalent.
+
+Note: `/dataviz [request]` (Claude Code v2.1.198+) is a skill that provides design guidance for charts, graphs, and dashboards — Claude picks the chart form, assigns color by role, and validates the palette for colorblind safety. No Copilot CLI equivalent.
+
+Note: `/design-login` authorizes design-system access for `/design-sync` using your claude.ai account (requires a claude.ai subscription). No Copilot CLI equivalent.
+
+Note: `/design-sync [hint]` is a skill that converts your repo's React design system and uploads it to Claude Design so generated designs use real components (a first-time sync can take a few hours on a large repo). **Only available on the Anthropic API** — not on Amazon Bedrock, Google Cloud Vertex AI, or Microsoft Foundry. No Copilot CLI equivalent.
 
 Note: `/compact [FOCUS-INSTRUCTIONS]` now accepts optional focus instructions in both CLIs (e.g. `/compact focus on the auth module`). The `cpc` wrapper doesn't touch in-session slash commands, so the focus argument passes through to Copilot CLI unchanged.
 

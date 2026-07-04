@@ -255,6 +255,7 @@ def handle_subcommand(subcmd, rest_args):
 
 WARN_FLAGS = {
     "--bg":                             (0, "Not available in Copilot CLI. Background agent mode is Claude Code-only. Closest: Ctrl+X then b to promote to background"),
+    "--background":                     (0, "Not available in Copilot CLI. Background agent mode is Claude Code-only. Closest: Ctrl+X then b to promote to background"),
     "--system-prompt":              (1, "Use .github/copilot-instructions.md or .instructions.md files instead"),
     "--system-prompt-file":         (1, "Use .github/copilot-instructions.md or .instructions.md files instead"),
     "--append-system-prompt":       (1, "Use .github/copilot-instructions.md or .instructions.md files instead"),
@@ -359,20 +360,20 @@ def translate_flags(args):
                      "equivalent (ignored).")
 
         # --- Flags with value translation ---
-        elif arg == "--allowedTools":
+        elif arg in ("--allowedTools", "--allowed-tools"):
             values, i = consume_values(args, i)
             for v in values:
                 copilot_args.append(f"--allow-tool={convert_tool_pattern(v)}")
             if not values:
-                warn("--allowedTools requires at least one tool pattern")
+                warn(f"{arg} requires at least one tool pattern")
                 i += 1
 
-        elif arg == "--disallowedTools":
+        elif arg in ("--disallowedTools", "--disallowed-tools"):
             values, i = consume_values(args, i)
             for v in values:
                 copilot_args.append(f"--deny-tool={convert_tool_pattern(v)}")
             if not values:
-                warn("--disallowedTools requires at least one tool pattern")
+                warn(f"{arg} requires at least one tool pattern")
                 i += 1
 
         elif arg == "--max-turns":
@@ -622,8 +623,8 @@ Subcommands:
 
 Translated flags:
   --dangerously-skip-permissions       → --allow-all
-  --allowedTools "Bash(cmd)" ...       → --allow-tool=shell(cmd) ...
-  --disallowedTools "Tool" ...         → --deny-tool=tool ...
+  --allowedTools / --allowed-tools ... → --allow-tool=shell(cmd) ...
+  --disallowedTools / --disallowed-tools → --deny-tool=tool ...
   --max-turns N                        → --max-autopilot-continues=N
   --mcp-config <path>                  → --additional-mcp-config=@<path>
   --tools "Bash,Edit,Read"             → --available-tools=bash,edit,view
@@ -642,7 +643,7 @@ Translated flags:
                                          experimental in Copilot CLI)
 
 Unsupported flags:
-  --bg                                 Not available (background agent mode is Claude Code-only;
+  --bg / --background                  Not available (background agent mode is Claude Code-only;
                                        closest: Ctrl+X then b to promote to background)
   --advisor <model>                    Not available (server-side advisor tool is Claude Code-only)
   --safe-mode                          No direct equivalent (try --no-custom-instructions)

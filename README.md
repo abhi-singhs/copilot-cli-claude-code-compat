@@ -220,7 +220,7 @@ The setup script symlinks these directories so both tools share the same files:
 - **Plugin URL loading** (`--plugin-url`) is a Claude Code-only feature — Copilot CLI only supports local plugins via `copilot plugin install <dir>`
 - **`/team-onboarding`** is a Claude Code–only command (generates team onboarding guides from session history) — no Copilot CLI equivalent
 - **`/loop`** (`/proactive`) is a Claude Code–only command (runs a prompt repeatedly while the session stays open) — no Copilot CLI equivalent
-- **`--bg`** flag (start session as a background agent) is Claude Code-only — closest: Ctrl+X then b to promote a running task to the background
+- **`--bg`** / **`--background`** flag (start session as a background agent) is Claude Code-only — closest: Ctrl+X then b to promote a running task to the background
 - **`--teammate-mode`** flag (set how agent team teammates display: `in-process` (default), `auto`, `tmux`, or `iterm2` (added in v2.1.186); default changed from `auto` to `in-process` in v2.1.179) is Claude Code-only — Copilot CLI has no agent team display modes, so `cpc` drops the flag with a warning
 - **`--advisor <model>`** flag (enable the server-side advisor tool; accepts `opus`, `sonnet`, `fable`, or a full model ID) is Claude Code-only — no direct Copilot CLI equivalent
 - **`--safe-mode`** flag (start with all customizations disabled for troubleshooting: `CLAUDE.md`, skills, plugins, hooks, MCP servers, custom commands/agents, output styles, etc.) is Claude Code-only — no direct Copilot CLI equivalent; closest is `--no-custom-instructions`, though the semantics differ significantly
@@ -230,6 +230,9 @@ The setup script symlinks these directories so both tools share the same files:
 - **`/usage-credits`** (renamed from `/extra-usage` in Claude Code) is Claude Code-only — configure usage credits to keep working when you hit a limit; closest in Copilot CLI is `/usage` (stats only)
 - **`/run`, `/run-skill-generator`, `/verify`** are Claude Code-only skills (v2.1.145+) that build, launch, and drive the project's app to observe a change running — no Copilot CLI equivalent
 - **`/radio`** is a Claude Code-only command (opens Claude FM lo-fi radio in the browser) — no Copilot CLI equivalent
+- **`/dataviz [request]`** is a Claude Code-only skill (v2.1.198+) offering design guidance for charts, graphs, and dashboards (picks the chart form, assigns color by role, validates the palette for colorblind safety) — no Copilot CLI equivalent
+- **`/design-login`** is a Claude Code-only command (authorize design-system access for `/design-sync` with your claude.ai account; requires a claude.ai subscription) — no Copilot CLI equivalent
+- **`/design-sync [hint]`** is a Claude Code-only skill (convert your repo's React design system and upload it to Claude Design so generated designs use real components) — **only available on the Anthropic API** (not on Amazon Bedrock, Google Cloud Vertex AI, or Microsoft Foundry) and no Copilot CLI equivalent
 - **`/background`** (`/bg`) slash command (detach current session to background) is Claude Code-only — closest: Ctrl+X then b
 - **`/goal [condition|clear]`** (Claude Code: set a goal for a multi-turn agentic loop) maps to Copilot CLI's `/autopilot <objective>` (alias `/goal`, v1.0.55), which sets an explicit objective to keep autopilot focused across turns
 - **`/stop`** slash command (stop current background session while attached) is Claude Code-only — no Copilot CLI equivalent
