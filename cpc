@@ -318,13 +318,25 @@ def translate_flags(args):
             i += 1
 
         elif arg == "--remote":
+            warn("--remote is deprecated in Claude Code; use --cloud instead.")
             if i + 1 < len(args) and not is_flag(args[i + 1]):
                 warn("--remote with a task description translated to /delegate. Starting interactive session.")
                 copilot_args.extend(["-i", f"/delegate {args[i + 1]}"])
                 has_prompt_flag = True
                 i += 2
             else:
-                copilot_args.append("--remote")
+                warn("--cloud creates a claude.ai web session. Copilot CLI has no equivalent; "
+                     "use /delegate inside a session to hand off a task to a remote agent.")
+                i += 1
+        elif arg == "--cloud":
+            if i + 1 < len(args) and not is_flag(args[i + 1]):
+                warn("--cloud (web session) translated to /delegate. Starting interactive session.")
+                copilot_args.extend(["-i", f"/delegate {args[i + 1]}"])
+                has_prompt_flag = True
+                i += 2
+            else:
+                warn("--cloud creates a claude.ai web session. Copilot CLI has no equivalent; "
+                     "use /delegate inside a session to hand off a task to a remote agent.")
                 i += 1
         elif arg == "--no-remote":
             copilot_args.append("--no-remote")
@@ -358,6 +370,15 @@ def translate_flags(args):
                 warn("--teammate-mode is a Claude Code-only agent team display "
                      "mode (in-process, auto, tmux, iterm2). Copilot CLI has no "
                      "equivalent (ignored).")
+
+        elif arg == "--append-subagent-system-prompt":
+            if i + 1 < len(args) and not is_flag(args[i + 1]):
+                warn("--append-subagent-system-prompt is a Claude Code-only flag "
+                     "(no Copilot CLI equivalent for injecting text into subagent prompts). Ignored.")
+                i += 2
+            else:
+                warn("--append-subagent-system-prompt requires a text argument (ignored).")
+                i += 1
 
         # --- Flags with value translation ---
         elif arg in ("--allowedTools", "--allowed-tools"):
@@ -416,7 +437,8 @@ def translate_flags(args):
                     copilot_args.append("--plan")
                 elif mode == "acceptEdits":
                     warn("acceptEdits mode is not directly supported in Copilot CLI")
-                # 'default' → no flag needed
+                elif mode in ("default", "manual"):
+                    pass  # no flag needed; 'manual' is an alias for 'default'
                 i += 2
             else:
                 warn("--permission-mode requires a mode value")
@@ -529,6 +551,8 @@ def translate_flags(args):
                 copilot_args.append("--plan")
             elif mode == "acceptEdits":
                 warn("acceptEdits mode is not directly supported in Copilot CLI")
+            elif mode in ("default", "manual"):
+                pass  # no flag needed; 'manual' is an alias for 'default'
             i += 1
         elif arg.startswith("--debug-file="):
             path = arg.split("=", 1)[1]
@@ -629,10 +653,12 @@ Translated flags:
   --mcp-config <path>                  → --additional-mcp-config=@<path>
   --tools "Bash,Edit,Read"             → --available-tools=bash,edit,view
   --permission-mode bypass|auto|plan   → --allow-all / --autopilot / --plan
+  --permission-mode default|manual     → no flag (Copilot default)
   --debug                              → --log-level=debug
   --verbose                            → --log-level=info
-  --remote                             → --remote (enable remote access)
-  --remote "task"                      → /delegate task (interactive)
+  --cloud "task"                       → /delegate task (interactive)
+  --cloud                              → no equivalent for bare web launch
+  --remote ["task"]                    → deprecated alias for --cloud
   --no-remote                          → --no-remote (disable remote access)
   --teleport                           → --resume (cloud session picker)
   --name / -n NAME                     → --name=NAME (session name)
@@ -646,6 +672,7 @@ Unsupported flags:
   --bg / --background                  Not available (background agent mode is Claude Code-only;
                                        closest: Ctrl+X then b to promote to background)
   --advisor <model>                    Not available (server-side advisor tool is Claude Code-only)
+  --append-subagent-system-prompt TEXT Not available (subagent prompt injection is Claude Code-only)
   --safe-mode                          No direct equivalent (try --no-custom-instructions)
 
 Background agent subcommands (Claude Code-only, no Copilot equivalent):
