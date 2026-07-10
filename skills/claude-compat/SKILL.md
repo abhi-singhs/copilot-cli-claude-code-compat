@@ -56,7 +56,7 @@ Use this reference when you know a Claude Code command and want the Copilot CLI 
 | `--continue` / `-c` | Same |
 | `-p` / `--print` | Same (non-interactive mode) |
 | `--name` / `-n` | Same — set a session name |
-| `--effort` / `--reasoning-effort` | Same — both CLIs accept `low`, `medium`, `high`, `xhigh`, `max` (`max` is the highest-depth tier for Anthropic models). Passed through to Copilot's `--effort=LEVEL`. Claude Code's `ultracode` level (`/effort ultracode`, v2.1.181+: xhigh reasoning + automatic workflow orchestration) has no Copilot equivalent — `cpc` maps it to `max` with a warning |
+| `--effort` / `--reasoning-effort` | Same — both CLIs accept `low`, `medium`, `high`, `xhigh`, `max` (`max` is the highest-depth tier for Anthropic models). Passed through to Copilot's `--effort=LEVEL`. Claude Code's `ultracode` level (v2.1.203+: xhigh reasoning + automatic workflow orchestration) has no Copilot equivalent — `cpc` maps it to `max` with a warning |
 
 ### Translated (different name or syntax)
 | Claude Code | Copilot CLI | Notes |
@@ -70,12 +70,14 @@ Use this reference when you know a Claude Code command and want the Copilot CLI 
 | `--permission-mode bypassPermissions` | `--allow-all` | |
 | `--permission-mode auto` | `--autopilot` | |
 | `--permission-mode plan` | `--plan` (or `--mode plan`) | |
+| `--permission-mode default` / `manual` | No flag needed | `manual` is a v2.1.200+ alias for `default` |
 | `--enable-auto-mode` | `--autopilot` | Removed in Claude Code v2.1.111 — use `--permission-mode auto` |
 | `--debug` | `--log-level=debug` | Category filtering not supported |
 | `--verbose` | `--log-level=info` | |
 | `--debug-file <path>` | `--log-dir=<dir> --log-level=debug` | |
-| `--remote` | `--remote` | Enable remote access (no task) |
-| `--remote "task"` | `/delegate task` (interactive) | Delegate specific task to cloud |
+| `--cloud "task"` | `/delegate task` (interactive) | Delegate specific task to cloud |
+| `--cloud` | No equivalent | Bare launch creates a claude.ai web session |
+| `--remote ["task"]` | Same as `--cloud` | Deprecated Claude Code alias |
 | `--no-remote` | `--no-remote` | Disable remote access |
 | `--teleport` | `--resume` | Resume cloud session locally |
 | `--ax-screen-reader` | `--screen-reader` | Accessibility: screen-reader-friendly output (Claude Code v2.1.181+; forces classic renderer) |
@@ -86,6 +88,7 @@ Use this reference when you know a Claude Code command and want the Copilot CLI 
 |---|---|
 | `--system-prompt` | Use `.github/copilot-instructions.md` files |
 | `--append-system-prompt` | Use `.github/copilot-instructions.md` files |
+| `--append-subagent-system-prompt` | Not available (subagent prompt injection is Claude Code-only; ignored with a warning) |
 | `--bare` | Try `--no-custom-instructions` |
 | `--safe-mode` | Try `--no-custom-instructions` (Claude Code's `--safe-mode` disables all customizations: `CLAUDE.md`, skills, plugins, hooks, MCP servers, custom commands/agents, output styles, etc.; semantics differ) |
 | `--advisor <model>` | Not available (server-side advisor tool is Claude Code-only; accepts `opus`, `sonnet`, `fable`, or a full model ID) |
@@ -173,7 +176,7 @@ Use this reference when you know a Claude Code command and want the Copilot CLI 
 
 Note: Copilot CLI has no `/worktree` slash command, but it does have a `--worktree` (`-w`) launch flag (experimental) that creates or reuses an isolated Git worktree under `<repo>.worktrees/` at startup — matching Claude Code's `--worktree` (`-w`) flag. `cpc` maps `claude --worktree NAME` → `copilot --worktree=NAME`. Because Copilot's flag is experimental, enable experimental mode for it to take effect.
 
-Note: `/delegate` is the Copilot equivalent of Claude Code's `--remote "task"` flag.
+Note: `/delegate` is the Copilot equivalent of Claude Code's `--cloud "task"` flag. `--remote` is a deprecated alias for `--cloud`.
 
 Note: `/on-air` (`/streamer-mode`) toggles streamer mode in Copilot CLI (hides preview model names and quota details for streaming). No Claude Code equivalent.
 
@@ -227,7 +230,7 @@ Note: `/reload-skills` (Claude Code v2.1.152+) re-scans skill and command direct
 
 Note: `/config` (Claude Code v2.1.181+) now accepts inline `key=value` pairs (e.g. `/config thinking=false`) to set a setting directly without opening the Settings interface; the `key=value` form also works in non-interactive mode (`-p`) and from Remote Control. The closest Copilot CLI equivalent is `/settings [KEY VALUE]`, which similarly sets a setting inline without opening a dialog.
 
-Note: `/effort [low|medium|high|xhigh|max|ultracode|auto]` gained the `ultracode` level in Claude Code v2.1.181 (combines `xhigh` reasoning with automatic workflow orchestration; like `max`, it's a session-only option). Copilot CLI has no `ultracode` level — `cpc` maps the `--effort`/`--reasoning-effort ultracode` flag to `max` with a warning.
+Note: `/effort [low|medium|high|xhigh|max|ultracode|auto]` gained the `ultracode` level in Claude Code v2.1.203 (combines `xhigh` reasoning with automatic workflow orchestration; like `max`, it's a session-only option). Copilot CLI has no `ultracode` level — `cpc` maps the `--effort`/`--reasoning-effort ultracode` flag to `max` with a warning.
 
 Note: `/settings [show|[KEY VALUE]|reset KEY]` opens the Copilot CLI settings dialog, sets a setting inline with a `KEY VALUE` pair, or resets a setting to its default. This is the closest equivalent to Claude Code's `/config [key=value]`.
 

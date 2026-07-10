@@ -108,11 +108,11 @@ cpc --mcp-config ./my-servers.json     # → copilot --additional-mcp-config=@./
 # Tool availability
 cpc --tools "Bash,Edit,Read" -p "q"    # → copilot --available-tools=bash,edit,view -p "q"
 
-# Enable remote access (like Claude Code --remote)
-cpc --remote
-# → copilot --remote
+# Delegate to cloud (like Claude Code --cloud "task")
+cpc --cloud "Fix the login bug"
+# → copilot -i "/delegate Fix the login bug"
 
-# Delegate to cloud (like Claude Code --remote "task")
+# --remote is a deprecated Claude Code alias for --cloud
 cpc --remote "Fix the login bug"
 # → copilot -i "/delegate Fix the login bug"
 
@@ -213,6 +213,8 @@ The setup script symlinks these directories so both tools share the same files:
 
 - **Slash commands** can't be aliased — use `/claude-help` for the reference
 - **System prompts** (`--system-prompt`, `--append-system-prompt`) don't exist in Copilot CLI — use `.github/copilot-instructions.md` or `.instructions.md` files
+- **Subagent system prompts** (`--append-subagent-system-prompt`) can't be injected in Copilot CLI; the flag and its text are ignored with a warning
+- **Cloud web sessions** (`--cloud`, and its deprecated alias `--remote`) map to `/delegate` when a task is provided; bare web-session launch has no Copilot CLI equivalent
 - **MCP configs** have different JSON schemas — migrate manually
 - **Settings** (`~/.claude/settings.json` vs `~/.copilot/config.json`) have different formats
 - **Windows symlinks** may require running PowerShell as Administrator or enabling Developer Mode
@@ -251,7 +253,7 @@ The setup script symlinks these directories so both tools share the same files:
 - **`/reload-skills`** (Claude Code v2.1.152+, re-scan skill/command directories without restarting) maps to Copilot CLI's `/skills reload`
 - **`/fork`** changed semantics in Claude Code v2.1.161 — it was an alias for `/branch`, but now `/fork <directive>` spawns a background forked subagent that inherits the conversation; the closest Copilot CLI equivalent for that is `/fleet <directive>`. Note that Copilot CLI also has its own `/fork [NAME]` and `/branch [NAME]` commands (experimental) that fork the session into a new independent session, matching Claude Code's *old* `/fork`=`/branch` behavior. Use `/branch` in Claude Code to switch into a copy of the conversation yourself
 - **`/search [QUERY]`** (`/find`) is a Copilot CLI-only experimental command (search the conversation timeline) — no Claude Code equivalent
-- **`--effort` / `--reasoning-effort`** is now supported in both CLIs and passes straight through — Copilot CLI accepts the same five levels as Claude Code (`low`, `medium`, `high`, `xhigh`, `max`; `max` is the highest-depth tier for Anthropic models), so `cpc` forwards it to Copilot's `--effort=LEVEL` unchanged. Claude Code's `ultracode` level (`/effort ultracode`, v2.1.181+: `xhigh` reasoning + automatic workflow orchestration) has no Copilot equivalent — `cpc` maps it to `max` with a warning
+- **`--effort` / `--reasoning-effort`** is now supported in both CLIs and passes straight through — Copilot CLI accepts the same five levels as Claude Code (`low`, `medium`, `high`, `xhigh`, `max`; `max` is the highest-depth tier for Anthropic models), so `cpc` forwards it to Copilot's `--effort=LEVEL` unchanged. Claude Code's `ultracode` level (v2.1.203+: `xhigh` reasoning + automatic workflow orchestration) has no Copilot equivalent — `cpc` maps it to `max` with a warning
 - **`--ax-screen-reader`** (Claude Code v2.1.181+, renders screen-reader-friendly output and forces the classic renderer) maps to Copilot CLI's `--screen-reader`
 - **`--worktree` / `-w [NAME]`** (create or reuse an isolated Git worktree) now maps to Copilot CLI's `--worktree[=NAME]` (`-w`) flag — `cpc` forwards `claude --worktree NAME` → `copilot --worktree=NAME`. Copilot's worktree flag is **experimental**, so enable Copilot CLI's experimental mode for it to take effect; `cpc` prints a warning as a reminder
 - **`/config`** gained inline `key=value` support in Claude Code v2.1.181 (e.g. `/config thinking=false`, also works in `-p` mode) — the closest Copilot CLI equivalent is `/settings [KEY VALUE]`
@@ -269,7 +271,7 @@ The setup script symlinks these directories so both tools share the same files:
 - **`--context default|long_context`** is a Copilot CLI-only flag that sets the context window tier (overrides the persisted setting). `cpc` passes it through unchanged; Claude Code manages context via `/compact` and `/context` instead
 - **`-C DIRECTORY`** is a Copilot CLI-only flag that changes the working directory before launch. `cpc` passes it through unchanged; Claude Code uses `--add-dir` / `--worktree` instead
 - **`--acp`**, **`--allow-all-mcp-server-instructions`**, **`--enable-memory`**, and **`--extension-sdk-path DIRECTORY`** are Copilot CLI-only flags with no Claude Code equivalent — `cpc` passes them through as-is
-- **`--mode=MODE`** and **`--plan`** are Copilot CLI-only flags — `cpc` maps `--permission-mode plan` → `--plan`
+- **`--mode=MODE`** and **`--plan`** are Copilot CLI-only flags — `cpc` maps `--permission-mode plan` → `--plan`; Claude Code's `--permission-mode manual` alias maps like `default` and needs no Copilot flag
 - **`COPILOT_SUBAGENT_MAX_DEPTH`** and **`COPILOT_SUBAGENT_MAX_CONCURRENT`** are Copilot CLI-only environment variables for tuning subagent behavior
 - **`GITHUB_COPILOT_PROMPT_MODE_EXTENSIONS`**, **`GITHUB_COPILOT_PROMPT_MODE_REPO_HOOKS`**, and **`GITHUB_COPILOT_PROMPT_MODE_WORKSPACE_MCP`** control whether prompt mode (`-p`) loads repository-provided extensions, hooks, and MCP sources (all disabled by default for security). Set to `true` explicitly when using `cpc -p` with repo hooks or MCP servers
 - **`copilot logout`** subcommand has been removed — use `/logout` in an interactive session instead
