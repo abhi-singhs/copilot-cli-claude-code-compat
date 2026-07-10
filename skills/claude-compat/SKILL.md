@@ -190,7 +190,7 @@ Note: `/stop` stops the current background session (only available while attache
 
 Note: `/scroll-speed` adjusts mouse wheel scroll speed interactively. No Copilot CLI equivalent.
 
-Note: `/theme` options changed to `[default|dim|high-contrast|colorblind]`.
+Note: `/theme` options changed to `[default|github|dim|high-contrast|colorblind]`.
 
 Note: `/code-review` (Claude Code v2.1.x) replaces `/simplify`; `/simplify` remains as a backward-compatible alias. Both map to Copilot CLI's `/review`. The `--comment` flag (post inline PR comments) and effort levels (`low|medium|high|xhigh|max`) have no Copilot equivalent.
 
