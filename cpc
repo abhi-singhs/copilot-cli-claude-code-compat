@@ -147,7 +147,7 @@ def handle_auth(rest_args):
 
 
 SUBCOMMANDS = {
-    "update", "init", "plugin", "auth", "agents", "mcp",
+    "update", "init", "plugin", "plugins", "auth", "agents", "mcp",
     "remote-control", "auto-mode", "autofix-pr", "web-setup",
     "team-onboarding", "loop", "proactive",
     # Background agent session management (new in Claude Code)
@@ -167,6 +167,8 @@ def handle_subcommand(subcmd, rest_args):
         return [COPILOT_BIN, "init"] + rest_args
     if subcmd == "plugin":
         return [COPILOT_BIN, "plugin"] + rest_args
+    if subcmd == "plugins":
+        return [COPILOT_BIN, "plugins"] + rest_args
     if subcmd == "auth":
         return handle_auth(rest_args)
     if subcmd == "agents":
@@ -643,6 +645,8 @@ Subcommands:
   cpc update                           Update CLI (→ copilot update)
   cpc init                             Init project (→ copilot init)
   cpc plugin ...                       Plugin management (→ copilot plugin ...)
+  cpc plugins ...                      Inspect/enable/disable/remove plugins, MCP
+                                       servers, and skills (→ copilot plugins ...)
   cpc mcp ...                          MCP server management (→ copilot mcp ...)
 
 Translated flags:

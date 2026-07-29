@@ -195,6 +195,7 @@ Quick reference for the most common ones:
 | — | `/app` | 🆕 Copilot CLI only — launch the GitHub Copilot app (or show its download URL) |
 | — | `/extensions` (`/extension`) `[manage\|mode]` | 🆕 Copilot CLI only — manage CLI extensions |
 | — | `/settings [show\|[KEY VALUE]\|reset KEY]` | 🆕 Copilot CLI only — open the settings dialog or set/reset a setting inline (≈ Claude Code `/config`) |
+| — | `/refine [TEXT]` | 🆕 Copilot CLI only — rewrite a rough prompt into a clear one for review before sending (no args cleans up the current input box) |
 | — | `/tuikit [colors\|icons\|select\|tabbar]` | 🆕 Copilot CLI only — preview TUIkit design-system components and color tokens |
 
 ## Config Sharing
@@ -274,7 +275,7 @@ The setup script symlinks these directories so both tools share the same files:
 - **`-C DIRECTORY`** is a Copilot CLI-only flag that changes the working directory before launch. `cpc` passes it through unchanged; Claude Code uses `--add-dir` / `--worktree` instead
 - **`--acp`**, **`--allow-all-mcp-server-instructions`**, **`--enable-memory`**, and **`--extension-sdk-path DIRECTORY`** are Copilot CLI-only flags with no Claude Code equivalent — `cpc` passes them through as-is
 - **`--mode=MODE`** and **`--plan`** are Copilot CLI-only flags — `cpc` maps `--permission-mode plan` → `--plan`; Claude Code's `--permission-mode manual` alias maps like `default` and needs no Copilot flag
-- **`COPILOT_SUBAGENT_MAX_DEPTH`** and **`COPILOT_SUBAGENT_MAX_CONCURRENT`** are Copilot CLI-only environment variables for tuning subagent behavior
+- **`COPILOT_SUBAGENT_MAX_DEPTH`** (default `4`, range `1`–`128`) and **`COPILOT_SUBAGENT_MAX_CONCURRENT`** (default `32`, range `1`–`256`) are Copilot CLI-only environment variables for tuning subagent behavior
 - **`GITHUB_COPILOT_PROMPT_MODE_EXTENSIONS`**, **`GITHUB_COPILOT_PROMPT_MODE_REPO_HOOKS`**, and **`GITHUB_COPILOT_PROMPT_MODE_WORKSPACE_MCP`** control whether prompt mode (`-p`) loads repository-provided extensions, hooks, and MCP sources (all disabled by default for security). Set to `true` explicitly when using `cpc -p` with repo hooks or MCP servers
 - **`copilot logout`** subcommand has been removed — use `/logout` in an interactive session instead
 - **`/security-review`** is now a **direct match** — both Claude Code and Copilot CLI (`/security-review [PROMPT]`) run a security review agent that analyzes pending changes for vulnerabilities
@@ -284,6 +285,9 @@ The setup script symlinks these directories so both tools share the same files:
 - **`/settings [show|[KEY VALUE]|reset KEY]`** is the closest Copilot CLI equivalent to Claude Code's `/config [key=value]` — open the settings dialog, set a setting inline, or reset one to its default
 - **`/subagents`** (alias `/agents`) configures default and per-agent subagent models in Copilot CLI — a richer counterpart to Claude Code's `/agents` than `/agent`
 - **`/mcp`** gained a `search` subcommand in Copilot CLI (`/mcp [show|add|edit|delete|disable|enable|auth|reload|search] [SERVER-NAME]`) for searching available MCP servers
+- **`/refine [TEXT]`** is a Copilot CLI-only slash command (rewrite a roughly composed prompt into a clear one for review before sending; no args — via `Ctrl+X` then `/refine` — cleans up the current input box) — no Claude Code equivalent, and `cpc` can't translate it because it is in-session only
+- **`$`** (a lone `$` on an empty prompt) is a Copilot CLI-only shortcut that hands the terminal over to a real interactive shell (`$SHELL` on Unix, `%COMSPEC%` on Windows), suspending the CLI UI so job control, full-screen apps, tab completion, and colors work natively. **Disabled by default** — enable it with the `shellShortcut` setting; only available for local, trusted, idle sessions on a real TTY, and it can be disabled in enterprise managed settings
+- **`copilot plugins [list|enable|disable|remove] [--plugin|--mcp|--skill] NAME`** (note the plural) is a Copilot CLI-only subcommand for non-interactively inspecting, enabling, disabling, or uninstalling plugins, MCP servers, and skills. `enable`/`disable` persist to configuration; `remove` can only delete personal and project skills (disable plugin-provided or built-in ones instead). `cpc plugins ...` passes through to `copilot plugins ...` (`cpc plugin ...` still maps to `copilot plugin ...`)
 - **`mai-code-1-flash`** is a Copilot CLI model (fast, adaptive coding tasks); pass it through with `cpc --model mai-code-1-flash`
 - **`COPILOT_COMPUTER_USE_LINUX`** (opt in to the `computer-use` MCP server on supported Linux distributions; not available on Alpine Linux / musl libc) and **`COPILOT_ENABLE_HTTP2`** (set to `1`/`true` to opt into HTTP/2 transport; HTTP/1.1 is the default) are Copilot CLI-only environment variables
 
