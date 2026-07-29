@@ -24,6 +24,7 @@ Use this reference when you know a Claude Code command and want the Copilot CLI 
 | `claude auth logout` | `/logout` (interactive) | ⚠️ `copilot logout` subcommand removed; use `/logout` in-session |
 | `claude auth status` | `copilot version` | ⚠️ Partial |
 | `claude plugin ...` | `copilot plugin ...` | ✅ Same |
+| — | `copilot plugins [list\|enable\|disable\|remove] [--plugin\|--mcp\|--skill] NAME` | ℹ️ Copilot-only CLI subcommand (note the plural): non-interactively inspect, enable, disable, or uninstall plugins, MCP servers, and skills. `enable`/`disable` persist to configuration and apply to future sessions; `remove` can only delete personal and project skills (not plugin-provided or built-in ones — disable those instead). `cpc plugins ...` passes through to `copilot plugins ...` |
 | `claude agents` | `/agent` (interactive) | ⚠️ Interactive only — Claude Code now opens an agent view to monitor/dispatch parallel background sessions |
 | `claude mcp` | `copilot mcp` | ✅ Same |
 | `claude auto-mode defaults` | — | ❌ Not available |
@@ -166,6 +167,7 @@ Use this reference when you know a Claude Code command and want the Copilot CLI 
 `/clikit [COMPONENT]` (internal/debug: preview CLI business components),
 `/downgrade <VERSION>` (download and restart into a specific CLI version; team accounts only),
 `/env`, `/extensions` (`/extension`) `[manage|mode]` (manage CLI extensions), `/fleet`, `/list-dirs`, `/cwd` (`/cd`), `/lsp`, `/research`, `/restart`,
+`/refine [TEXT]` (rewrite a roughly composed prompt into a clear one for review before sending),
 `/rubber-duck [PROMPT]` (consult the rubber duck agent for a second opinion on plans, code, and tests),
 `/settings [show\|[KEY VALUE]\|reset KEY]` (open the settings dialog, set a setting inline, or reset one to its default),
 `/sidekicks` (view running sidekick agents), `/streamer-mode` (`/on-air`), `/subagents` (`/agents`) (configure default and per-agent subagent models), `/user`,
@@ -251,12 +253,15 @@ Note: `/app` launches the GitHub Copilot desktop app (or shows the download URL 
 
 Note: `/mcp` gained a `search` subcommand in Copilot CLI (`/mcp [show|add|edit|delete|disable|enable|auth|reload|search] [SERVER-NAME]`) for searching available MCP servers.
 
+Note: `/refine TEXT` is a Copilot CLI-only command that rewrites a roughly composed prompt into a clear one so you can review it before sending. Run it with no arguments (via `Ctrl+X` then `/refine`) to clean up whatever is already in the input box — particularly useful for prompts entered by speaking. Claude Code has no equivalent, and because it is an in-session slash command the `cpc` wrapper can't translate it.
+
 ## Keyboard Shortcuts
 
 ### Global
 | Shortcut | Purpose |
 |---|---|
 | `# NUMBER` | Include a GitHub issue or pull request in the context |
+| `$` | Type a lone `$` on an empty prompt to hand the terminal over to a real interactive shell (`$SHELL` on Unix, `%COMSPEC%` on Windows) rooted at the session's working directory. Unlike `!` shell mode it suspends the CLI UI entirely, so job control, full-screen apps, tab completion, and colors work natively; exit the shell (`exit`, or `Ctrl+D` on Unix) to return. Only for local, trusted, idle sessions on a real TTY. **Disabled by default** — enable it with the `shellShortcut` setting; can be disabled in enterprise managed settings |
 | `?` | Open quick help (on an empty prompt) |
 | `Ctrl+G` | Edit the prompt in an external editor (`$EDITOR`) |
 | `Ctrl+Enter` or `Ctrl+Q` | Queue a message to send while the agent is busy |
@@ -295,7 +300,7 @@ Note: `/mcp` gained a `search` subcommand in Copilot CLI (`/mcp [show|add|edit|d
 ### Copilot CLI Only
 | Variable | Default | Range | Description |
 |---|---|---|---|
-| `COPILOT_SUBAGENT_MAX_DEPTH` | `6` | `1`–`256` | Maximum subagent nesting depth |
+| `COPILOT_SUBAGENT_MAX_DEPTH` | `4` | `1`–`128` | Maximum subagent nesting depth |
 | `COPILOT_SUBAGENT_MAX_CONCURRENT` | `32` | `1`–`256` | Maximum concurrent subagents across the session tree |
 | `COPILOT_GH_HOST` | — | — | GitHub hostname for Copilot CLI only, overriding `GH_HOST`. Use when `GH_HOST` targets GHES but Copilot needs to authenticate against GitHub.com or GHEC |
 | `COPILOT_PROMPT_FRAME` | — | `0` / `1` | Set to `1` to enable the decorative UI frame around the input prompt, or `0` to disable it. Overrides the `PROMPT_FRAME` experimental feature flag |
