@@ -723,14 +723,16 @@ For Copilot CLI native help:  copilot --help
 For slash command mapping:    type /claude-help in a Copilot CLI session
 
 Slash command note:
-  Claude Code /btw → Copilot CLI /ask (experimental mode; side question)
+  Claude Code /btw [question] → Copilot CLI /ask (experimental mode; side question;
+    the question arg is optional in Claude Code v2.1.212+)
   /compact [FOCUS-INSTRUCTIONS] → same in both CLIs (focus arg passes through)
   /cd <path> → Copilot CLI /cd [PATH] (move session to a new working directory)
   /reload-skills → Copilot CLI /skills reload (re-scan skill/command directories)
-  Claude Code /fork <directive> → Copilot CLI /fleet <directive> (v2.1.161+ spawns a
-    background subagent; previously /fork was an alias for /branch). Copilot CLI also
-    has its own /fork [NAME] and /branch [NAME] (experimental) that fork the current
-    session into a new one — closer to Claude Code's old /fork=/branch behavior
+  Claude Code /fork [prompt] → Copilot CLI /fork [NAME] (v2.1.212+ copies the session
+    into a new background session, matching Copilot's experimental /fork and /branch;
+    on v2.1.161-v2.1.211 /fork instead spawned a forked subagent)
+  Claude Code /subtask <task> → Copilot CLI /fleet <task> (best-effort; v2.1.212+
+    spawns a forked subagent that inherits the conversation — this was /fork before)
   /sandbox → Copilot CLI /sandbox [enable|disable] (configure shell sandboxing)
   /permissions → no Copilot /permissions command; use /allow-all or
     /reset-allowed-tools (session-scoped tool permissions)
