@@ -166,12 +166,13 @@ Quick reference for the most common ones:
 | `/btw [question]` | `/ask` (experimental) | ⚠️ Renamed — side question without adding to history; the question argument is optional in Claude Code v2.1.212+ |
 | `/code-review` (`/simplify`) | `/review` | ⚠️ Renamed — `/simplify` is now an alias; `--comment` and effort levels have no Copilot equivalent |
 | `/cost` | `/usage` | ⚠️ Renamed |
-| `/permissions` | `/allow-all`, `/reset-allowed-tools` | ⚠️ No `/permissions` command in Copilot CLI; `/allow-all` grants all permissions, `/reset-allowed-tools` clears them |
+| `/permissions` | `/permissions [default\|assisted\|allow-all\|show]` (`/permissions reset`) | ⚠️ Aligned — Copilot's `/permissions` now switches permission modes (`default`/`assisted`/`allow-all`) in addition to `show`; `/permissions reset` clears in-memory tool and path approvals |
+| `/allow-all` (`/yolo`) | `/allow-all [off\|auto\|show]` (`/yolo`) | ⚠️ Alias for `/permissions allow-all` — the `on` option was replaced with `auto` |
 | `/sandbox` | `/sandbox [enable\|disable]` | ⚠️ Aligned — both now have `/sandbox`; Copilot uses explicit `enable`/`disable` |
 | `/deep-research <question>` | `/research TOPIC` | ⚠️ Best-effort — Claude Code fans out web searches; Copilot uses GitHub + web sources |
 | `/export` | `/share` (`/export`) | ⚠️ Renamed — `/export` now also a Copilot alias |
 | `/extra-usage` → `/usage-credits` | — | ❌ Claude Code-only (configure usage credits; closest: `/usage` for stats only) |
-| `/goal` | `/autopilot <objective>` (`/goal`) | ⚠️ Aligned — Copilot's `/autopilot <objective>` (alias `/goal`, v1.0.55) keeps autopilot focused on an objective |
+| `/goal` | `/autopilot [OBJECTIVE]` (`/goal [OBJECTIVE]`) | ⚠️ Aligned — Copilot's `/autopilot [OBJECTIVE]` (alias `/goal`, experimental) starts/refocuses autopilot mode with an optional objective (`--max-ai-credits N` caps spend); `/goal on`/`/goal off` toggle without an objective, closing the gap for Claude Code's `/goal <condition>` / `/goal clear` |
 | `/radio` | — | ❌ Claude Code-only (Claude FM lo-fi radio) |
 | `/remote-control` | `/remote [on\|off]` | ⚠️ Renamed — no args shows status; `on`/`off` toggles |
 | `/run`, `/run-skill-generator`, `/verify` | — | ❌ Claude Code-only (build/launch/drive the project's app; v2.1.145+) |
@@ -238,7 +239,7 @@ The setup script symlinks these directories so both tools share the same files:
 - **`/design-login`** is a Claude Code-only command (authorize design-system access for `/design-sync` with your claude.ai account; requires a claude.ai subscription) — no Copilot CLI equivalent
 - **`/design-sync [hint]`** is a Claude Code-only skill (convert your repo's React design system and upload it to Claude Design so generated designs use real components) — **only available on the Anthropic API** (not on Amazon Bedrock, Google Cloud Vertex AI, or Microsoft Foundry) and no Copilot CLI equivalent
 - **`/background`** (`/bg`) slash command (detach current session to background) is Claude Code-only — closest: Ctrl+X then b
-- **`/goal [condition|clear]`** (Claude Code: set a goal for a multi-turn agentic loop) maps to Copilot CLI's `/autopilot <objective>` (alias `/goal`, v1.0.55), which sets an explicit objective to keep autopilot focused across turns
+- **`/goal [condition|clear]`** (Claude Code: set a goal for a multi-turn agentic loop) maps to Copilot CLI's `/autopilot [OBJECTIVE]` (alias `/goal`, experimental) — with no objective it infers intent from context, and `--max-ai-credits N` caps autopilot spend; `/goal on`/`/goal off` toggle autopilot without setting an objective, so Claude Code's `clear`/`stop`/`off`/`cancel` variants map to Copilot's `/goal off`. This closes a previous gap where Copilot had no equivalent for Claude Code's autonomous goal-tracking
 - **`/stop`** slash command (stop current background session while attached) is Claude Code-only — no Copilot CLI equivalent
 - **`/scroll-speed`** is a Claude Code-only UI command — no Copilot CLI equivalent
 - **`claude install [version]`** is Claude Code-only — use `copilot update` (no version pinning)
@@ -265,7 +266,7 @@ The setup script symlinks these directories so both tools share the same files:
 - **`/env`** is a Copilot CLI-only slash command (show loaded environment details) — no Claude Code equivalent
 - **`/rubber-duck [PROMPT]`** is a Copilot CLI-only slash command (consult the rubber duck agent for a second opinion on plans, code, and tests) — no Claude Code equivalent
 - **`/sandbox`** exists in both CLIs but with different syntax — Claude Code's `/sandbox` toggles sandbox mode, while Copilot CLI's `/sandbox [enable|disable]` configures shell command sandboxing explicitly
-- **`/permissions`** differs between the CLIs — Claude Code manages persistent allow/ask/deny rules with `/permissions`; Copilot CLI has no `/permissions` command, instead offering `/allow-all` (grant all tool/path/URL permissions for the session) and `/reset-allowed-tools` (clear the session's allowed-tools list)
+- **`/permissions`** differs between the CLIs — Claude Code manages persistent allow/ask/deny rules with `/permissions`; Copilot CLI's `/permissions [default|assisted|allow-all|show]` now switches between permission modes (`default`, `assisted`, `allow-all`), and `/permissions reset` clears in-memory tool and path approvals. `/allow-all` (`/yolo`) is documented as an alias for `/permissions allow-all` — its `on` option was replaced with `auto` (`/allow-all [off|auto|show]`)
 - **`/compact [FOCUS-INSTRUCTIONS]`** now accepts optional focus instructions in both CLIs (e.g. `/compact focus on the auth module`); `cpc` passes in-session slash commands through unchanged
 - **`/chronicle`** is a Copilot CLI-only experimental command (session history tools) — no Claude Code equivalent
 - **`/streamer-mode`** (`/on-air`) is a Copilot CLI-only command that hides preview model names and quota details for streaming — no Claude Code equivalent
