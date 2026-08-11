@@ -141,12 +141,13 @@ Use this reference when you know a Claude Code command and want the Copilot CLI 
 | `/fork [prompt]` | `/fork [NAME]` | **Behavior changed again in Claude Code v2.1.212+:** `/fork` now copies the current conversation into a new **background session** while the original session keeps running; the two are independent after the copy. This matches Copilot CLI's `/fork [NAME]` (**experimental**), which forks the current session into a new independent session. On v2.1.161–v2.1.211 `/fork <directive>` instead spawned a forked subagent — that behavior is now `/subtask` |
 | `/subtask <task>` | `/fleet <task>` | **New in Claude Code v2.1.212+:** spawns a **forked subagent** that inherits the full conversation and works on the task while you keep working; its result returns to the conversation when it finishes. Best-effort mapping: Copilot CLI's `/fleet` runs parallel subagents but is not a 1:1 equivalent. This behavior was `/fork` on v2.1.161–v2.1.211 |
 | `/branch [name]` | `/branch [NAME]` | Fork the current session into a new session, optionally named (**experimental in Copilot CLI**). Copilot's `/fork [NAME]` is an alias with the same semantics |
-| `/goal [condition\|clear]` | `/autopilot <objective>` (`/goal`) | Copilot CLI's `/autopilot <objective>` (alias `/goal`, v1.0.55) sets an explicit objective to keep autopilot focused across turns — the closest analog to Claude Code's `/goal` |
+| `/goal [condition\|clear]` | `/autopilot [OBJECTIVE]` (`/goal [OBJECTIVE]`) | Copilot CLI's `/autopilot [OBJECTIVE]` (alias `/goal`, **experimental**) starts or refocuses autopilot mode; without an objective it infers intent from context. Supports `--max-ai-credits N` to cap spend. `/goal on`/`/goal off` toggle without setting an objective — the closest analog to Claude Code's `/goal <condition>`/`/goal clear` |
 | `/deep-research <question>` | `/research [TOPIC]` | Best-effort: Claude Code's `/deep-research` fans out web searches and synthesizes a cited report; Copilot's `/research` uses GitHub search + web sources. The research pipelines differ |
 | `/export` | `/share` (`/export`) | `/export` is now also a Copilot CLI alias for `/share` |
 | `/extra-usage` | — | Renamed to `/usage-credits` in Claude Code; no Copilot equivalent (closest: `/usage` for stats only) |
 | `/usage-credits` | — | Configure usage credits to keep working when you hit a limit. No Copilot equivalent (closest: `/usage` for stats only) |
-| `/permissions` | `/allow-all`, `/reset-allowed-tools` | Claude Code manages persistent allow/ask/deny rules. Copilot CLI has no single `/permissions` command — `/allow-all` grants all tool/path/URL permissions for the session and `/reset-allowed-tools` clears the session's allowed-tools list |
+| `/permissions` | `/permissions [default\|assisted\|allow-all\|show]` (`/permissions reset`) | Copilot CLI's `/permissions` now switches between permission modes (`default`, `assisted`, `allow-all`) in addition to `show`; `/permissions reset` is a separately documented subcommand that clears in-memory tool and path approvals — closer to Claude Code's persistent allow/ask/deny rule management than before |
+| `/allow-all` (`/yolo`) | `/allow-all [off\|auto\|show]` (`/yolo`) | Alias for `/permissions allow-all`. **`on` was replaced with `auto`** — `/allow-all on` no longer works; use `/allow-all` (bare) or `/allow-all auto` |
 | `/release-notes` | `/changelog` (`/release-notes`) | `/release-notes` is now a Copilot CLI alias for `/changelog` |
 | `/rewind` / `/checkpoint` / `/undo` | `/undo` (`/rewind`) | Copilot CLI has native `/undo` (alias `/rewind`): opens a timeline picker to roll back the conversation and revert file changes. `/session checkpoints` lists session checkpoints |
 | `/remote-control` (`/rc`) | `/remote [on\|off]` | No args shows status; `on` enables; `off` ends connection |
@@ -163,7 +164,7 @@ Use this reference when you know a Claude Code command and want the Copilot CLI 
 ### Copilot CLI Only (not in Claude Code)
 `/after [DELAY PROMPT]` / `/every [INTERVAL PROMPT]` (experimental: schedule a one-shot or recurring prompt, skill, or schedulable slash command for this session, e.g. `/after 30m remind me` or `/every 1h run tests`; no args opens the schedule manager),
 `/app` (launch the GitHub Copilot app, or show the download URL if it isn't installed),
-`/ask` (experimental), `/autopilot <objective>` (`/goal`), `/changelog` (`/release-notes`), `/chronicle` (experimental: `standup|tips|improve|reindex` — session history tools and insights),
+`/ask` (experimental), `/autopilot [OBJECTIVE]` (`/goal`, experimental), `/changelog` (`/release-notes`), `/chronicle` (experimental: `standup|tips|improve|reindex` — session history tools and insights),
 `/clikit [COMPONENT]` (internal/debug: preview CLI business components),
 `/downgrade <VERSION>` (download and restart into a specific CLI version; team accounts only),
 `/env`, `/extensions` (`/extension`) `[manage|mode]` (manage CLI extensions), `/fleet`, `/list-dirs`, `/cwd` (`/cd`), `/lsp`, `/research`, `/restart`,
@@ -187,7 +188,7 @@ Note: `/background` (`/bg`) detaches the current session to run as a background 
 
 Note: Copilot CLI's **Agent and task delegation** tools are `task` (delegate work to a background agent), `list_agents` (list running background agents), `read_agent` (read a background agent's output), and `write_agent` (send a message to a running background agent). Claude Code manages background agents through the `claude` CLI (`attach`, `logs`, `respawn`, `stop`) rather than these tools, so there is no direct `cpc` mapping — the workflows differ.
 
-Note: `/goal [condition|clear]` sets a goal so Claude keeps working across turns until the condition is met. The closest Copilot CLI equivalent is `/autopilot <objective>` (alias `/goal`, v1.0.55), which sets an explicit objective to keep autopilot focused.
+Note: `/goal [condition|clear]` sets a goal so Claude keeps working across turns until the condition is met. Copilot CLI's `/autopilot [OBJECTIVE]` (alias `/goal`, **experimental**) starts or refocuses autopilot mode with an optional objective — without one it infers intent from context — and supports `--max-ai-credits N` to cap spend; `/goal on`/`/goal off` toggle autopilot without changing the objective, matching Claude Code's `/goal <condition>` → `/goal off` (for `clear`/`stop`/`off`/`cancel`).
 
 Note: `/stop` stops the current background session (only available while attached). No Copilot CLI equivalent.
 
@@ -213,7 +214,7 @@ Note: `/compact [FOCUS-INSTRUCTIONS]` now accepts optional focus instructions in
 
 Note: `/sandbox` exists in both CLIs but with different syntax. Claude Code's `/sandbox` toggles sandbox mode; Copilot CLI's `/sandbox [enable|disable]` configures shell command sandboxing explicitly.
 
-Note: `/permissions` differs between the CLIs. Claude Code manages persistent allow/ask/deny tool rules with `/permissions`. Copilot CLI has no `/permissions` command — use `/allow-all` to grant all tool/path/URL permissions for the session, or `/reset-allowed-tools` to clear the session's allowed-tools list.
+Note: `/permissions` differs between the CLIs. Claude Code manages persistent allow/ask/deny tool rules with `/permissions`. Copilot CLI's `/permissions [default|assisted|allow-all|show]` now switches between permission modes (this is new — it previously only supported `show`/`reset`); `/permissions reset` remains available as a separately documented subcommand to clear in-memory tool and path approvals. `/allow-all` (`/yolo`) is documented as an alias for `/permissions allow-all`, and its `on` option was replaced with `auto` (`/allow-all [off|auto|show]`).
 
 Note: `/rubber-duck [PROMPT]` is a Copilot CLI-only agent for a second opinion on plans, code, and tests. No Claude Code equivalent.
 

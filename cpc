@@ -738,8 +738,12 @@ Slash command note:
   Claude Code /subtask <task> → Copilot CLI /fleet <task> (best-effort; v2.1.212+
     spawns a forked subagent that inherits the conversation — this was /fork before)
   /sandbox → Copilot CLI /sandbox [enable|disable] (configure shell sandboxing)
-  /permissions → no Copilot /permissions command; use /allow-all or
-    /reset-allowed-tools (session-scoped tool permissions)
+  /permissions → Copilot CLI /permissions [default|assisted|allow-all|show]
+    switches permission modes; /permissions reset clears in-memory approvals.
+    /allow-all [off|auto|show] (/yolo) is an alias for /permissions allow-all
+    (on was replaced with auto)
+  Claude Code /goal <condition> → Copilot CLI /autopilot [OBJECTIVE] (/goal);
+    /goal clear|stop|off|cancel → Copilot CLI /goal off
   Claude Code /deep-research → Copilot CLI /research (best-effort; pipelines
     differ: Claude Code fans out web searches, Copilot uses GitHub + web)
   Claude Code /feedback alias /share differs from Copilot CLI /share (which
