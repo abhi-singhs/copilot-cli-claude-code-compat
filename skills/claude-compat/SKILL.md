@@ -105,6 +105,9 @@ Use this reference when you know a Claude Code command and want the Copilot CLI 
 | `--teammate-mode` | Not available (Claude Code-only agent team display mode: `in-process` (default), `auto`, `tmux`, `iterm2` (added v2.1.186); default changed from `auto` to `in-process` in v2.1.179. Copilot CLI has no agent team display modes) |
 | `--remote-control-session-name-prefix` | Not available (Remote Control is not supported) |
 | `--bg` / `--background` | Not available (starts session as background agent; closest: Ctrl+X then b to promote to background). `--background` is a long-form alias for `--bg` |
+| `--autocompact <auto\|tokens>` | Not available (Claude Code v2.1.221+ sets the session's auto-compact window without changing saved settings). Copilot CLI only compacts on demand with `/compact`; `cpc` drops the flag and its value with a warning |
+| `--environment <environment-id>` | Not available (with `-p`, creates a new Claude Code cloud session on a named environment and exits; self-hosted IDs look like `ccpool_...`; cannot be combined with `--cloud`). Closest: `/delegate` inside a Copilot CLI session; `cpc` drops the flag and its value with a warning |
+| `--ref <branch>` | Not available (with `--environment`, bases the new cloud session's checkout on a named ref instead of local `HEAD`); `cpc` drops the flag and its value with a warning |
 
 ### Copilot CLI Only (no Claude Code equivalent)
 | Copilot CLI | Notes |
@@ -128,7 +131,7 @@ Use this reference when you know a Claude Code command and want the Copilot CLI 
 ### Direct Matches (same in both CLIs)
 `/add-dir`, `/clear` (`/new`, `/reset`), `/compact`, `/context`, `/copy`, `/diff`, `/exit`, `/feedback`,
 `/help`, `/ide`, `/init`, `/login`, `/logout`, `/mcp`, `/memory`, `/model`, `/plan`,
-`/plugin`, `/rename`, `/resume` (`/continue`), `/review`, `/security-review`, `/skills`, `/tasks`, `/terminal-setup`,
+`/plugin`, `/rename`, `/resume` (`/continue`), `/security-review`, `/skills`, `/tasks`, `/terminal-setup`,
 `/theme`, `/undo` (`/rewind`), `/usage`, `/voice`, `/quit`
 
 ### Renamed Commands
@@ -136,7 +139,8 @@ Use this reference when you know a Claude Code command and want the Copilot CLI 
 |---|---|---|
 | `/agents` | `/agent` (`/subagents` for per-agent models) | Copilot CLI's `/agent` browses agents; `/subagents` (alias `/agents`) configures the default and per-agent subagent models |
 | `/btw [question]` | `/ask` | Side question without adding to conversation history. The question argument is **optional** in Claude Code v2.1.212+ — with no argument it reopens the overlay on the session's most recent side question. `/ask` requires experimental mode in Copilot CLI |
-| `/code-review [low\|medium\|high\|xhigh\|max] [--comment] [target]` | `/review [PROMPT]` | `/simplify` is a backward-compatible alias in Claude Code. Effort levels and `--comment` (post inline PR comments) have no Copilot equivalent — strip those arguments |
+| `/code-review [low\|medium\|high\|xhigh\|max\|ultra] [--fix] [--comment] [pr#\|branch\|path]` | `/review [PROMPT]` | `/review` and `/simplify` are backward-compatible aliases in Claude Code. Effort levels, `--fix` (apply suggested fixes), and `--comment` (post inline PR comments) have no Copilot equivalent — strip those arguments |
+| `/review [low\|medium\|high\|xhigh\|max\|ultra] [--fix] [--comment] [pr#\|branch\|path]` | `/review [PROMPT]` | Same name, different arguments: Claude Code's `/review` is now a full alias for `/code-review`. Copilot CLI's `/review [PROMPT]` takes a free-form prompt, so the effort level, `--fix`, and `--comment` are dropped — `cpc` strips them from an initial prompt (e.g. `cpc -p "/review high --fix pr#123"` → `copilot -p "/review pr#123"`) |
 | `/simplify [focus]` | `/review [PROMPT]` | Now an alias for `/code-review` in Claude Code |
 | `/cost` | `/usage` | |
 | `/cd <path>` | `/cd [PATH]` (`/cwd`) | Both move the session to a new working directory. Copilot CLI combines it with `/cwd` (display current dir); Claude Code's `/cd` is standalone (v2.1.169+) |
@@ -158,7 +162,7 @@ Use this reference when you know a Claude Code command and want the Copilot CLI 
 | `/ultrareview [PR]` | `/review [PROMPT]` | Cloud-based deep review; `/review` in Claude Code is the local equivalent |
 
 ### Claude Code Only (no Copilot equivalent)
-`/advisor [model|off]`, `/autofix-pr`, `/background` (`/bg`), `/chrome`, `/color`, `/config`, `/dataviz`, `/design-login`, `/design-sync`, `/desktop`, `/doctor`,
+`/advisor [model|off]`, `/autocompact [auto|<tokens>]`, `/autofix-pr`, `/background` (`/bg`), `/chrome`, `/claude-api [migrate|managed-agents-onboard|prompt-audit]`, `/color`, `/config`, `/dataviz`, `/design-login`, `/design-sync`, `/desktop`, `/doctor`,
 `/effort`, `/fast`, `/fewer-permission-prompts`, `/focus`, `/heapdump`, `/hooks`, `/loop` (`/proactive`), `/radio`, `/recap`,
 `/run`, `/run-skill-generator`, `/verify`,
 `/schedule` (`/routines`), `/scroll-speed`, `/setup-bedrock`,
@@ -199,7 +203,9 @@ Note: `/scroll-speed` adjusts mouse wheel scroll speed interactively. No Copilot
 
 Note: `/theme` options changed to `[default|github|dim|high-contrast|colorblind]`.
 
-Note: `/code-review` (Claude Code v2.1.x) replaces `/simplify`; `/simplify` remains as a backward-compatible alias. Both map to Copilot CLI's `/review`. The `--comment` flag (post inline PR comments) and effort levels (`low|medium|high|xhigh|max`) have no Copilot equivalent.
+Note: `/code-review` (Claude Code v2.1.x) replaces `/simplify`; `/simplify` and `/review` remain as backward-compatible aliases. All three map to Copilot CLI's `/review`. The `--fix` flag (apply the suggested fixes), the `--comment` flag (post inline PR comments), and effort levels (`low|medium|high|xhigh|max|ultra`) have no Copilot equivalent. Copilot CLI's `/review [PROMPT]` takes a free-form prompt, so those arguments must be stripped instead of passed through — `cpc` does this automatically when `/review ...` is used as the initial prompt (e.g. `cpc -p "/review high --fix pr#123"` → `copilot -p "/review pr#123"`), but in-session slash commands can't be translated.
+
+Note: `/ultraplan` was **removed** from Claude Code. Use plan mode (`/plan`) instead, which exists in both CLIs.
 
 Note: `/usage-credits` is the renamed `/extra-usage` (Claude Code v2.1.x): "configure usage credits to keep working when you hit a limit". No Copilot CLI equivalent — the closest is `/usage` which only shows usage stats.
 
@@ -214,6 +220,10 @@ Note: `/design-login` authorizes design-system access for `/design-sync` using y
 Note: `/design-sync [hint]` is a skill that converts your repo's React design system and uploads it to Claude Design so generated designs use real components (a first-time sync can take a few hours on a large repo). **Only available on the Anthropic API** — not on Amazon Bedrock, Google Cloud Vertex AI, or Microsoft Foundry. No Copilot CLI equivalent.
 
 Note: `/compact [FOCUS-INSTRUCTIONS]` now accepts optional focus instructions in both CLIs (e.g. `/compact focus on the auth module`). The `cpc` wrapper doesn't touch in-session slash commands, so the focus argument passes through to Copilot CLI unchanged.
+
+Note: `/autocompact [auto|<tokens>]` (Claude Code v2.1.221+) sets how full the context window gets before Claude Code compacts automatically, and saves the value to user settings. Copilot CLI has no equivalent — its `/compact` is a one-shot compaction command, not a threshold setting. The `--autocompact <auto|tokens>` launch flag (same setting, session-only) is likewise unsupported and dropped by `cpc` with a warning.
+
+Note: `/claude-api [migrate|managed-agents-onboard|prompt-audit]` is a Claude Code-only skill. The `prompt-audit` subcommand (v2.1.221+) flags instructions written for older models in prompts, skills, and tool descriptions and proposes fixes as a diff. No Copilot CLI equivalent, and no impact on the `cpc` wrapper.
 
 Note: `/sandbox` exists in both CLIs but with different syntax. Claude Code's `/sandbox` toggles sandbox mode; Copilot CLI's `/sandbox [enable|disable]` configures shell command sandboxing explicitly. Copilot CLI additionally has `--sandbox` / `--no-sandbox` launch flags (experimental mode only) that enable or disable the OS-level shell sandbox for a single session without changing the saved setting — Claude Code has no launch-flag equivalent.
 

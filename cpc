@@ -109,6 +109,40 @@ def is_flag(s):
     return s.startswith("-")
 
 
+# Effort levels accepted by Claude Code's /review (an alias for /code-review).
+REVIEW_EFFORT_LEVELS = {"low", "medium", "high", "xhigh", "max", "ultra"}
+
+
+def translate_review_prompt(query):
+    """Strip Claude Code-only arguments from a leading /review prompt.
+
+    Claude Code's /review is a full alias for /code-review: it takes an effort
+    level plus --fix and --comment. Copilot CLI's /review takes a free-form
+    prompt, so those arguments are dropped instead of being forwarded literally.
+    """
+    parts = query.split()
+    if not parts or parts[0] != "/review":
+        return query
+
+    args = parts[1:]
+    dropped = []
+    # The effort level, when present, is the first argument.
+    if args and args[0] in REVIEW_EFFORT_LEVELS:
+        dropped.append(args.pop(0))
+    kept = []
+    for arg in args:
+        if arg in ("--fix", "--comment"):
+            dropped.append(arg)
+        else:
+            kept.append(arg)
+
+    if not dropped:
+        return query
+    warn(f"Copilot CLI's /review takes a free-form prompt; dropping Claude "
+         f"Code-only argument(s): {' '.join(dropped)}")
+    return " ".join(["/review"] + kept)
+
+
 def consume_values(args, start):
     """Consume non-flag values starting after args[start]. Return (values, next_index)."""
     values = []
@@ -275,6 +309,14 @@ WARN_FLAGS = {
     "--betas":                      (1, "Not applicable to Copilot CLI"),
     "--tmux":                       (0, "Not supported in Copilot CLI"),
     "--remote-control-session-name-prefix": (1, "Remote Control is not available in Copilot CLI"),
+    "--autocompact":                (1, "Not supported in Copilot CLI. Claude Code's --autocompact sets the session's "
+                                        "auto-compact window (auto|<tokens>); Copilot CLI only compacts on demand with "
+                                        "/compact inside a session"),
+    "--environment":                (1, "Not supported in Copilot CLI. Claude Code's --environment dispatches a cloud "
+                                        "session on a named environment (self-hosted IDs look like ccpool_...); use "
+                                        "/delegate inside a session to hand off a task to a remote agent"),
+    "--ref":                        (1, "Not supported in Copilot CLI. Claude Code's --ref only applies to cloud "
+                                        "sessions created with --environment"),
 }
 
 
@@ -582,6 +624,10 @@ def translate_flags(args):
                      "equivalent (ignored).")
             i += 1
 
+        elif arg.startswith(("--autocompact=", "--environment=", "--ref=")):
+            warn(WARN_FLAGS[arg.split("=", 1)[0]][1])
+            i += 1
+
         # --- Track prompt flags ---
         elif arg in ("-p", "--print"):
             copilot_args.append("-p")
@@ -678,6 +724,11 @@ Unsupported flags:
   --advisor <model>                    Not available (server-side advisor tool is Claude Code-only)
   --append-subagent-system-prompt TEXT Not available (subagent prompt injection is Claude Code-only)
   --safe-mode                          No direct equivalent (try --no-custom-instructions)
+  --autocompact <auto|tokens>          Not available (auto-compact window is Claude Code-only;
+                                       use /compact in a session to compact on demand)
+  --environment <environment-id>       Not available (Claude Code cloud session dispatch;
+                                       use /delegate in a session)
+  --ref <branch>                       Not available (only applies to --environment sessions)
 
 Background agent subcommands (Claude Code-only, no Copilot equivalent):
   cpc attach <id>                      Not available (use --resume to reconnect)
@@ -734,6 +785,13 @@ Slash command note:
   Claude Code /btw [question] → Copilot CLI /ask (experimental mode; side question;
     the question arg is optional in Claude Code v2.1.212+)
   /compact [FOCUS-INSTRUCTIONS] → same in both CLIs (focus arg passes through)
+  /autocompact [auto|<tokens>] → no Copilot CLI equivalent (sets the auto-compact
+    threshold in Claude Code settings; Copilot only compacts on demand via /compact)
+  Claude Code /review [low|medium|high|xhigh|max|ultra] [--fix] [--comment] [target]
+    → Copilot CLI /review [PROMPT]; /review is now an alias for /code-review in
+    Claude Code, so cpc drops the effort level, --fix, and --comment from an
+    initial prompt such as: cpc -p "/review high --fix pr#123"
+  /ultraplan → removed from Claude Code; use plan mode (/plan) in both CLIs
   /cd <path> → Copilot CLI /cd [PATH] (move session to a new working directory)
   /reload-skills → Copilot CLI /skills reload (re-scan skill/command directories)
   Claude Code /fork [prompt] → Copilot CLI /fork [NAME] (v2.1.212+ copies the session
@@ -809,7 +867,7 @@ def main():
 
     # --- Handle bare positionals (query strings) ---
     if bare_positionals:
-        query = " ".join(bare_positionals)
+        query = translate_review_prompt(" ".join(bare_positionals))
         if has_prompt_flag:
             # -p was already added; append query after it
             copilot_args.append(query)
