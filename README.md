@@ -122,6 +122,11 @@ cpc --teleport
 
 # Select model
 cpc --model sonnet "fix the bug"       # → copilot --model sonnet -i "fix the bug"
+cpc --model gemini-3.6-flash "fix it"  # → copilot --model gemini-3.6-flash -i "fix it"
+
+# Shell sandbox for this session only (Copilot CLI-only, experimental mode)
+cpc --sandbox -p "run the test suite"  # → copilot --sandbox -p "run the test suite"
+cpc --no-sandbox -p "run the build"    # → copilot --no-sandbox -p "run the build"
 
 # Plan mode
 cpc --permission-mode plan             # → copilot --plan
@@ -265,7 +270,7 @@ The setup script symlinks these directories so both tools share the same files:
 - **`/tuikit [colors|icons|select|tabbar]`** is a Copilot CLI-only internal/debug command (preview TUIkit design-system components and color tokens) — no Claude Code equivalent
 - **`/env`** is a Copilot CLI-only slash command (show loaded environment details) — no Claude Code equivalent
 - **`/rubber-duck [PROMPT]`** is a Copilot CLI-only slash command (consult the rubber duck agent for a second opinion on plans, code, and tests) — no Claude Code equivalent
-- **`/sandbox`** exists in both CLIs but with different syntax — Claude Code's `/sandbox` toggles sandbox mode, while Copilot CLI's `/sandbox [enable|disable]` configures shell command sandboxing explicitly
+- **`/sandbox`** exists in both CLIs but with different syntax — Claude Code's `/sandbox` toggles sandbox mode, while Copilot CLI's `/sandbox [enable|disable]` configures shell command sandboxing explicitly. Copilot CLI also has **`--sandbox`** / **`--no-sandbox`** launch flags (experimental mode only) that enable or disable the OS-level shell sandbox for a single session without changing the saved setting (handy with `-p`) — Claude Code has no launch-flag equivalent, and `cpc` passes both through unchanged
 - **`/permissions`** differs between the CLIs — Claude Code manages persistent allow/ask/deny rules with `/permissions`; Copilot CLI's `/permissions [default|assisted|allow-all|show]` now switches between permission modes (`default`, `assisted`, `allow-all`), and `/permissions reset` clears in-memory tool and path approvals. `/allow-all` (`/yolo`) is documented as an alias for `/permissions allow-all` — its `on` option was replaced with `auto` (`/allow-all [off|auto|show]`)
 - **`/compact [FOCUS-INSTRUCTIONS]`** now accepts optional focus instructions in both CLIs (e.g. `/compact focus on the auth module`); `cpc` passes in-session slash commands through unchanged
 - **`/chronicle`** is a Copilot CLI-only experimental command (session history tools) — no Claude Code equivalent
@@ -290,7 +295,10 @@ The setup script symlinks these directories so both tools share the same files:
 - **`$`** (a lone `$` on an empty prompt) is a Copilot CLI-only shortcut that hands the terminal over to a real interactive shell (`$SHELL` on Unix, `%COMSPEC%` on Windows), suspending the CLI UI so job control, full-screen apps, tab completion, and colors work natively. **Disabled by default** — enable it with the `shellShortcut` setting; only available for local, trusted, idle sessions on a real TTY, and it can be disabled in enterprise managed settings
 - **`copilot plugins [list|enable|disable|remove] [--plugin|--mcp|--skill] NAME`** (note the plural) is a Copilot CLI-only subcommand for non-interactively inspecting, enabling, disabling, or uninstalling plugins, MCP servers, and skills. `enable`/`disable` persist to configuration; `remove` can only delete personal and project skills (disable plugin-provided or built-in ones instead). `cpc plugins ...` passes through to `copilot plugins ...` (`cpc plugin ...` still maps to `copilot plugin ...`)
 - **`mai-code-1-flash`** is a Copilot CLI model (fast, adaptive coding tasks); pass it through with `cpc --model mai-code-1-flash`
-- **`COPILOT_COMPUTER_USE_LINUX`** (opt in to the `computer-use` MCP server on supported Linux distributions; not available on Alpine Linux / musl libc) and **`COPILOT_ENABLE_HTTP2`** (set to `1`/`true` to opt into HTTP/2 transport; HTTP/1.1 is the default) are Copilot CLI-only environment variables
+- **`gemini-3.6-flash`** is a Copilot CLI model (fast Google Gemini responses), joining `gemini-3.1-pro-preview` and `gemini-3.5-flash`; pass it through with `cpc --model gemini-3.6-flash`
+- **`COPILOT_MCP_TOOL_CACHE`** (set to `false` to disable loading and persisting local MCP server tool snapshots for the whole process; existing cache files are left untouched) and **`COPILOT_TASK_WAIT_TIMEOUT_SECONDS`** (default `600`; maximum seconds `-p`, including `-p --autopilot`, waits for pending background agents or shell commands before exiting — `0` exits immediately) are Copilot CLI-only environment variables. `COPILOT_TASK_WAIT_TIMEOUT_SECONDS` is worth setting for scripted `cpc -p` pipelines
+- **`COPILOT_COMPUTER_USE_LINUX`** (opt in to the `computer-use` MCP server on supported Linux distributions; not available on Alpine Linux / musl libc) and **`COLORFGBG`** (fallback for dark/light terminal background detection) are **no longer listed** in the Copilot CLI reference docs — they may still work, but treat them as undocumented. **`COPILOT_ENABLE_HTTP2`** (set to `1`/`true` to opt into HTTP/2 transport; HTTP/1.1 is the default) remains a documented Copilot CLI-only environment variable
+- **`copilot help [TOPIC]`** now supports a `sandbox` topic in addition to `billing`, `config`, `commands`, `environment`, `logging`, `monitoring`, `permissions`, and `providers`
 
 ## Architecture
 

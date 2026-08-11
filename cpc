@@ -702,6 +702,10 @@ Copilot-only flags (passed through when routed via cpc; no Claude Code equivalen
   --allow-all-mcp-server-instructions  Include init instructions from all MCP servers
   --enable-memory                      Enable memory in prompt mode
   --extension-sdk-path DIRECTORY       Override the bundled @github/copilot-sdk
+  --sandbox                            Enable the OS-level shell sandbox for this
+                                       session only (experimental mode only)
+  --no-sandbox                         Disable the OS-level shell sandbox for this
+                                       session only (experimental mode only)
 
 cpc-specific flags:
   --help                               Show this help
@@ -737,7 +741,9 @@ Slash command note:
     on v2.1.161-v2.1.211 /fork instead spawned a forked subagent)
   Claude Code /subtask <task> → Copilot CLI /fleet <task> (best-effort; v2.1.212+
     spawns a forked subagent that inherits the conversation — this was /fork before)
-  /sandbox → Copilot CLI /sandbox [enable|disable] (configure shell sandboxing)
+  /sandbox → Copilot CLI /sandbox [enable|disable] (configure shell sandboxing;
+    Copilot CLI also has --sandbox / --no-sandbox launch flags for a single
+    session, experimental mode only)
   /permissions → Copilot CLI /permissions [default|assisted|allow-all|show]
     switches permission modes; /permissions reset clears in-memory approvals.
     /allow-all [off|auto|show] (/yolo) is an alias for /permissions allow-all
@@ -751,10 +757,13 @@ Slash command note:
   Claude Code --worktree (-w) launch flag → Copilot CLI --worktree (-w) launch flag
     (experimental; create or reuse an isolated Git worktree)
 
-Prompt mode env vars (set to 'true' to enable in -p mode):
-  GITHUB_COPILOT_PROMPT_MODE_EXTENSIONS    Load project extensions
-  GITHUB_COPILOT_PROMPT_MODE_REPO_HOOKS    Load repository hooks
-  GITHUB_COPILOT_PROMPT_MODE_WORKSPACE_MCP Load workspace MCP sources
+Prompt mode env vars:
+  GITHUB_COPILOT_PROMPT_MODE_EXTENSIONS    Load project extensions (set to 'true')
+  GITHUB_COPILOT_PROMPT_MODE_REPO_HOOKS    Load repository hooks (set to 'true')
+  GITHUB_COPILOT_PROMPT_MODE_WORKSPACE_MCP Load workspace MCP sources (set to 'true')
+  COPILOT_TASK_WAIT_TIMEOUT_SECONDS        Seconds -p waits for pending background
+                                           agents/shell commands (default 600;
+                                           0 exits immediately)
 """
 
 
