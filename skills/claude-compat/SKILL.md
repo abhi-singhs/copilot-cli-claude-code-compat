@@ -42,6 +42,7 @@ Use this reference when you know a Claude Code command and want the Copilot CLI 
 | `claude install [version]` | `copilot update` | ⚠️ Partial (no version pinning; update only) |
 | — | `copilot skill` | ℹ️ Copilot-only CLI subcommand: manage agent skills (list, add, remove). Claude Code manages skills via slash commands (`/skills`, `/reload-skills`) or the `--tools` flag, not a CLI subcommand |
 | — | `copilot completion SHELL` | ℹ️ Copilot-only (print shell completion script for bash/zsh/fish) |
+| `claude help` | `copilot help [TOPIC]` | ⚠️ Partial — Copilot CLI's help topics are `billing`, `config`, `commands`, `environment`, `logging`, `monitoring`, `permissions`, `providers`, `sandbox` (`sandbox` is new) |
 
 ## CLI Flag Mapping
 
@@ -119,6 +120,8 @@ Use this reference when you know a Claude Code command and want the Copilot CLI 
 | `--allow-all-mcp-server-instructions` | Include initialization instructions from all MCP servers in the system prompt (by default only allowlisted server instructions are included up front). Passed through unchanged |
 | `--enable-memory` | Enable memory in prompt mode (disabled by default). Conceptually related to Claude Code's `/memory` and `auto-memory`, but there is no Claude Code launch-flag equivalent. Passed through unchanged |
 | `--extension-sdk-path DIRECTORY` | Override the bundled `@github/copilot-sdk` injected into extension subprocesses with a local `copilot-sdk/` folder; invalid paths fall back to the bundled SDK. Passed through unchanged |
+| `--sandbox` | Enable the OS-level shell sandbox for this session only, without changing the saved sandbox setting (useful with `-p`). Only available in experimental mode. Claude Code has no launch-flag equivalent (only the `/sandbox` slash command). Passed through unchanged |
+| `--no-sandbox` | Disable the OS-level shell sandbox for this session only, without changing the saved sandbox setting. Only available in experimental mode. Passed through unchanged |
 
 ## Slash Command Mapping
 
@@ -212,7 +215,7 @@ Note: `/design-sync [hint]` is a skill that converts your repo's React design sy
 
 Note: `/compact [FOCUS-INSTRUCTIONS]` now accepts optional focus instructions in both CLIs (e.g. `/compact focus on the auth module`). The `cpc` wrapper doesn't touch in-session slash commands, so the focus argument passes through to Copilot CLI unchanged.
 
-Note: `/sandbox` exists in both CLIs but with different syntax. Claude Code's `/sandbox` toggles sandbox mode; Copilot CLI's `/sandbox [enable|disable]` configures shell command sandboxing explicitly.
+Note: `/sandbox` exists in both CLIs but with different syntax. Claude Code's `/sandbox` toggles sandbox mode; Copilot CLI's `/sandbox [enable|disable]` configures shell command sandboxing explicitly. Copilot CLI additionally has `--sandbox` / `--no-sandbox` launch flags (experimental mode only) that enable or disable the OS-level shell sandbox for a single session without changing the saved setting — Claude Code has no launch-flag equivalent.
 
 Note: `/permissions` differs between the CLIs. Claude Code manages persistent allow/ask/deny tool rules with `/permissions`. Copilot CLI's `/permissions [default|assisted|allow-all|show]` now switches between permission modes (this is new — it previously only supported `show`/`reset`); `/permissions reset` remains available as a separately documented subcommand to clear in-memory tool and path approvals. `/allow-all` (`/yolo`) is documented as an alias for `/permissions allow-all`, and its `on` option was replaced with `auto` (`/allow-all [off|auto|show]`).
 
@@ -308,8 +311,10 @@ Note: `/refine TEXT` is a Copilot CLI-only command that rewrites a roughly compo
 | `GITHUB_COPILOT_PROMPT_MODE_EXTENSIONS` | `false` | `true` / `false` | Set to `true` to load project extensions and allow extension management tools in prompt mode (`-p`). Disabled by default for security |
 | `GITHUB_COPILOT_PROMPT_MODE_REPO_HOOKS` | `false` | `true` / `false` | Set to `true` to load repository hooks in prompt mode (`-p`). Disabled by default for security |
 | `GITHUB_COPILOT_PROMPT_MODE_WORKSPACE_MCP` | `false` | `true` / `false` | Set to `true` to load workspace MCP sources in prompt mode (`-p`). Disabled by default for security |
-| `COPILOT_COMPUTER_USE_LINUX` | — | set / unset | Set to opt in to the `computer-use` MCP server on supported Linux distributions (not available on Alpine Linux / musl libc) |
+| `COPILOT_COMPUTER_USE_LINUX` | — | set / unset | Set to opt in to the `computer-use` MCP server on supported Linux distributions (not available on Alpine Linux / musl libc). **No longer listed in the Copilot CLI reference docs** — may still work, but treat it as undocumented |
 | `COPILOT_ENABLE_HTTP2` | — | `1` / `true` | Set to `1` or `true` to opt into HTTP/2 transport. HTTP/1.1 is the default |
+| `COPILOT_MCP_TOOL_CACHE` | `true` | `false` | Set to `false` to disable loading and persisting local MCP server tool snapshots for the entire process. Opting out leaves existing cache files untouched |
+| `COPILOT_TASK_WAIT_TIMEOUT_SECONDS` | `600` | `0`+ | Maximum seconds `-p` (and `-p --autopilot`) waits for pending background agents or shell commands to finish before exiting. Set to `0` to exit immediately without waiting. Relevant to scripted `cpc -p` pipelines; Claude Code has no documented equivalent |
 
 ## Supported Models
 
@@ -323,6 +328,7 @@ The `--model` / `/model` value is passed straight through in both CLIs. Copilot 
 | `gpt-5.3-codex` | |
 | `gemini-3.1-pro-preview` | |
 | `gemini-3.5-flash` | |
+| `gemini-3.6-flash` | Fast Google Gemini responses |
 | `mai-code-1-flash` | Fast, adaptive coding tasks |
 
 ## Config Directory Mapping
