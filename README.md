@@ -131,6 +131,10 @@ cpc --no-sandbox -p "run the build"    # → copilot --no-sandbox -p "run the bu
 # Plan mode
 cpc --permission-mode plan             # → copilot --plan
 
+# Code review (Claude Code /review is an alias for /code-review; its effort
+# level, --fix, and --comment have no Copilot equivalent and are stripped)
+cpc -p "/review high --fix pr#123"     # → copilot -p "/review pr#123"
+
 # Isolated Git worktree (experimental in Copilot CLI)
 cpc --worktree feature-auth            # → copilot --worktree=feature-auth
 cpc -w                                 # → copilot --worktree (auto-generated name)
@@ -154,13 +158,14 @@ Quick reference for the most common ones:
 | Claude Code | Copilot CLI | Same? |
 |---|---|---|
 | `/compact` | `/compact [FOCUS-INSTRUCTIONS]` | ✅ Both accept optional focus instructions |
+| `/autocompact [auto\|<tokens>]` | — | ❌ Claude Code-only (v2.1.221+, sets the auto-compact threshold; Copilot's `/compact` only compacts on demand) |
 | `/clear` | `/clear` | ✅ — note: Claude Code's optional `[name]` labels the previous conversation in `/resume`; Copilot's optional `[PROMPT]` starts the new conversation |
 | `/context` | `/context` | ✅ |
 | `/diff` | `/diff` | ✅ |
 | `/model` | `/model` | ✅ |
 | `/plan` | `/plan` | ✅ |
 | `/resume` | `/resume` (`/continue`) | ✅ |
-| `/review` | `/review` | ✅ |
+| `/review [low\|medium\|high\|xhigh\|max\|ultra] [--fix] [--comment] [target]` | `/review [PROMPT]` | ⚠️ Same name, different arguments — Claude Code's `/review` is now an alias for `/code-review`; Copilot's takes a free-form prompt, so `cpc` strips effort levels, `--fix`, and `--comment` |
 | `/tasks` | `/tasks` | ✅ |
 | `/agents` | `/agent` (`/subagents`) | ⚠️ Renamed — `/agent` browses agents; `/subagents` (`/agents`) configures per-agent subagent models |
 | `/security-review` | `/security-review [PROMPT]` | ✅ Direct match — both run a security review agent over pending changes |
@@ -169,7 +174,7 @@ Quick reference for the most common ones:
 | `/subtask <task>` | `/fleet <task>` | ⚠️ Best-effort — Claude Code v2.1.212+ spawns a forked subagent that inherits the conversation; Copilot's `/fleet` runs parallel subagents (not 1:1) |
 | `/branch [name]` | `/branch [NAME]` | ✅ Aligned — fork the session into a new one (experimental in Copilot CLI) |
 | `/btw [question]` | `/ask` (experimental) | ⚠️ Renamed — side question without adding to history; the question argument is optional in Claude Code v2.1.212+ |
-| `/code-review` (`/simplify`) | `/review` | ⚠️ Renamed — `/simplify` is now an alias; `--comment` and effort levels have no Copilot equivalent |
+| `/code-review` (`/simplify`, `/review`) | `/review` | ⚠️ Renamed — `/simplify` and `/review` are now aliases; `--fix`, `--comment`, and effort levels have no Copilot equivalent |
 | `/cost` | `/usage` | ⚠️ Renamed |
 | `/permissions` | `/permissions [default\|assisted\|allow-all\|show]` (`/permissions reset`) | ⚠️ Aligned — Copilot's `/permissions` now switches permission modes (`default`/`assisted`/`allow-all`) in addition to `show`; `/permissions reset` clears in-memory tool and path approvals |
 | `/allow-all` (`/yolo`) | `/allow-all [off\|auto\|show]` (`/yolo`) | ⚠️ Alias for `/permissions allow-all` — the `on` option was replaced with `auto` |
@@ -236,7 +241,12 @@ The setup script symlinks these directories so both tools share the same files:
 - **`--safe-mode`** flag (start with all customizations disabled for troubleshooting: `CLAUDE.md`, skills, plugins, hooks, MCP servers, custom commands/agents, output styles, etc.) is Claude Code-only — no direct Copilot CLI equivalent; closest is `--no-custom-instructions`, though the semantics differ significantly
 - **Background agent session management** (`attach`, `logs`, `respawn`, `rm`, `stop` subcommands) is Claude Code-only — Copilot CLI manages sessions via `/session` and `--resume`. Note: `claude respawn` restarts a running or stopped background session (`--all` restarts every running session)
 - **`claude daemon status`** is Claude Code-only — reports the state of Claude Code's background-session supervisor (version, socket directory, worker count); no Copilot CLI counterpart
-- **`/code-review`** (which replaces `/simplify` in Claude Code; `/simplify` is now an alias) maps to Copilot CLI `/review`. The `--comment` flag (post inline PR comments) and effort levels (`low|medium|high|xhigh|max`) have no Copilot equivalent
+- **`/code-review`** (which replaces `/simplify` in Claude Code; `/simplify` and `/review` are now aliases) maps to Copilot CLI `/review`. The `--fix` flag (apply the suggested fixes), the `--comment` flag (post inline PR comments), and effort levels (`low|medium|high|xhigh|max|ultra`) have no Copilot equivalent. Copilot CLI's `/review [PROMPT]` takes a free-form prompt, so `cpc` strips those arguments when `/review ...` is passed as the initial prompt (e.g. `cpc -p "/review high --fix pr#123"` → `copilot -p "/review pr#123"`)
+- **`/ultraplan`** was **removed** from Claude Code — use plan mode (`/plan`), which exists in both CLIs
+- **`/autocompact [auto|<tokens>]`** (Claude Code v2.1.221+, sets how full the context window gets before Claude Code compacts automatically and saves it to user settings) has **no Copilot CLI equivalent** — Copilot's `/compact` is a one-shot compaction command, not a threshold setting
+- **`--autocompact <auto|tokens>`** (the session-only launch-flag form of `/autocompact`) is Claude Code-only — `cpc` drops the flag and its value with a warning
+- **`--environment <environment-id>`** (with `-p`, create a new Claude Code cloud session on a named environment and exit; self-hosted IDs look like `ccpool_...`; cannot be combined with `--cloud`) and **`--ref <branch>`** (base that cloud session's checkout on a named ref instead of local `HEAD`) are Claude Code-only — `cpc` drops both flags and their values with a warning; the closest Copilot CLI workflow is `/delegate` inside a session
+- **`/claude-api [migrate|managed-agents-onboard|prompt-audit]`** is a Claude Code-only skill (`prompt-audit`, v2.1.221+, flags instructions written for older models in prompts, skills, and tool descriptions and proposes fixes as a diff) — no Copilot CLI equivalent
 - **`/usage-credits`** (renamed from `/extra-usage` in Claude Code) is Claude Code-only — configure usage credits to keep working when you hit a limit; closest in Copilot CLI is `/usage` (stats only)
 - **`/run`, `/run-skill-generator`, `/verify`** are Claude Code-only skills (v2.1.145+) that build, launch, and drive the project's app to observe a change running — no Copilot CLI equivalent
 - **`/radio`** is a Claude Code-only command (opens Claude FM lo-fi radio in the browser) — no Copilot CLI equivalent
