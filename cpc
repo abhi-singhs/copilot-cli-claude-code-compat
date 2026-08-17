@@ -15,24 +15,38 @@ COPILOT_BIN = os.environ.get("CPC_BINARY", "copilot")
 # Tool permission syntax conversion
 # ---------------------------------------------------------------------------
 
+# Copilot CLI permission patterns use a fixed set of *kinds*
+# (memory, read, shell, url, write, or an MCP server name), not tool names,
+# so every Claude Code read-only tool collapses onto 'read'. Claude Code
+# itself warns that Glob(path) rules should be written as Read(path).
 TOOL_PERMISSION_MAP = {
     "Bash": "shell",
     "Read": "read",
+    "Glob": "read",
+    "ListFiles": "read",
+    "Grep": "read",
     "Edit": "write",
+    "NotebookEdit": "write",
     "Write": "write",
     "WebFetch": "url",
-    "ListFiles": "glob",
-    "Grep": "grep",
+    "WebSearch": "url",
 }
 
+# --available-tools / --excluded-tools take Copilot tool names, which are a
+# different vocabulary from the permission kinds above.
 TOOL_AVAILABLE_MAP = {
     "Bash": "bash",
     "Read": "view",
     "Edit": "edit",
     "Write": "create",
     "WebFetch": "web_fetch",
+    "WebSearch": "web_search",
+    "Glob": "glob",
     "ListFiles": "glob",
     "Grep": "grep",
+    "Task": "task",
+    "Skill": "skill",
+    "AskUserQuestion": "ask_user",
 }
 
 _TOOL_RE = re.compile(r"^([A-Za-z]+)(\(.*\))?$")
@@ -157,6 +171,12 @@ def consume_values(args, start):
 # Subcommand handlers
 # ---------------------------------------------------------------------------
 
+# Options accepted by 'copilot login'. --host takes a value; the flow flags
+# don't.
+LOGIN_VALUE_FLAGS = {"--host"}
+LOGIN_BOOL_FLAGS = {"--web-flow", "--device-code"}
+
+
 def handle_auth(rest_args):
     """Translate 'auth login|logout|status' to copilot equivalents."""
     if not rest_args:
@@ -165,10 +185,26 @@ def handle_auth(rest_args):
 
     sub = rest_args[0]
     if sub == "login":
-        extra_flags = rest_args[1:]
-        if extra_flags:
-            warn(f"Auth flags {extra_flags} are not supported by Copilot CLI (ignored)")
-        return [COPILOT_BIN, "login"]
+        cmd = [COPILOT_BIN, "login"]
+        ignored = []
+        i = 1
+        while i < len(rest_args):
+            arg = rest_args[i]
+            name = arg.split("=", 1)[0]
+            if name in LOGIN_VALUE_FLAGS:
+                cmd.append(arg)
+                if "=" not in arg and i + 1 < len(rest_args) and not is_flag(rest_args[i + 1]):
+                    cmd.append(rest_args[i + 1])
+                    i += 1
+            elif name in LOGIN_BOOL_FLAGS:
+                cmd.append(arg)
+            else:
+                ignored.append(arg)
+            i += 1
+        if ignored:
+            warn(f"Auth flags {ignored} are not supported by 'copilot login' "
+                 "(supported: --host HOST, --web-flow, --device-code) (ignored)")
+        return cmd
     elif sub == "logout":
         warn("'copilot logout' subcommand has been removed. Use /logout in an interactive session instead")
         return None
@@ -187,6 +223,7 @@ SUBCOMMANDS = {
     # Background agent session management (new in Claude Code)
     "attach", "logs", "respawn", "rm", "stop", "daemon",
     "ultrareview", "project", "setup-token", "install",
+    "self-hosted-runner", "install-github-app", "doctor",
 }
 
 
@@ -222,6 +259,11 @@ def handle_subcommand(subcmd, rest_args):
         if sub == "defaults":
             warn("No direct Copilot CLI equivalent for 'auto-mode defaults'. "
                  "Use --autopilot flag or Shift+Tab in interactive mode")
+            return None
+        if sub == "reset":
+            warn("No direct Copilot CLI equivalent for 'auto-mode reset' "
+                 "(Claude Code v2.1.212+ clears learned auto-mode decisions). "
+                 "Closest: /permissions reset inside a Copilot CLI session")
             return None
         warn("Use --autopilot flag or Shift+Tab in interactive mode")
         return [COPILOT_BIN]
@@ -282,6 +324,20 @@ def handle_subcommand(subcmd, rest_args):
     if subcmd == "install":
         warn("Not available in Copilot CLI. Use 'copilot update' to update, or reinstall via your package manager")
         return None
+    if subcmd == "self-hosted-runner":
+        warn("Not available in Copilot CLI. 'claude self-hosted-runner' (Claude Code v2.1.224+) "
+             "registers a self-hosted environment for cloud sessions; Copilot CLI has no "
+             "counterpart. Closest: /delegate inside a session")
+        return None
+    if subcmd == "install-github-app":
+        warn("Not available in Copilot CLI. 'claude install-github-app' installs the Claude "
+             "GitHub app for PR automation. Copilot's GitHub integration is built in; use "
+             "'copilot login' to authenticate")
+        return None
+    if subcmd == "doctor":
+        warn("Not available in Copilot CLI. 'claude doctor' (/checkup) is an installation and "
+             "auto-updater health check. Closest: 'copilot version' to check for updates")
+        return [COPILOT_BIN, "version"]
     return None
 
 
@@ -317,6 +373,18 @@ WARN_FLAGS = {
                                         "/delegate inside a session to hand off a task to a remote agent"),
     "--ref":                        (1, "Not supported in Copilot CLI. Claude Code's --ref only applies to cloud "
                                         "sessions created with --environment"),
+    "--forward-subagent-text":      (0, "Not supported in Copilot CLI. Claude Code's --forward-subagent-text "
+                                        "(v2.1.211+) streams subagent output into the parent transcript; Copilot "
+                                        "CLI shows subagent progress in /tasks instead"),
+    "--permission-prompt-tool":     (1, "Not supported in Copilot CLI. Claude Code delegates permission prompts to "
+                                        "an MCP tool; Copilot CLI uses --allow-tool/--deny-tool and /permissions"),
+    "--input-format":               (1, "Not supported in Copilot CLI. Claude Code's --input-format stream-json "
+                                        "accepts a streamed JSON transcript on stdin; Copilot CLI only reads a "
+                                        "plain prompt"),
+    "--include-partial-messages":   (0, "Not supported in Copilot CLI. Use --output-format=json (JSONL) for "
+                                        "machine-readable output"),
+    "--settings":                   (1, "Not supported in Copilot CLI. Settings live in ~/.copilot/settings.json "
+                                        "and .github/copilot/settings.json; there is no per-run settings file flag"),
 }
 
 
@@ -387,9 +455,18 @@ def translate_flags(args):
             i += 1
 
         elif arg == "--teleport":
-            warn("--teleport translated to --resume. Use the session picker to select a cloud session.")
-            copilot_args.append("--resume")
-            i += 1
+            # Claude Code v2.1.223+ documents 'claude --teleport <session id>'
+            # to continue a cloud session locally. Copilot CLI's closest
+            # equivalent is --resume, which spells its value with '='.
+            if i + 1 < len(args) and not is_flag(args[i + 1]):
+                warn("--teleport translated to --resume. Copilot CLI has no cloud "
+                     "sessions, so the ID only matches a local Copilot session.")
+                copilot_args.append(f"--resume={args[i + 1]}")
+                i += 2
+            else:
+                warn("--teleport translated to --resume. Use the session picker to select a session.")
+                copilot_args.append("--resume")
+                i += 1
 
         # --- Unsupported flags that consume values ---
         elif arg == "--plugin-url":
@@ -626,7 +703,7 @@ def translate_flags(args):
                      "equivalent (ignored).")
             i += 1
 
-        elif arg.startswith(("--autocompact=", "--environment=", "--ref=")):
+        elif "=" in arg and arg.split("=", 1)[0] in WARN_FLAGS:
             warn(WARN_FLAGS[arg.split("=", 1)[0]][1])
             i += 1
 
@@ -688,7 +765,8 @@ Subcommands:
   cpc                                  Start interactive session
   cpc "query"                          Start with an initial prompt
   cpc -p "query"                       Non-interactive (print) mode
-  cpc auth login                       Log in (→ copilot login)
+  cpc auth login [--host URL]          Log in (→ copilot login; --host,
+                                       --web-flow, and --device-code pass through)
   cpc auth logout                      Log out (→ /logout in interactive session)
   cpc update                           Update CLI (→ copilot update)
   cpc init                             Init project (→ copilot init)
@@ -704,6 +782,9 @@ Translated flags:
   --max-turns N                        → --max-autopilot-continues=N
   --mcp-config <path>                  → --additional-mcp-config=@<path>
   --tools "Bash,Edit,Read"             → --available-tools=bash,edit,view
+  --allowedTools "Glob" / "Grep"       → --allow-tool=read (Copilot permission
+                                         kinds are shell|read|write|url|memory
+                                         or an MCP server name, not tool names)
   --permission-mode bypass|auto|plan   → --allow-all / --autopilot / --plan
   --permission-mode default|manual     → no flag (Copilot default)
   --debug                              → --log-level=debug
@@ -712,7 +793,8 @@ Translated flags:
   --cloud                              → no equivalent for bare web launch
   --remote ["task"]                    → deprecated alias for --cloud
   --no-remote                          → --no-remote (disable remote access)
-  --teleport                           → --resume (cloud session picker)
+  --teleport [SESSION]                 → --resume=SESSION (bare --teleport opens
+                                         the session picker)
   --resume / -r [SESSION]              → --resume=SESSION (session ID, ID prefix,
                                          or name; bare --resume/-r opens the
                                          session picker, which needs a TTY)
@@ -734,6 +816,11 @@ Unsupported flags:
   --environment <environment-id>       Not available (Claude Code cloud session dispatch;
                                        use /delegate in a session)
   --ref <branch>                       Not available (only applies to --environment sessions)
+  --forward-subagent-text              Not available (Copilot shows subagent progress in /tasks)
+  --permission-prompt-tool TOOL        Not available (use --allow-tool/--deny-tool, /permissions)
+  --input-format stream-json           Not available (Copilot only reads a plain prompt)
+  --include-partial-messages           Not available (use --output-format=json)
+  --settings <path>                    Not available (no per-run settings file flag)
 
 Background agent subcommands (Claude Code-only, no Copilot equivalent):
   cpc attach <id>                      Not available (use --resume to reconnect)
@@ -746,6 +833,10 @@ Background agent subcommands (Claude Code-only, no Copilot equivalent):
   cpc setup-token                      Not available (use gh auth token)
   cpc project purge [path]             Not available (use /session cleanup)
   cpc ultrareview [target]             Not available (use /review)
+  cpc auto-mode reset                  Not available (use /permissions reset)
+  cpc self-hosted-runner ...           Not available (use /delegate)
+  cpc install-github-app               Not available (Copilot's GitHub integration is built in)
+  cpc doctor                           Not available (→ copilot version)
 
 Passthrough flags (same in both CLIs):
   --model, --add-dir, --agent, --output-format, -p, -c, -v, etc.
@@ -819,8 +910,10 @@ Slash command note:
   Claude Code /deep-research → Copilot CLI /research (best-effort; pipelines
     differ: Claude Code fans out web searches, Copilot uses GitHub + web)
   Claude Code /bug (alias /share; /feedback opens the same dialog) differs from
-    Copilot CLI /share (which exports the session: /share [file|html|gist] ...)
-    — same name, different action
+    Copilot CLI /share (which shares/exports the session:
+    /share [link|off|file|html|gist|research] ...) — same name, different action
+  Claude Code /config [key=value] → Copilot CLI /config, now a documented alias of
+    /settings: /config [--repo|--local] [show KEY|KEY|KEY VALUE]
   Claude Code /import [codex|gemini] [--dry-run] [--yes] → no Copilot CLI
     equivalent (imports Codex or Gemini CLI config into Claude Code)
   Claude Code /list-agents (/peers) → no Copilot CLI equivalent (/subagents only
@@ -836,6 +929,9 @@ Slash command note:
   Claude Code /voice [hold|tap|off] → Copilot CLI /voice [on|off|models|devices]
     (both toggle voice mode, but the arguments differ: Copilot has no
     push-to-talk 'hold'/'tap' modes and adds 'models' and 'devices' pickers)
+  Copilot CLI /move [branch|task] (experimental) has no Claude Code equivalent:
+    it moves uncommitted changes into a new Git worktree and switches to it,
+    where /worktree leaves them behind
 
 Prompt mode env vars:
   GITHUB_COPILOT_PROMPT_MODE_EXTENSIONS    Load project extensions (set to 'true')
