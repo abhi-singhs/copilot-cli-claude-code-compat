@@ -162,8 +162,8 @@ Use this reference when you know a Claude Code command and want the Copilot CLI 
 | `/ultrareview [PR]` | `/review [PROMPT]` | Cloud-based deep review; `/review` in Claude Code is the local equivalent |
 
 ### Claude Code Only (no Copilot equivalent)
-`/advisor [model|off]`, `/autocompact [auto|<tokens>]`, `/autofix-pr`, `/background` (`/bg`), `/chrome`, `/claude-api [migrate|managed-agents-onboard|prompt-audit]`, `/color`, `/config`, `/dataviz`, `/design-login`, `/design-sync`, `/desktop`, `/doctor`,
-`/effort`, `/fast`, `/fewer-permission-prompts`, `/focus`, `/heapdump`, `/hooks`, `/loop` (`/proactive`), `/radio`, `/recap`,
+`/advisor [model|off]`, `/autocompact [auto|<tokens>]`, `/autofix-pr`, `/background` (`/bg`), `/chrome`, `/claude-api [migrate|managed-agents-onboard|prompt-audit]`, `/color`, `/config`, `/dataviz`, `/design-login`, `/design-sync`, `/desktop`, `/doctor` (`/checkup`),
+`/effort`, `/fast`, `/fewer-permission-prompts`, `/focus`, `/heapdump`, `/hooks`, `/import [codex|gemini] [--dry-run] [--yes]`, `/list-agents` (`/peers`), `/loop` (`/proactive`), `/radio`, `/recap`,
 `/run`, `/run-skill-generator`, `/verify`,
 `/schedule` (`/routines`), `/scroll-speed`, `/setup-bedrock`,
 `/stats`, `/stop`, `/team-onboarding`, `/tui`, `/web-setup`
@@ -231,7 +231,15 @@ Note: `/permissions` differs between the CLIs. Claude Code manages persistent al
 
 Note: `/rubber-duck [PROMPT]` is a Copilot CLI-only agent for a second opinion on plans, code, and tests. No Claude Code equivalent.
 
-Note: `/feedback [report]` (aliases `/bug`, `/share`) gained the `/share` alias in Claude Code. This collides in name with Copilot CLI's `/share [file|html|gist] [session|research] [PATH]` (session export). Same name, different action — `/share` submits feedback in Claude Code but exports the session in Copilot CLI.
+Note: `/bug [report]` is now the **primary** bug-reporting command in Claude Code, with `/share` as its alias; `/feedback` still exists and opens the same dialog. Before v2.1.212, `/bug` and `/share` were both aliases of `/feedback`. In the VS Code extension, `/bug` opens the extension's own feedback dialog (v2.1.229+). The `/share` alias collides in name with Copilot CLI's `/share [file|html|gist] [session|research] [PATH]` (session export). Same name, different action — `/share` submits a bug report in Claude Code but exports the session in Copilot CLI.
+
+Note: `/context [all]` accepts an optional `all` argument in Claude Code, which expands the per-item context breakdown in fullscreen rendering (previously the breakdown always collapsed so the grid stayed visible). Copilot CLI's `/context` takes no arguments, so drop `all` when switching.
+
+Note: `/doctor` is also available as `/checkup` in Claude Code. Both check the health of the installation and auto-updater. No Copilot CLI equivalent.
+
+Note: `/import [codex|gemini] [--dry-run] [--yes]` (Claude Code v2.1.213+) brings configuration from another coding agent already on the machine into Claude Code — instruction files, MCP servers, commands, subagents, and skills. It currently supports OpenAI Codex and Google Gemini CLI, and is not available on Amazon Bedrock, Google Cloud's Agent Platform, Microsoft Foundry, or Claude Platform on AWS. `--dry-run` previews the changes without writing; `--yes` skips the interactive picker. There is no Copilot CLI equivalent and nothing for `cpc` to map — the command imports *into* Claude Code, and Copilot CLI is not one of the supported sources.
+
+Note: `/list-agents` (alias `/peers`, Claude Code v2.1.224+) lists the subagents and other Claude Code sessions Claude can message, along with the name to use for each. It's only available when cross-session messaging is enabled. Copilot CLI has no direct equivalent: `/subagents` (alias `/agents`) configures subagent models rather than listing peers, and the `list_agents` tool only lists background agents started from the current session, not other sessions.
 
 Note: `/clear [name]` in Claude Code accepts an optional name to label the previous conversation in the `/resume` picker. Copilot CLI's `/clear [PROMPT]` instead takes an optional prompt to start the new conversation. The optional argument has different semantics on each CLI.
 

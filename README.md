@@ -160,7 +160,7 @@ Quick reference for the most common ones:
 | `/compact` | `/compact [FOCUS-INSTRUCTIONS]` | ✅ Both accept optional focus instructions |
 | `/autocompact [auto\|<tokens>]` | — | ❌ Claude Code-only (v2.1.221+, sets the auto-compact threshold; Copilot's `/compact` only compacts on demand) |
 | `/clear` | `/clear` | ✅ — note: Claude Code's optional `[name]` labels the previous conversation in `/resume`; Copilot's optional `[PROMPT]` starts the new conversation |
-| `/context` | `/context` | ✅ |
+| `/context [all]` | `/context` | ✅ Claude Code's optional `all` expands the per-item breakdown in fullscreen; Copilot's `/context` takes no arguments |
 | `/diff` | `/diff` | ✅ |
 | `/model` | `/model` | ✅ |
 | `/plan` | `/plan` | ✅ |
@@ -190,6 +190,9 @@ Quick reference for the most common ones:
 | `/scroll-speed` | — | ❌ Claude Code-only (interactive scroll speed adjustment) |
 | `/stop` | — | ❌ Claude Code-only (stop current background session) |
 | `/autofix-pr` | — | ❌ Not available |
+| `/import [codex\|gemini] [--dry-run] [--yes]` | — | ❌ Claude Code-only (v2.1.213+, import Codex or Gemini CLI config into Claude Code) |
+| `/list-agents` (`/peers`) | — | ❌ Claude Code-only (v2.1.224+, list subagents and sessions Claude can message; `/subagents` only configures models) |
+| `/doctor` (`/checkup`) | — | ❌ Claude Code-only (installation health check) |
 | `/web-setup` | — | ❌ Not available |
 | `/team-onboarding` | — | ❌ Not available |
 | `/fewer-permission-prompts` | — | ❌ Not available |
@@ -264,7 +267,10 @@ The setup script symlinks these directories so both tools share the same files:
 - **`/ultrareview [PR]`** is a Claude Code–only command (deep cloud-based code review) — use `/review` in Copilot CLI for local reviews
 - **`/keep-alive [on|off|busy|DURATION]`** (`/caffeinate`) is a Copilot CLI-only slash command (prevent machine sleep; duration accepts bare numbers, `30m`, `2h`, `1d`) — no Claude Code equivalent
 - **`/research`**, **`/update`** (`/upgrade`), **`/version`** are Copilot CLI-only slash commands — Claude Code's closest analog to `/research` is `/deep-research <question>` (best-effort mapping; the research pipelines differ)
-- **`/feedback`** alias `/share` (added in Claude Code, alongside `/bug`) collides in name with Copilot CLI's `/share [file|html|gist] [session|research] [PATH]` (session export). Same name, different action — `/share` submits feedback in Claude Code but exports the session in Copilot CLI
+- **`/bug [report]`** is now the primary bug-reporting command in Claude Code, with **`/share`** as its alias (before v2.1.212 both `/bug` and `/share` were aliases of `/feedback`); `/feedback` still opens the same dialog, and in the VS Code extension `/bug` opens the extension's own feedback dialog (v2.1.229+). The `/share` alias collides in name with Copilot CLI's `/share [file|html|gist] [session|research] [PATH]` (session export). Same name, different action — `/share` submits a bug report in Claude Code but exports the session in Copilot CLI
+- **`/import [codex|gemini] [--dry-run] [--yes]`** is a Claude Code-only command (v2.1.213+) that imports another coding agent's configuration — instruction files, MCP servers, commands, subagents, and skills — from OpenAI Codex or Google Gemini CLI. Not available on Amazon Bedrock, Google Cloud's Agent Platform, Microsoft Foundry, or Claude Platform on AWS. `--dry-run` previews without writing, `--yes` skips the picker. Copilot CLI is not a supported source, so there is nothing for `cpc` to map
+- **`/list-agents`** (`/peers`) is a Claude Code-only command (v2.1.224+) that lists the subagents and other Claude Code sessions Claude can message, and is only available when cross-session messaging is enabled. Copilot CLI has no equivalent — `/subagents` (`/agents`) configures subagent models, and the `list_agents` tool only covers background agents started from the current session
+- **`/doctor`** (alias `/checkup`) is a Claude Code-only command (installation and auto-updater health check) — no Copilot CLI equivalent
 - **`/deep-research <question>`** is a Claude Code workflow (fan out web searches, cross-check sources, synthesize a cited report) — the `cpc` wrapper treats it as a best-effort mapping to Copilot CLI's `/research TOPIC`, which uses GitHub search + web sources
 - **`/advisor [model|off]`** is a Claude Code-only command (enable/disable the server-side advisor tool; accepts `opus`, `sonnet`, or a full model ID — the `fable` alias was removed in v2.1.212) — no Copilot CLI equivalent
 - **`/cd <path>`** (Claude Code v2.1.169+, move the session to a new working directory) maps to Copilot CLI's `/cd [PATH]` (combined with `/cwd`)

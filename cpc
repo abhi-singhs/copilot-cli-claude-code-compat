@@ -810,8 +810,13 @@ Slash command note:
     /goal clear|stop|off|cancel → Copilot CLI /goal off
   Claude Code /deep-research → Copilot CLI /research (best-effort; pipelines
     differ: Claude Code fans out web searches, Copilot uses GitHub + web)
-  Claude Code /feedback alias /share differs from Copilot CLI /share (which
-    exports the session: /share [file|html|gist] ...) — same name, different action
+  Claude Code /bug (alias /share; /feedback opens the same dialog) differs from
+    Copilot CLI /share (which exports the session: /share [file|html|gist] ...)
+    — same name, different action
+  Claude Code /import [codex|gemini] [--dry-run] [--yes] → no Copilot CLI
+    equivalent (imports Codex or Gemini CLI config into Claude Code)
+  Claude Code /list-agents (/peers) → no Copilot CLI equivalent (/subagents only
+    configures subagent models, it does not list sessions you can message)
   Claude Code --worktree (-w) launch flag → Copilot CLI --worktree (-w) launch flag
     (experimental; create or reuse an isolated Git worktree)
 
