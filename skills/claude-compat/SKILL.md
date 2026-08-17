@@ -203,6 +203,7 @@ Use this reference when you know a Claude Code command and want the Copilot CLI 
 `/move [branch|task]` (experimental: move uncommitted changes into a new Git worktree and switch to it),
 `/pr [view|create|fix|auto|automerge]` (manage pull requests for the current branch),
 `/reset-allowed-tools` (revoke permissions granted during the session),
+`/instructions` (view the custom instruction files loaded into the current session),
 `/sidekicks` (view running sidekick agents), `/streamer-mode` (`/on-air`), `/subagents` (`/agents`) (configure default and per-agent subagent models), `/user`,
 `/search [QUERY]` (`/find [QUERY]`) (experimental: search the conversation timeline),
 `/session` (`/sessions`) with subcommands: `info|checkpoints [n]|files|plan|rename [NAME]|cleanup|prune|delete [ID]|delete-all`,
@@ -380,7 +381,7 @@ The `--model` / `/model` value is passed straight through in both CLIs. Copilot 
 
 | Model | Notes |
 |---|---|
-| `claude-sonnet-4.6` | |
+| `claude-sonnet-4.6` | Default model |
 | `claude-haiku-4.5` | |
 | `gpt-5.4` | |
 | `gpt-5.3-codex` | |
