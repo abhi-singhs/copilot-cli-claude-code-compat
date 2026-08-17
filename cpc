@@ -76,7 +76,7 @@ def convert_tool_for_available(name):
 # These must consume their value so it's not mistaken for a bare query.
 PASSTHROUGH_VALUE_FLAGS = {
     "--model", "--add-dir", "--agent", "--output-format",
-    "--resume", "--session-id", "--log-level", "--log-dir",
+    "--session-id", "--log-level", "--log-dir",
     "--mcp-config", "--additional-mcp-config", "--name",
     "--attachment", "--context", "--extension-sdk-path",
 }
@@ -507,9 +507,11 @@ def translate_flags(args):
                 warn("--debug-file requires a path")
                 i += 1
 
-        elif arg == "-r" and not any(a in ("--resume",) for a in copilot_args):
-            # -r <session-id> [query]
-            if i + 1 < len(args):
+        elif arg in ("-r", "--resume") and not any(a in ("--resume",) for a in copilot_args):
+            # -r / --resume [SESSION] [query]. Copilot CLI documents the flag as
+            # --resume[=VALUE], so the value must be attached with '=' — a
+            # space-separated value would be read as a bare prompt instead.
+            if i + 1 < len(args) and not is_flag(args[i + 1]):
                 copilot_args.append(f"--resume={args[i + 1]}")
                 i += 2
                 # Check if next arg is a bare query
@@ -711,6 +713,9 @@ Translated flags:
   --remote ["task"]                    → deprecated alias for --cloud
   --no-remote                          → --no-remote (disable remote access)
   --teleport                           → --resume (cloud session picker)
+  --resume / -r [SESSION]              → --resume=SESSION (session ID, ID prefix,
+                                         or name; bare --resume/-r opens the
+                                         session picker, which needs a TTY)
   --name / -n NAME                     → --name=NAME (session name)
   --effort LEVEL                       → --effort=LEVEL (low|medium|high|xhigh|max;
                                          Claude Code's 'ultracode' maps to 'max')
@@ -743,7 +748,7 @@ Background agent subcommands (Claude Code-only, no Copilot equivalent):
   cpc ultrareview [target]             Not available (use /review)
 
 Passthrough flags (same in both CLIs):
-  --model, --add-dir, --agent, --output-format, -p, -c, -v, --resume, etc.
+  --model, --add-dir, --agent, --output-format, -p, -c, -v, etc.
 
 Copilot-only flags (passed through when routed via cpc; no Claude Code equivalent):
   --attachment PATH                    Attach a file to the initial prompt (repeatable)
@@ -799,9 +804,12 @@ Slash command note:
     on v2.1.161-v2.1.211 /fork instead spawned a forked subagent)
   Claude Code /subtask <task> → Copilot CLI /fleet <task> (best-effort; v2.1.212+
     spawns a forked subagent that inherits the conversation — this was /fork before)
-  /sandbox → Copilot CLI /sandbox [enable|disable] (configure shell sandboxing;
-    Copilot CLI also has --sandbox / --no-sandbox launch flags for a single
-    session, experimental mode only)
+  /sandbox → Copilot CLI /sandbox [config|status|policy|enable|disable]
+    (config, or bare /sandbox, opens the sandbox settings dialog; status shows
+    whether sandboxing is enabled; policy shows the effective path grants,
+    denials, and network access; enable/disable toggle it directly. Copilot CLI
+    also has --sandbox / --no-sandbox launch flags for a single session,
+    experimental mode only)
   /permissions → Copilot CLI /permissions [default|assisted|allow-all|show]
     switches permission modes; /permissions reset clears in-memory approvals.
     /allow-all [off|auto|show] (/yolo) is an alias for /permissions allow-all
@@ -819,6 +827,15 @@ Slash command note:
     configures subagent models, it does not list sessions you can message)
   Claude Code --worktree (-w) launch flag → Copilot CLI --worktree (-w) launch flag
     (experimental; create or reuse an isolated Git worktree)
+  Copilot CLI /worktree [branch|task] (experimental) moves the current
+    conversation to a new Git worktree; /worktree new [PROMPT] instead starts a
+    new conversation in a new worktree and leaves the current one untouched
+    ('new' is a reserved keyword, so it can't be a literal branch name).
+    Claude Code has no equivalent (/fork and /branch copy the conversation but
+    stay in the same working directory)
+  Claude Code /voice [hold|tap|off] → Copilot CLI /voice [on|off|models|devices]
+    (both toggle voice mode, but the arguments differ: Copilot has no
+    push-to-talk 'hold'/'tap' modes and adds 'models' and 'devices' pickers)
 
 Prompt mode env vars:
   GITHUB_COPILOT_PROMPT_MODE_EXTENSIONS    Load project extensions (set to 'true')

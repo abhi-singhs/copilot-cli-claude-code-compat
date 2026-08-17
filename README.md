@@ -78,8 +78,10 @@ cpc -p "summarize README.md"           # → copilot -p "summarize README.md"
 # Continue last conversation
 cpc -c                                 # → copilot --continue
 
-# Resume a session
+# Resume a session (-r is the shorthand for --resume in both CLIs)
 cpc -r my-session "keep going"         # → copilot --resume=my-session -i "keep going"
+cpc --resume my-session                # → copilot --resume=my-session
+cpc -r                                 # → copilot --resume (session picker; needs a TTY)
 
 # Auth
 cpc auth login                         # → copilot login
@@ -178,7 +180,8 @@ Quick reference for the most common ones:
 | `/cost` | `/usage` | ⚠️ Renamed |
 | `/permissions` | `/permissions [default\|assisted\|allow-all\|show]` (`/permissions reset`) | ⚠️ Aligned — Copilot's `/permissions` now switches permission modes (`default`/`assisted`/`allow-all`) in addition to `show`; `/permissions reset` clears in-memory tool and path approvals |
 | `/allow-all` (`/yolo`) | `/allow-all [off\|auto\|show]` (`/yolo`) | ⚠️ Alias for `/permissions allow-all` — the `on` option was replaced with `auto` |
-| `/sandbox` | `/sandbox [enable\|disable]` | ⚠️ Aligned — both now have `/sandbox`; Copilot uses explicit `enable`/`disable` |
+| `/sandbox` | `/sandbox [config\|status\|policy\|enable\|disable]` | ⚠️ Aligned — both now have `/sandbox`; Copilot adds `config` (settings dialog), `status`, and `policy` alongside `enable`/`disable` |
+| `/voice [hold\|tap\|off]` | `/voice [on\|off\|models\|devices]` | ⚠️ Aligned — both have voice mode; Copilot's `models` and `devices` browse voice models and pick the microphone, and it has no push-to-talk `hold`/`tap` |
 | `/deep-research <question>` | `/research TOPIC` | ⚠️ Best-effort — Claude Code fans out web searches; Copilot uses GitHub + web sources |
 | `/export` | `/share` (`/export`) | ⚠️ Renamed — `/export` now also a Copilot alias |
 | `/extra-usage` → `/usage-credits` | — | ❌ Claude Code-only (configure usage credits; closest: `/usage` for stats only) |
@@ -211,6 +214,7 @@ Quick reference for the most common ones:
 | — | `/settings [show\|[KEY VALUE]\|reset KEY]` | 🆕 Copilot CLI only — open the settings dialog or set/reset a setting inline (≈ Claude Code `/config`) |
 | — | `/refine [TEXT]` | 🆕 Copilot CLI only — rewrite a rough prompt into a clear one for review before sending (no args cleans up the current input box) |
 | — | `/tuikit [colors\|icons\|select\|tabbar]` | 🆕 Copilot CLI only — preview TUIkit design-system components and color tokens |
+| — | `/worktree [branch\|task]` / `/worktree new [PROMPT]` | 🆕 Copilot CLI only (experimental) — move the conversation to a new Git worktree, or start a new conversation in one; Claude Code's `/fork` and `/branch` are partial analogs |
 
 ## Config Sharing
 
@@ -281,12 +285,15 @@ The setup script symlinks these directories so both tools share the same files:
 - **`--effort` / `--reasoning-effort`** is now supported in both CLIs and passes straight through — Copilot CLI accepts the same five levels as Claude Code (`low`, `medium`, `high`, `xhigh`, `max`; `max` is the highest-depth tier for Anthropic models), so `cpc` forwards it to Copilot's `--effort=LEVEL` unchanged. Claude Code's `ultracode` level (v2.1.203+: `xhigh` reasoning + automatic workflow orchestration) has no Copilot equivalent — `cpc` maps it to `max` with a warning
 - **`--ax-screen-reader`** (Claude Code v2.1.181+, renders screen-reader-friendly output and forces the classic renderer) maps to Copilot CLI's `--screen-reader`
 - **`--worktree` / `-w [NAME]`** (create or reuse an isolated Git worktree) now maps to Copilot CLI's `--worktree[=NAME]` (`-w`) flag — `cpc` forwards `claude --worktree NAME` → `copilot --worktree=NAME`. Copilot's worktree flag is **experimental**, so enable Copilot CLI's experimental mode for it to take effect; `cpc` prints a warning as a reminder
+- **`/worktree`** is a Copilot CLI-only slash command (experimental). `/worktree [branch|task]` creates a new Git worktree and switches the current conversation to it, leaving uncommitted changes behind; `/worktree new [PROMPT]` starts a **new conversation** in a new worktree and leaves the current conversation and its working directory unchanged (`new` is a reserved keyword and can't be a literal branch name). Claude Code has no exact equivalent — `/fork` and `/branch` copy the conversation but don't create a worktree
+- **`/voice`** now exists in both CLIs with different arguments — Claude Code's `/voice [hold|tap|off]` selects the input style, while Copilot CLI's `/voice [on|off|models|devices]` toggles voice mode, browses voice models, or picks the input device (microphone). Only `on`/`off` overlap, so drop `hold`/`tap` when switching
+- **`-r`** is now documented as the shorthand for **`--resume`** in Copilot CLI, matching Claude Code. `cpc` forwards both forms as `--resume=SESSION` (Copilot spells the flag `--resume[=VALUE]`, so the value must be attached with `=`); bare `--resume` / `-r` opens the session picker, which requires a TTY
 - **`/config`** gained inline `key=value` support in Claude Code v2.1.181 (e.g. `/config thinking=false`, also works in `-p` mode) — the closest Copilot CLI equivalent is `/settings [KEY VALUE]`
 - **`/clikit [COMPONENT]`** is a Copilot CLI-only internal/debug command — no Claude Code equivalent
 - **`/tuikit [colors|icons|select|tabbar]`** is a Copilot CLI-only internal/debug command (preview TUIkit design-system components and color tokens) — no Claude Code equivalent
 - **`/env`** is a Copilot CLI-only slash command (show loaded environment details) — no Claude Code equivalent
 - **`/rubber-duck [PROMPT]`** is a Copilot CLI-only slash command (consult the rubber duck agent for a second opinion on plans, code, and tests) — no Claude Code equivalent
-- **`/sandbox`** exists in both CLIs but with different syntax — Claude Code's `/sandbox` toggles sandbox mode, while Copilot CLI's `/sandbox [enable|disable]` configures shell command sandboxing explicitly. Copilot CLI also has **`--sandbox`** / **`--no-sandbox`** launch flags (experimental mode only) that enable or disable the OS-level shell sandbox for a single session without changing the saved setting (handy with `-p`) — Claude Code has no launch-flag equivalent, and `cpc` passes both through unchanged
+- **`/sandbox`** exists in both CLIs but with different syntax — Claude Code's `/sandbox` toggles sandbox mode, while Copilot CLI's `/sandbox [config|status|policy|enable|disable]` manages OS-level sandboxing for shell commands, MCP/LSP servers, and built-in file/web tools: `config` (or bare `/sandbox`) opens the settings dialog, `status` reports whether sandboxing is enabled, `policy` shows the effective path grants, denials, and network access, and `enable`/`disable` toggle it directly (the older `enable`/`disable` usage still works). Copilot CLI also has **`--sandbox`** / **`--no-sandbox`** launch flags (experimental mode only) that enable or disable the OS-level shell sandbox for a single session without changing the saved setting (handy with `-p`) — Claude Code has no launch-flag equivalent, and `cpc` passes both through unchanged
 - **`/permissions`** differs between the CLIs — Claude Code manages persistent allow/ask/deny rules with `/permissions`; Copilot CLI's `/permissions [default|assisted|allow-all|show]` now switches between permission modes (`default`, `assisted`, `allow-all`), and `/permissions reset` clears in-memory tool and path approvals. `/allow-all` (`/yolo`) is documented as an alias for `/permissions allow-all` — its `on` option was replaced with `auto` (`/allow-all [off|auto|show]`)
 - **`/compact [FOCUS-INSTRUCTIONS]`** now accepts optional focus instructions in both CLIs (e.g. `/compact focus on the auth module`); `cpc` passes in-session slash commands through unchanged
 - **`/chronicle`** is a Copilot CLI-only experimental command (session history tools) — no Claude Code equivalent
