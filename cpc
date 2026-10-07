@@ -123,35 +123,51 @@ def is_flag(s):
     return s.startswith("-")
 
 
-# Effort levels accepted by Claude Code's /review (an alias for /code-review).
+# Effort levels accepted by Claude Code's /code-review (and its /review alias).
 REVIEW_EFFORT_LEVELS = {"low", "medium", "high", "xhigh", "max", "ultra"}
+
+# /code-review flags with no Copilot CLI equivalent. --post (v2.1.227+) only
+# applies with 'ultra'; --max-findings takes n|all|default as its value.
+REVIEW_BOOL_FLAGS = {"--fix", "--comment", "--post"}
+REVIEW_VALUE_FLAGS = {"--max-findings"}
 
 
 def translate_review_prompt(query):
-    """Strip Claude Code-only arguments from a leading /review prompt.
+    """Strip Claude Code-only arguments from a leading /code-review or /review prompt.
 
     Claude Code's /review is a full alias for /code-review: it takes an effort
-    level plus --fix and --comment. Copilot CLI's /review takes a free-form
-    prompt, so those arguments are dropped instead of being forwarded literally.
+    level plus --fix, --comment, --post, and --max-findings. Copilot CLI's
+    /review takes a free-form prompt, so /code-review is renamed to /review and
+    those arguments are dropped instead of being forwarded literally.
     """
     parts = query.split()
-    if not parts or parts[0] != "/review":
+    if not parts or parts[0] not in ("/review", "/code-review"):
         return query
 
+    renamed = parts[0] != "/review"
     args = parts[1:]
     dropped = []
     # The effort level, when present, is the first argument.
     if args and args[0] in REVIEW_EFFORT_LEVELS:
         dropped.append(args.pop(0))
     kept = []
-    for arg in args:
-        if arg in ("--fix", "--comment"):
+    i = 0
+    while i < len(args):
+        arg = args[i]
+        name = arg.split("=", 1)[0]
+        if arg in REVIEW_BOOL_FLAGS:
             dropped.append(arg)
+        elif name in REVIEW_VALUE_FLAGS:
+            dropped.append(arg)
+            if "=" not in arg and i + 1 < len(args) and not is_flag(args[i + 1]):
+                dropped.append(args[i + 1])
+                i += 1
         else:
             kept.append(arg)
+        i += 1
 
     if not dropped:
-        return query
+        return " ".join(["/review"] + kept) if renamed else query
     warn(f"Copilot CLI's /review takes a free-form prompt; dropping Claude "
          f"Code-only argument(s): {' '.join(dropped)}")
     return " ".join(["/review"] + kept)
@@ -356,6 +372,9 @@ WARN_FLAGS = {
     "--safe-mode":                  (0, "No direct equivalent. Try --no-custom-instructions (Claude Code's --safe-mode disables all customizations: CLAUDE.md, skills, plugins, hooks, MCP servers, custom commands/agents, output styles, etc.)"),
     "--advisor":                    (1, "No Copilot CLI equivalent. The server-side advisor tool is Claude Code-only"),
     "--chrome":                     (0, "Copilot CLI has a built-in Playwright MCP server"),
+    "--desktop":                    (0, "Not supported in Copilot CLI. Claude Code's --desktop (v2.1.285+) opens "
+                                        "the session in the Claude Desktop app instead of the terminal; use /app "
+                                        "inside a Copilot CLI session to launch the GitHub Copilot app"),
     "--max-budget-usd":             (1, "Not supported in Copilot CLI"),
     "--from-pr":                    (1, "Not supported. Reference the PR URL in your prompt instead"),
     "--fork-session":               (0, "Not supported in Copilot CLI"),
@@ -811,6 +830,8 @@ Unsupported flags:
   --advisor <model>                    Not available (server-side advisor tool is Claude Code-only)
   --append-subagent-system-prompt TEXT Not available (subagent prompt injection is Claude Code-only)
   --safe-mode                          No direct equivalent (try --no-custom-instructions)
+  --desktop                            Not available (opens Claude Desktop; use /app in a
+                                       Copilot session to launch the GitHub Copilot app)
   --autocompact <auto|tokens>          Not available (auto-compact window is Claude Code-only;
                                        use /compact in a session to compact on demand)
   --environment <environment-id>       Not available (Claude Code cloud session dispatch;
@@ -883,10 +904,16 @@ Slash command note:
   /compact [FOCUS-INSTRUCTIONS] → same in both CLIs (focus arg passes through)
   /autocompact [auto|<tokens>] → no Copilot CLI equivalent (sets the auto-compact
     threshold in Claude Code settings; Copilot only compacts on demand via /compact)
-  Claude Code /review [low|medium|high|xhigh|max|ultra] [--fix] [--comment] [target]
-    → Copilot CLI /review [PROMPT]; /review is now an alias for /code-review in
-    Claude Code, so cpc drops the effort level, --fix, and --comment from an
-    initial prompt such as: cpc -p "/review high --fix pr#123"
+  Claude Code /code-review (alias /review) [low|medium|high|xhigh|max|ultra]
+    [--fix] [--comment] [--max-findings n|all|default] [target]
+    → Copilot CLI /review [PROMPT]; cpc renames /code-review to /review and drops
+    the effort level, --fix, --comment, --post, and --max-findings from an
+    initial prompt such as: cpc -p "/code-review high --fix pr#123"
+  Claude Code /desktop (alias /app) → Copilot CLI /app (same alias name; Claude
+    Code continues the session in Claude Desktop, Copilot launches the GitHub
+    Copilot app)
+  Claude Code /pr-comments → removed in v2.1.91; ask the agent for PR comments
+    in either CLI
   /ultraplan → removed from Claude Code; use plan mode (/plan) in both CLIs
   /cd <path> → Copilot CLI /cd [PATH] (move session to a new working directory)
   /reload-skills → Copilot CLI /skills reload (re-scan skill/command directories)
