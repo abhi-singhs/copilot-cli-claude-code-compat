@@ -99,6 +99,7 @@ Use this reference when you know a Claude Code command and want the Copilot CLI 
 | `--safe-mode` | Try `--no-custom-instructions` (Claude Code's `--safe-mode` disables all customizations: `CLAUDE.md`, skills, plugins, hooks, MCP servers, custom commands/agents, output styles, etc.; semantics differ) |
 | `--advisor <model>` | Not available (server-side advisor tool is Claude Code-only; accepts `opus`, `sonnet`, or a full model ID — the `fable` alias was removed in v2.1.212 and now exits with an error) |
 | `--chrome` | Copilot has built-in Playwright MCP |
+| `--desktop` | Not available (Claude Code v2.1.285+ opens the Claude Desktop app on the current directory and exits without starting a terminal session; add `--continue` or `--resume <id>` to open that session in Desktop). Closest: `/app` inside a Copilot CLI session launches the GitHub Copilot app. `cpc` drops the flag with a warning |
 | `--max-budget-usd` | Not available |
 | `--from-pr` | Reference PR URL in your prompt |
 | `--fork-session` | Not available |
@@ -147,7 +148,7 @@ Use this reference when you know a Claude Code command and want the Copilot CLI 
 
 ### Direct Matches (same in both CLIs)
 `/add-dir`, `/clear` (`/new`, `/reset`), `/compact`, `/context`, `/copy`, `/diff`, `/exit`, `/feedback`,
-`/help`, `/ide`, `/init`, `/login`, `/logout`, `/mcp`, `/memory`, `/model`, `/plan`,
+`/help`, `/ide`, `/init`, `/login`, `/logout`, `/memory`, `/model`, `/plan`,
 `/plugins` (`/plugin`), `/rename`, `/resume` (`/continue`), `/security-review`, `/skills`, `/tasks`, `/terminal-setup`,
 `/theme`, `/undo` (`/rewind`), `/usage`, `/quit`
 
@@ -157,8 +158,8 @@ Use this reference when you know a Claude Code command and want the Copilot CLI 
 | `/agents` | `/agent` (`/subagents` for per-agent models) | Copilot CLI's `/agent` browses agents; `/subagents` (alias `/agents`) configures the default and per-agent subagent models. Claude Code removed the `/agents` wizard in v2.1.198 — create and manage subagents by asking Claude or by editing `.claude/agents/` |
 | `/model` | `/model [--session\|--global\|--repo\|--local] [MODEL]` (`/models`) | Same name. Copilot CLI scopes the change: `--session` (default) applies to the current session only, `--repo`/`--local` pin the repository default, and `--global` (or `/config model`) sets the default for future sessions |
 | `/btw [question]` | `/ask` | Side question without adding to conversation history. The question argument is **optional** in Claude Code v2.1.212+ — with no argument it reopens the overlay on the session's most recent side question. `/ask` requires experimental mode in Copilot CLI |
-| `/code-review [low\|medium\|high\|xhigh\|max\|ultra] [--fix] [--comment] [pr#\|branch\|path]` | `/review [PROMPT]` | `/review` and `/simplify` are backward-compatible aliases in Claude Code. Effort levels, `--fix` (apply suggested fixes), and `--comment` (post inline PR comments) have no Copilot equivalent — strip those arguments |
-| `/review [low\|medium\|high\|xhigh\|max\|ultra] [--fix] [--comment] [pr#\|branch\|path]` | `/review [PROMPT]` | Same name, different arguments: Claude Code's `/review` is now a full alias for `/code-review`. Copilot CLI's `/review [PROMPT]` takes a free-form prompt, so the effort level, `--fix`, and `--comment` are dropped — `cpc` strips them from an initial prompt (e.g. `cpc -p "/review high --fix pr#123"` → `copilot -p "/review pr#123"`) |
+| `/code-review [low\|medium\|high\|xhigh\|max\|ultra] [--fix] [--comment] [--max-findings n\|all\|default] [pr#\|branch\|path]` | `/review [PROMPT]` | `/review` and `/simplify` are backward-compatible aliases in Claude Code. Effort levels, `--fix` (apply suggested fixes), `--comment` (post findings on the GitHub PR or GitLab MR), `--max-findings`, and `--post` (with `ultra`, v2.1.227+: preselect posting cloud-review findings to the PR) have no Copilot equivalent — `cpc` renames `/code-review` to `/review` and strips them from an initial prompt |
+| `/review [low\|medium\|high\|xhigh\|max\|ultra] [--fix] [--comment] [--max-findings n\|all\|default] [pr#\|branch\|path]` | `/review [PROMPT]` | Same name, different arguments: Claude Code's `/review` is now a full alias for `/code-review`. Copilot CLI's `/review [PROMPT]` takes a free-form prompt, so the effort level, `--fix`, `--comment`, `--post`, and `--max-findings` are dropped — `cpc` strips them from an initial prompt (e.g. `cpc -p "/review high --fix pr#123"` → `copilot -p "/review pr#123"`) |
 | `/simplify [focus]` | `/review [PROMPT]` | Now an alias for `/code-review` in Claude Code |
 | `/cost` | `/usage` | |
 | `/config [key=value]` | `/config [--repo\|--local] [show KEY\|KEY\|KEY VALUE]` (`/settings`) | **Now a direct name match.** Copilot CLI documents `/config` as an alias of `/settings`: open the settings dialog, focus it on a `KEY`, set a value inline with `KEY VALUE`, or print the current value with `show KEY` (secret-named values are masked). `--repo`/`--local` target `.github/copilot/settings.json` or `.github/copilot/settings.local.json`. Claude Code's inline form is `key=value` (v2.1.181+), so drop the `=` when switching |
@@ -180,10 +181,12 @@ Use this reference when you know a Claude Code command and want the Copilot CLI 
 | `/sandbox` | `/sandbox [config\|status\|policy\|enable\|disable]` | Both CLIs now have `/sandbox`. Claude Code toggles sandbox mode; Copilot CLI manages OS-level sandboxing for shell commands, MCP/LSP servers, and built-in file/web tools: `config` (or bare `/sandbox`) opens the settings dialog, `status` shows whether sandboxing is enabled, `policy` shows the effective policy (path grants, denials, network access), and `enable`/`disable` toggle it directly |
 | `/voice [hold\|tap\|off]` | `/voice [on\|off\|models\|devices]` | Both CLIs have voice mode, but the arguments differ. Claude Code picks an input style (`hold` for push-to-talk, `tap`, or `off`); Copilot CLI's `on`/`off` toggle voice mode, `models` browses available voice models, and `devices` chooses the input device (microphone). Claude Code's `hold`/`tap` have no Copilot equivalent |
 | `/ultrareview [PR]` | `/review [PROMPT]` | Cloud-based deep review; `/review` in Claude Code is the local equivalent |
+| `/mcp [reconnect (<server>\|all)\|enable\|disable [<server>\|all]]` | `/mcp [show\|add\|edit\|delete\|disable\|enable\|auth\|reload\|search] [SERVER-NAME]` | Same name, different subcommands. `enable`/`disable` exist in both; Claude Code's `reconnect` is closest to Copilot's `reload`. Claude Code accepts `all` in place of a server name |
+| `/desktop` (`/app`) | `/app` | Same alias name, similar action: Claude Code continues the current session in the Claude Code Desktop app (macOS / x64 Windows, Claude subscription); Copilot CLI launches the GitHub Copilot app (or shows its download URL) but doesn't carry the session over |
 
 ### Claude Code Only (no Copilot equivalent)
-`/advisor [model|off]`, `/autocompact [auto|<tokens>]`, `/autofix-pr`, `/background` (`/bg`), `/chrome`, `/claude-api [migrate|managed-agents-onboard|prompt-audit]`, `/color`, `/dataviz`, `/design-login`, `/design-sync`, `/desktop`, `/doctor` (`/checkup`),
-`/effort`, `/fast`, `/fewer-permission-prompts`, `/focus`, `/heapdump`, `/hooks`, `/import [codex|gemini] [--dry-run] [--yes]`, `/list-agents` (`/peers`), `/loop` (`/proactive`), `/radio`, `/recap`,
+`/advisor [model|off]`, `/autocompact [auto|<tokens>]`, `/autofix-pr`, `/background` (`/bg`), `/chrome`, `/claude-api [migrate|managed-agents-onboard|prompt-audit]`, `/color`, `/dataviz`, `/design-login`, `/design-sync`, `/doctor [prompt-audit [path]]` (`/checkup`),
+`/effort [level|auto|status|ultracode [on|off]]`, `/output-style [style]`, `/slides [brief]`, `/artifact-capabilities`, `/artifact-diagramming`, `/claude-in-chrome [task]`, `/plugin-authoring`, `/fast`, `/fewer-permission-prompts`, `/focus`, `/heapdump`, `/hooks`, `/import [codex|gemini] [--dry-run] [--yes]`, `/list-agents` (`/peers`), `/loop` (`/proactive`), `/radio`, `/recap`,
 `/run`, `/run-skill-generator`, `/verify`,
 `/schedule` (`/routines`), `/scroll-speed`, `/setup-bedrock`,
 `/stats`, `/stop`, `/team-onboarding`, `/tui`, `/web-setup`,
@@ -191,7 +194,6 @@ Use this reference when you know a Claude Code command and want the Copilot CLI 
 
 ### Copilot CLI Only (not in Claude Code)
 `/after [DELAY PROMPT]` / `/every [INTERVAL PROMPT]` (experimental: schedule a one-shot or recurring prompt, skill, or schedulable slash command for this session, e.g. `/after 30m remind me` or `/every 1h run tests`; no args opens the schedule manager),
-`/app` (launch the GitHub Copilot app, or show the download URL if it isn't installed),
 `/ask` (experimental), `/autopilot [OBJECTIVE]` (`/goal`, experimental), `/changelog` (`/release-notes`) `[summarize] [VERSION|last N|since VERSION]`, `/chronicle` (experimental: `standup|tips|improve|reindex|skills create|skills review|skills status` — session history tools, insights, and repository skill proposals),
 `/clikit [COMPONENT]` (internal/debug: preview CLI business components),
 `/downgrade <VERSION>` (download and restart into a specific CLI version; team accounts only),
@@ -232,7 +234,9 @@ Note: `/scroll-speed` adjusts mouse wheel scroll speed interactively. No Copilot
 
 Note: `/theme` options changed to `[default|github|dim|high-contrast|colorblind]`.
 
-Note: `/code-review` (Claude Code v2.1.x) replaces `/simplify`; `/simplify` and `/review` remain as backward-compatible aliases. All three map to Copilot CLI's `/review`. The `--fix` flag (apply the suggested fixes), the `--comment` flag (post inline PR comments), and effort levels (`low|medium|high|xhigh|max|ultra`) have no Copilot equivalent. Copilot CLI's `/review [PROMPT]` takes a free-form prompt, so those arguments must be stripped instead of passed through — `cpc` does this automatically when `/review ...` is used as the initial prompt (e.g. `cpc -p "/review high --fix pr#123"` → `copilot -p "/review pr#123"`), but in-session slash commands can't be translated.
+Note: `/code-review` (Claude Code v2.1.x) replaces `/simplify`; `/simplify` and `/review` remain as backward-compatible aliases. All three map to Copilot CLI's `/review`. The full signature is `/code-review [low|medium|high|xhigh|max|ultra] [--fix] [--comment] [--max-findings n|all|default] [pr#|branch|path]`: `--fix` applies the findings, `--comment` posts them on the GitHub PR or GitLab merge request (GitLab needs v2.1.257+), `--max-findings` caps how many are reported, and `ultra` runs a deep multi-agent cloud review (the preferred spelling of `/ultrareview`). With `ultra` on a `github.com` PR target, `--post` (v2.1.227+) preselects posting the finished findings to the PR. None of these have a Copilot equivalent. Copilot CLI's `/review [PROMPT]` takes a free-form prompt, so those arguments must be stripped instead of passed through — `cpc` does this automatically when `/code-review ...` or `/review ...` is used as the initial prompt, renaming `/code-review` to `/review` (e.g. `cpc -p "/code-review high --fix pr#123"` → `copilot -p "/review pr#123"`), but in-session slash commands can't be translated.
+
+Note: `/pr-comments [PR]` was **removed** from Claude Code in v2.1.91 — ask Claude directly to view pull request comments instead. Copilot CLI has no `/pr-comments` either; ask the agent, or use `/pr view` for the current branch's pull request.
 
 Note: `/ultraplan` was **removed** from Claude Code. Use plan mode (`/plan`) instead, which exists in both CLIs.
 
@@ -264,7 +268,7 @@ Note: `/bug [report]` is now the **primary** bug-reporting command in Claude Cod
 
 Note: `/context [all]` accepts an optional `all` argument in Claude Code, which expands the per-item context breakdown in fullscreen rendering (previously the breakdown always collapsed so the grid stayed visible). Copilot CLI's `/context` takes no arguments, so drop `all` when switching.
 
-Note: `/doctor` is also available as `/checkup` in Claude Code. Both check the health of the installation and auto-updater. No Copilot CLI equivalent.
+Note: `/doctor [prompt-audit [path]]` (alias `/checkup`) is now a skill in Claude Code: it runs a setup checkup (installation health, unused skills/MCP servers/plugins, slow hooks, `CLAUDE.md` trimming) and asks before fixing anything. `/doctor prompt-audit` (v2.1.283+) instead audits your `CLAUDE.md` files, skills, and other configuration for outdated or conflicting instructions. From the terminal, `claude doctor` still prints read-only installation diagnostics. No Copilot CLI equivalent.
 
 Note: `/import [codex|gemini] [--dry-run] [--yes]` (Claude Code v2.1.213+) brings configuration from another coding agent already on the machine into Claude Code — instruction files, MCP servers, commands, subagents, and skills. It currently supports OpenAI Codex and Google Gemini CLI, and is not available on Amazon Bedrock, Google Cloud's Agent Platform, Microsoft Foundry, or Claude Platform on AWS. `--dry-run` previews the changes without writing; `--yes` skips the interactive picker. There is no Copilot CLI equivalent and nothing for `cpc` to map — the command imports *into* Claude Code, and Copilot CLI is not one of the supported sources.
 
@@ -288,7 +292,7 @@ Note: `/reload-skills` (Claude Code v2.1.152+) re-scans skill and command direct
 
 Note: `/config` (Claude Code v2.1.181+) accepts inline `key=value` pairs (e.g. `/config thinking=false`) to set a setting directly without opening the Settings interface; the `key=value` form also works in non-interactive mode (`-p`) and from Remote Control. Copilot CLI now documents `/config` as an alias of `/settings`, so the command name matches — use a space instead of `=` (`/config thinking false`).
 
-Note: `/effort [low|medium|high|xhigh|max|ultracode|auto]` gained the `ultracode` level in Claude Code v2.1.203 (combines `xhigh` reasoning with automatic workflow orchestration; like `max`, it's a session-only option). Copilot CLI has no `ultracode` level — `cpc` maps the `--effort`/`--reasoning-effort ultracode` flag to `max` with a warning.
+Note: `/effort [level|auto|status|ultracode [on|off]]` gained the `ultracode` level in Claude Code v2.1.203 (combines `xhigh` reasoning with automatic workflow orchestration). Since v2.1.284, `/effort ultracode` (or `ultracode on`) turns ultracode on at the **current** level instead of switching to `xhigh`, `ultracode off` turns it off, and the `ultracode` setting persists; `status` prints the current level and `max` stays session-only. Copilot CLI has no `ultracode` level — `cpc` maps the `--effort`/`--reasoning-effort ultracode` flag to `max` with a warning.
 
 Note: `/settings` and `/config` are the same command in Copilot CLI — `/config [--repo|--local] [show KEY|KEY|KEY VALUE]` opens the settings dialog, opens it focused on a specific `KEY`, sets a setting inline with a `KEY VALUE` pair, or prints a key's current value with `show KEY` (secret-named values are masked). `--repo` and `--local` target `.github/copilot/settings.json` and `.github/copilot/settings.local.json` instead of user settings, and only repo-overridable keys can be set that way. Because Copilot CLI now documents `/config` as an alias, Claude Code's `/config` is a **name match** — only the inline syntax differs (`/config thinking=false` in Claude Code vs `/config thinking false` in Copilot CLI).
 
@@ -300,9 +304,13 @@ Note: `/after [DELAY PROMPT]` and `/every [INTERVAL PROMPT]` are Copilot CLI-onl
 
 Note: `/extensions` (alias `/extension`) `[manage|mode]` manages Copilot CLI extensions. Claude Code's `/plugin` is conceptually similar but refers to a distinct plugin system, so there is no exact mapping.
 
-Note: `/app` launches the GitHub Copilot desktop app (or shows the download URL if it isn't installed). No Claude Code equivalent.
+Note: `/app` launches the GitHub Copilot desktop app (or shows the download URL if it isn't installed). Claude Code now has `/app` too, as an alias of `/desktop`, which continues the current session in the Claude Code Desktop app (macOS and x64 Windows with a Claude subscription). Same name and similar intent, but Copilot's `/app` doesn't carry the session over. Claude Code's matching launch flag, `--desktop` (v2.1.285+), has no Copilot equivalent — `cpc` drops it with a warning.
 
-Note: `/mcp` gained a `search` subcommand in Copilot CLI (`/mcp [show|add|edit|delete|disable|enable|auth|reload|search] [SERVER-NAME]`) for searching available MCP servers.
+Note: `/output-style [style]` (Claude Code v2.1.269+) lists output styles or switches to one (e.g. `/output-style concise`). Copilot CLI has no output-style setting.
+
+Note: `/slides [brief]` (v2.1.265+), `/artifact-capabilities`, `/artifact-diagramming` (v2.1.221+), and `/claude-in-chrome [task]` are bundled Claude Code skills. The first three build or guide claude.ai artifacts (slide decks, runtime capabilities, inline SVG diagrams) and are only available where artifacts are; `/claude-in-chrome` drives your browser through Claude in Chrome (closest Copilot analog: its built-in Playwright MCP server). `/plugin-authoring` (v2.1.287+) is a skill from a built-in plugin that loads the reference for writing Claude Code mods. None have Copilot CLI equivalents.
+
+Note: `/mcp` gained a `search` subcommand in Copilot CLI (`/mcp [show|add|edit|delete|disable|enable|auth|reload|search] [SERVER-NAME]`) for searching available MCP servers. Claude Code's `/mcp [reconnect (<server>|all)|enable|disable [<server>|all]]` opens the interactive list with no argument, or changes connection state directly; `reconnect all` retries every failed or unauthenticated server. It also works in `-p` mode (v2.1.205+), where a bare `/mcp` prints a status summary. Only `enable`/`disable` overlap; Copilot's `reload` is the closest match for `reconnect`.
 
 Note: `/refine TEXT` is a Copilot CLI-only command that rewrites a roughly composed prompt into a clear one so you can review it before sending. Run it with no arguments (via `Ctrl+X` then `/refine`) to clean up whatever is already in the input box — particularly useful for prompts entered by speaking. Claude Code has no equivalent, and because it is an in-session slash command the `cpc` wrapper can't translate it.
 
