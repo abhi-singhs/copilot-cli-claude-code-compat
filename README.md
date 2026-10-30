@@ -1,5 +1,7 @@
 # claude-compat — Claude Code Compatibility for Copilot CLI
 
+> **Archived:** This project is no longer maintained.
+
 A **Copilot CLI plugin** + companion wrapper script that lets you use Claude Code CLI syntax with GitHub Copilot CLI, without shadowing your real `claude` binary.
 
 ## What's Included
